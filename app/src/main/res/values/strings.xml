@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">MediaPlayer3</string>
+    <string name="permission_needed_string">Permission needed</string>
+    <string name="we_need_to_give_list_of_songs_string">we need %1$s to give list of songs</string>
+</resources>
