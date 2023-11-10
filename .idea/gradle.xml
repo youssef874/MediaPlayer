@@ -9,11 +9,11 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/MPLog" />
             <option value="$PROJECT_DIR$/MPMediaManager" />
             <option value="$PROJECT_DIR$/MPStorage" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/mpdatadrovider" />
+            <option value="$PROJECT_DIR$/mplogger" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />

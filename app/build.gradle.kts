@@ -65,7 +65,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(project(":mpdatadrovider"))
     implementation(project(":MPMediaManager"))
-    implementation(project(":MPLog"))
+    implementation(project(":mplogger"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)

@@ -44,7 +44,7 @@ dependencies {
     implementation(libs.data.store.core)
     implementation(libs.data.store.preference.core)
     implementation(libs.data.store.preference)
-    implementation(project(":MPLog"))
+    implementation(project(":mplogger"))
     testImplementation(libs.junit)
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
     testImplementation("androidx.test:core:1.5.0")

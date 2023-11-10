@@ -38,7 +38,7 @@ dependencies {
     implementation(libs.core.ktx)
     implementation(libs.appcompat)
     implementation(libs.material)
-    implementation(project(":MPLog"))
+    implementation(project(":mplogger"))
     testImplementation(libs.junit)
     testImplementation(libs.android.test.rules)
     testImplementation(libs.reboletric)
