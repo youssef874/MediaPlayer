@@ -63,7 +63,7 @@ dependencies {
     implementation(libs.io.coeil.kt)
     implementation(libs.compose.icon.material.extended)
     implementation(libs.androidx.navigation.compose)
-    implementation(project(":MPDataProvider"))
+    implementation(project(":mpdatadrovider"))
     implementation(project(":MPMediaManager"))
     implementation(project(":MPLog"))
     testImplementation(libs.junit)

@@ -3,16 +3,15 @@ package com.example.mediaplayer3.repository
 import android.content.Context
 import android.net.Uri
 import com.example.mediaplayer3.data.entity.Result
-import com.example.mpdataprovider.ContentProvider.AudioApi
-import com.example.mpdataprovider.ContentProvider.data.MPAudio
-import com.example.mpdataprovider.DataStore.AudioDataStoreApi
+import com.example.mpdataprovider.contentprovider.AudioApi
+import com.example.mpdataprovider.contentprovider.data.MPAudio
+import com.example.mpdataprovider.datadtore.AudioDataStoreApi
 import com.example.mplog.MPLogger
 import com.example.mpmediamanager.MpAudioManagerApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.lang.Exception
 

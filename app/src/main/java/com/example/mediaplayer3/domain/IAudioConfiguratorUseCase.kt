@@ -1,7 +1,7 @@
 package com.example.mediaplayer3.domain
 
 import android.content.Context
-import com.example.mpdataprovider.DataStore.RepeatMode
+import com.example.mpdataprovider.datadtore.RepeatMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 

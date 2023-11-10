@@ -21,7 +21,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "MediaPlayer3"
 include(":app")
-include(":MPDataProvider")
+include(":mpdatadrovider")
 include(":MPMediaManager")
 include(":MPLogger")
 include(":MPLog")

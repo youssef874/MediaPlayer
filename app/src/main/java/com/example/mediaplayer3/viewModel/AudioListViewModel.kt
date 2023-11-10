@@ -16,7 +16,7 @@ import com.example.mediaplayer3.viewModel.data.TrackListUiState
 import com.example.mediaplayer3.viewModel.data.UiEvent
 import com.example.mediaplayer3.viewModel.delegates.IJobController
 import com.example.mediaplayer3.viewModel.delegates.JobController
-import com.example.mpdataprovider.ContentProvider.data.MissingPermissionException
+import com.example.mpdataprovider.contentprovider.data.MissingPermissionException
 import com.example.mplog.MPLogger
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -49,7 +49,7 @@ import com.example.mediaplayer3.ui.theme.LightBlue
 import com.example.mediaplayer3.ui.timeFormatter
 import com.example.mediaplayer3.viewModel.AudioDetailViewModel
 import com.example.mediaplayer3.viewModel.data.trackDetail.TrackDetailsUiEvent
-import com.example.mpdataprovider.DataStore.RepeatMode
+import com.example.mpdataprovider.datadtore.RepeatMode
 import com.example.mplog.MPLogger
 import kotlinx.coroutines.flow.map
 import kotlin.math.abs

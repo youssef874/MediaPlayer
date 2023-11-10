@@ -4,7 +4,7 @@ import android.content.Context
 import com.example.mediaplayer3.data.entity.Result
 import com.example.mediaplayer3.domain.entity.UiAudio
 import com.example.mediaplayer3.repository.IAudioRepository
-import com.example.mpdataprovider.ContentProvider.data.MPAudio
+import com.example.mpdataprovider.contentprovider.data.MPAudio
 import com.example.mplog.MPLogger
 
 object SongExtractorUseCase: ISongExtractorUseCase {

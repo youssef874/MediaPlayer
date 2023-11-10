@@ -19,7 +19,7 @@ import com.example.mediaplayer3.viewModel.data.trackDetail.TrackDetailsUiEvent
 import com.example.mediaplayer3.viewModel.delegates.AudioProgressJob
 import com.example.mediaplayer3.viewModel.delegates.IJobController
 import com.example.mediaplayer3.viewModel.delegates.JobController
-import com.example.mpdataprovider.DataStore.RepeatMode
+import com.example.mpdataprovider.datadtore.RepeatMode
 import com.example.mplog.MPLogger
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow

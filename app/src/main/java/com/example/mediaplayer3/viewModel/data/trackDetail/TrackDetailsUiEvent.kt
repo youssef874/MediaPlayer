@@ -3,8 +3,6 @@ package com.example.mediaplayer3.viewModel.data.trackDetail
 import android.content.Context
 import com.example.mediaplayer3.domain.entity.UiAudio
 import com.example.mediaplayer3.ui.Constant
-import com.example.mediaplayer3.viewModel.data.UiEvent
-import com.example.mpdataprovider.DataStore.RepeatMode
 
 sealed class TrackDetailsUiEvent {
 
