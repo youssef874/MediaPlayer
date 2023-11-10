@@ -10,7 +10,6 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/MPLog" />
-            <option value="$PROJECT_DIR$/MPLogger" />
             <option value="$PROJECT_DIR$/MPMediaManager" />
             <option value="$PROJECT_DIR$/MPStorage" />
             <option value="$PROJECT_DIR$/app" />

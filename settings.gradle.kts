@@ -23,6 +23,5 @@ rootProject.name = "MediaPlayer3"
 include(":app")
 include(":mpdatadrovider")
 include(":MPMediaManager")
-include(":MPLogger")
 include(":MPLog")
 include(":MPStorage")
