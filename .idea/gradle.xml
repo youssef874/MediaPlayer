@@ -9,10 +9,10 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/MPMediaManager" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/mpdatadrovider" />
             <option value="$PROJECT_DIR$/mplogger" />
+            <option value="$PROJECT_DIR$/mpmediamanager" />
             <option value="$PROJECT_DIR$/mpstorage" />
           </set>
         </option>
