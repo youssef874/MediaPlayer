@@ -1,6 +1,6 @@
 package com.example.mpdataprovider.internal
 
-import com.example.mpdataprovider.datadtore.internal.IAudioDataStore
+import com.example.mpdataprovider.datastore.internal.IAudioDataStore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow

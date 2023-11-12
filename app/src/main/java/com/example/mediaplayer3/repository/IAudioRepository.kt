@@ -5,7 +5,7 @@ import android.net.Uri
 import com.example.mediaplayer3.data.entity.Result
 import com.example.mediaplayer3.ui.Constant
 import com.example.mpdataprovider.contentprovider.data.MPAudio
-import com.example.mpdataprovider.datadtore.RepeatMode
+import com.example.mpdataprovider.datastore.RepeatMode
 import kotlinx.coroutines.flow.Flow
 
 interface IAudioRepository {

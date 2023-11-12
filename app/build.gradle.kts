@@ -66,6 +66,7 @@ dependencies {
     implementation(project(":mpdatadrovider"))
     implementation(project(":mplogger"))
     implementation(project(":mpmediamanager"))
+    implementation(project(":mpstorage"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)

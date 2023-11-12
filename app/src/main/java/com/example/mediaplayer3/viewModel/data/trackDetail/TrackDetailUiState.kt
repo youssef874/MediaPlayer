@@ -1,7 +1,7 @@
 package com.example.mediaplayer3.viewModel.data.trackDetail
 
 import com.example.mediaplayer3.domain.entity.UiAudio
-import com.example.mpdataprovider.datadtore.RepeatMode
+import com.example.mpdataprovider.datastore.RepeatMode
 
 data class TrackDetailUiState (
     val currentSong: UiAudio = UiAudio() ,

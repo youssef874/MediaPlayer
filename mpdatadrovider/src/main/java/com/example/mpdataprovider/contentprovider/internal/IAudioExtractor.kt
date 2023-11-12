@@ -15,6 +15,8 @@ internal interface IAudioExtractor {
      */
     suspend fun loadAllAudio()
 
+    fun setOnDataChangesListener(onDataChanges: ()->Unit)
+
     /**
      * get the cached list
      * @return list of [MPAudio]

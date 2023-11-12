@@ -3,7 +3,7 @@ package com.example.mediaplayer3.domain
 import android.content.Context
 import com.example.mediaplayer3.domain.entity.UiAudio
 import com.example.mediaplayer3.repository.IAudioRepository
-import com.example.mpdataprovider.datadtore.RepeatMode
+import com.example.mpdataprovider.datastore.RepeatMode
 import com.example.mplog.MPLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

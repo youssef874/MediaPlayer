@@ -5,7 +5,7 @@ import android.net.Uri
 import com.example.mediaplayer3.data.entity.Result
 import com.example.mpdataprovider.contentprovider.AudioApi
 import com.example.mpdataprovider.contentprovider.data.MPAudio
-import com.example.mpdataprovider.datadtore.AudioDataStoreApi
+import com.example.mpdataprovider.datastore.AudioDataStoreApi
 import com.example.mplog.MPLogger
 import com.example.mpmediamanager.MpAudioManagerApi
 import kotlinx.coroutines.CoroutineScope

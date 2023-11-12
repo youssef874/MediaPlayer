@@ -108,6 +108,10 @@ internal class AudioProviderImpl(
         }
     }
 
+    override fun setOnDataChangesListener(onDataChanges: () -> Unit) {
+        audioExtractor.setOnDataChangesListener(onDataChanges)
+    }
+
     companion object{
         private const val CLASS_NAME = "AudioProviderImpl"
         private const val TAG = "CONTENT_PROVIDER"

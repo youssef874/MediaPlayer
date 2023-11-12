@@ -71,4 +71,13 @@ object AudioApi {
     suspend fun getSongById(context: Context,id: Long): MPAudio?{
         return AudioProviderFactoryImpl.create(context).getSongById(context, id)
     }
+
+    /**
+     * Listen to changes in audio provider
+     * @param context: Android context
+     * @param onDataChanges: callback
+     */
+    fun setOnDataChangesListener(context: Context,onDataChanges: () -> Unit){
+        AudioProviderFactoryImpl.create(context).setOnDataChangesListener(onDataChanges)
+    }
 }

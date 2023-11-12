@@ -80,7 +80,7 @@ object SongExtractorUseCase: ISongExtractorUseCase {
 fun MPAudio.toUiAudio(): UiAudio{
     return UiAudio(
         id = id, uri = uri, duration = duration, size = size, artistName = artistName,
-        album = album, songName = songName, albumThumbnailUri = albumThumbnailUri, isFavorite = isFavorite
+        album = album, songName = songName, albumThumbnailUri = albumThumbnailUri
     )
 }
 
@@ -107,8 +107,7 @@ fun Result<List<MPAudio>>.toListUiAudio(): Result<List<UiAudio>> {
                     duration = it.duration,
                     artistName = it.artistName,
                     album = it.album,
-                    albumThumbnailUri = it.albumThumbnailUri,
-                    isFavorite = it.isFavorite
+                    albumThumbnailUri = it.albumThumbnailUri
                 )
             }
             Result.Success(list)

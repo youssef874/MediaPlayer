@@ -14,4 +14,6 @@ internal interface IAudioProvider {
     suspend fun getAllSongsBySongName(context: Context, songName: String): List<MPAudio>
 
     suspend fun getSongById(context: Context,id: Long): MPAudio?
+
+    fun setOnDataChangesListener(onDataChanges: () -> Unit)
 }

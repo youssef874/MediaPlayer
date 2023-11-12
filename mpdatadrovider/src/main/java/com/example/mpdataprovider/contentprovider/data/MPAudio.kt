@@ -10,6 +10,5 @@ data class MPAudio(
     var artistName: String = "",
     var album: String = "",
     var songName: String = "",
-    var albumThumbnailUri: Uri? = null,
-    var isFavorite: Boolean = false
+    var albumThumbnailUri: Uri? = null
 )

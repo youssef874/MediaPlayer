@@ -1,6 +1,6 @@
 package com.example.mpdataprovider.internal
 
-import com.example.mpdataprovider.datadtore.internal.AudioDataStoreProviderImpl
+import com.example.mpdataprovider.datastore.internal.AudioDataStoreProviderImpl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.single
