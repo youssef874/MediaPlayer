@@ -2,6 +2,7 @@ package com.example.mpstorage.synchronizer.internal
 
 import android.content.Context
 import com.example.mpdataprovider.contentprovider.AudioApi
+import com.example.mpdataprovider.contentprovider.data.MissingPermissionException
 import com.example.mpdataprovider.datastore.AudioDataStoreApi
 import com.example.mplog.MPLogger
 import com.example.mpstorage.database.data.DBAudioData
@@ -25,16 +26,53 @@ internal class DataBaseSynchronize(private val audioDataProvider: IAudioDataProv
                 }
             }
             with(audioDataProvider.getAll()){
-                if (isEmpty()){
-                    MPLogger.i(CLASS_NAME,"synchronize", TAG,"no data in database need synchronization")
-                    AudioDataStoreApi.isSynchronisationWithContentProviderCompleted(context).updateValue(false)
-                    loadData(context,true)
-                }else{
-                    AudioDataStoreApi.isSynchronisationWithContentProviderCompleted(context).getValue().collectLatest {
-                        if (!it){
-                            MPLogger.i(CLASS_NAME,"synchronize", TAG,"the synchronization did not complete or there a changes in preference")
-                            loadData(context, false)
-                            return@collectLatest
+                try {
+                    if (isEmpty() && AudioApi.getAllSongs(context).isNotEmpty()){
+                        MPLogger.i(CLASS_NAME,"synchronize", TAG,"no data in database need synchronization")
+                        AudioDataStoreApi.isSynchronisationWithContentProviderCompleted(context).updateValue(false)
+                        loadData(context,true)
+                        AudioDataStoreApi.isSynchronisationWithContentProviderCompleted(context).updateValue(true)
+                        onSynchronizeCompletedListeners.forEach {
+                            if (it()){
+                                onSynchronizeCompletedListeners.remove {
+                                    it()
+                                }
+                            }
+                        }
+                    }else if (AudioApi.getAllSongs(context).isEmpty()){
+                        AudioDataStoreApi.isSynchronisationWithContentProviderCompleted(context).updateValue(true)
+                        onSynchronizeCompletedListeners.forEach {
+                            if (it()){
+                                onSynchronizeCompletedListeners.remove {
+                                    it()
+                                }
+                            }
+                        }
+                    } else{
+                        AudioDataStoreApi.isSynchronisationWithContentProviderCompleted(context).getValue().collectLatest {
+                            if (!it && isEmpty()){
+                                MPLogger.i(CLASS_NAME,"synchronize", TAG,"the synchronization did not complete or there a changes in preference")
+                                loadData(context, false)
+                                return@collectLatest
+                            }else{
+                                onSynchronizeCompletedListeners.forEach {
+                                    if (it()){
+                                        onSynchronizeCompletedListeners.remove {
+                                            it()
+                                        }
+                                    }
+                                }
+                                return@collectLatest
+                            }
+                        }
+                    }
+                }catch (e: MissingPermissionException){
+                    MPLogger.e(CLASS_NAME, "synchronize", TAG, "message: ${e.message}")
+                    onSynchronizeFailedListeners.forEach {
+                        if (it()) {
+                            onSynchronizeFailedListeners.remove {
+                                it()
+                            }
                         }
                     }
                 }

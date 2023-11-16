@@ -16,6 +16,13 @@ class Constant {
         }
     }
 
+    class SplashScreen{
+        companion object{
+            const val CLASS_NAME = "SplashScreen"
+            const val TAG = "SYNC"
+        }
+    }
+
     class Utils{
         companion object{
             const val DELTA_TIME = 30000

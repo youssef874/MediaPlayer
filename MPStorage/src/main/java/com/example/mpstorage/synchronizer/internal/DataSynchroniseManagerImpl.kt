@@ -2,7 +2,10 @@ package com.example.mpstorage.synchronizer.internal
 
 import android.content.Context
 import com.example.mpdataprovider.datastore.AudioDataStoreApi
+import com.example.mpeventhandler.MPEventHandlerApi
 import com.example.mplog.MPLogger
+import com.example.mpstorage.synchronizer.event.SynchronisationChanges
+import com.example.mpstorage.synchronizer.event.SynchronisationType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -16,78 +19,50 @@ internal object DataSynchroniseManagerImpl : IDataSynchronizeManager {
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
-    private var onSynchronizeComplete: syncFun? = null
-    private var onSynchronizeFailed: syncFun? = null
-    private var onSynchronizeStarted: syncFun? = null
-
     private var job: Job? = null
 
     override fun synchronize(vararg dataSynchronize: IDataSynchronize, context: Context) {
         job = coroutineScope.launch {
             MPLogger.i(CLASS_NAME, "synchronize", TAG, "startSynchronization")
+            handleSynchronisationEvents(dataSynchronize, context)
+            MPEventHandlerApi.dispatchEvent(SynchronisationChanges(SynchronisationType.SYNCHRONISATION_STARTED))
             AudioDataStoreApi.isSynchronisationFinished(context).getValue().collectLatest {
                 MPLogger.i(CLASS_NAME, "synchronize", TAG, "isSynchronisationFinished: $it")
                 if (it){
-                    if (onSynchronizeComplete?.invoke() == true){
-                        onSynchronizeComplete = null
-                    }
+                    MPEventHandlerApi.dispatchEvent(SynchronisationChanges(SynchronisationType.SYNCHRONISATION_COMPLETED))
                     job?.cancel()
+                }else{
+                    dataSynchronize.forEach {item->
+                        MPLogger.i(CLASS_NAME, "synchronize", TAG, "synchronisation in progress")
+                        item.synchronize(context)
+                    }
                 }
                 return@collectLatest
             }
-            if (onSynchronizeStarted?.invoke() == true) {
-                AudioDataStoreApi.isSynchronisationFinished(context).updateValue(false)
-                onSynchronizeStarted = null
-            }
-            dataSynchronize.forEach {
-                MPLogger.i(CLASS_NAME, "synchronize", TAG, "synchronisation in progress")
-                it.synchronize(context)
-            }
-            handleSynchronisationEvents(dataSynchronize, context)
         }
     }
     private suspend fun handleSynchronisationEvents(
         dataSynchronize: Array<out IDataSynchronize>,
         context: Context
     ) {
-        var isFailed = false
         var completeCounter = 0
         dataSynchronize.forEach {
             it.setOnSynchronizeFiled {
                 MPLogger.i(CLASS_NAME, "handleSynchronisationEvents", TAG, "synchronisation failed")
-                if (onSynchronizeFailed?.invoke() == true) {
-                    onSynchronizeFailed = null
-                }
-                isFailed = true
-                return@setOnSynchronizeFiled true
-            }
-            if (isFailed) {
+                MPEventHandlerApi.dispatchEvent(SynchronisationChanges(SynchronisationType.SYNCHRONIZATION_FAILED))
                 AudioDataStoreApi.isSynchronisationFinished(context).updateValue(false)
-                return
+                return@setOnSynchronizeFiled true
             }
             it.setOnSynchronizeCompletedListener {
                 completeCounter++
+                if (completeCounter == dataSynchronize.size) {
+                    MPLogger.i(CLASS_NAME, "handleSynchronisationEvents", TAG, "synchronisation complete")
+                    MPEventHandlerApi.dispatchEvent(SynchronisationChanges(SynchronisationType.SYNCHRONISATION_COMPLETED))
+                    AudioDataStoreApi.isSynchronisationFinished(context).updateValue(true)
+                }
                 return@setOnSynchronizeCompletedListener true
             }
         }
-        if (completeCounter == dataSynchronize.size) {
-            MPLogger.i(CLASS_NAME, "handleSynchronisationEvents", TAG, "synchronisation complete")
-            if (onSynchronizeComplete?.invoke() == true) {
-                AudioDataStoreApi.isSynchronisationFinished(context).updateValue(true)
-                onSynchronizeComplete = null
-            }
-        }
-    }
 
-    override fun listenToSynchronizeComplete(onSynchronizeComplete: syncFun) {
-        this.onSynchronizeComplete = onSynchronizeComplete
-    }
-
-    override fun listenToSynchroniseStarted(onSynchronizeStarted: syncFun) {
-        this.onSynchronizeStarted = onSynchronizeStarted
-    }
-
-    override fun listenToSynchronizeFailed(onSynchronizeFailed: syncFun) {
-        this.onSynchronizeFailed = onSynchronizeFailed
     }
 }

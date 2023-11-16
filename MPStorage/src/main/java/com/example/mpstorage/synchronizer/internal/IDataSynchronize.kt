@@ -2,7 +2,7 @@ package com.example.mpstorage.synchronizer.internal
 
 import android.content.Context
 
-typealias syncFun= ()->Boolean
+typealias syncFun= suspend ()->Boolean
 
 internal interface IDataSynchronize {
 

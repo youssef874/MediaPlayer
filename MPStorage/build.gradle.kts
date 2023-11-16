@@ -41,6 +41,7 @@ dependencies {
     implementation(libs.material)
     implementation(project(":mpdatadrovider"))
     implementation(project(":mplogger"))
+    implementation(project(":mpeventhandler"))
     kapt("androidx.room:room-compiler:2.6.0")
     implementation(libs.androidx.room)
     implementation(libs.room.ktx)

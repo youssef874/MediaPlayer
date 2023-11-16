@@ -10,6 +10,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.mediaplayer3.ui.screen.SplashScreen
 import com.example.mediaplayer3.ui.screen.TrackDetailScreen
 import com.example.mediaplayer3.ui.screen.TrackListDetail
 import com.example.mediaplayer3.viewModel.AudioListViewModel
@@ -23,9 +24,13 @@ fun MediaPlayerNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = TrackListDest.route,
+        startDestination = SplashScreenDest.route,
         modifier = modifier
     ) {
+        composable(route = SplashScreenDest.route){
+            SplashScreen()
+        }
+        /*
         composable(route = TrackListDest.route) {
             TrackListDetail(audioViewModel = audioViewModel) {
                 navController.navigateToTrackDetail(it)
@@ -65,6 +70,7 @@ fun MediaPlayerNavHost(
                 }
             }
         }
+        */
     }
 }
 

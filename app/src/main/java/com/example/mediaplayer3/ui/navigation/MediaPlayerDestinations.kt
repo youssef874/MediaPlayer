@@ -13,6 +13,12 @@ object TrackListDest: MediaPlayerDestinations{
         get() = "track_list"
 }
 
+object SplashScreenDest: MediaPlayerDestinations{
+    override val route: String
+        get() = "splash_screen"
+
+}
+
 object TrackDetailDest: MediaPlayerDestinations{
     override val route: String
         get() = "track_detail"
@@ -26,5 +32,4 @@ object TrackDetailDest: MediaPlayerDestinations{
             type = NavType.LongType
         }
     )
-
 }
