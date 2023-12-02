@@ -1,15 +1,14 @@
-package com.example.mediaplayer3.viewModel.data
+package com.example.mediaplayer3.viewModel.data.tracklist
 
 import com.example.mediaplayer3.domain.entity.UiAudio
-import java.lang.Exception
 
 data class TrackListUiState(
     val isLoading: Boolean = true,
-    val isPermissionGranted: Boolean = false,
+    val iNextItemsLoading: Boolean = false,
+    val isError: Boolean = false,
     val dataList: List<UiAudio> = emptyList(),
-    val error: Exception? = null,
+    val page: Int = 0,
+    val isEndReached: Boolean = false,
     val currentSelectedItem: UiAudio? = null,
-    val needShowDialogForPermission: Boolean = false,
     val isPlaying: Boolean = false,
-    val isInRandomMode: Boolean = false
 )

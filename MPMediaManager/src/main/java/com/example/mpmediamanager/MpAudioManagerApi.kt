@@ -2,7 +2,16 @@ package com.example.mpmediamanager
 
 import android.content.Context
 import android.net.Uri
+import com.example.mpeventhandler.MPEventHandlerApi
+import com.example.mpeventhandler.data.MPEvent
+import com.example.mpeventhandler.internal.IEventCanceler
+import com.example.mpeventhandler.internal.MPEventListener
+import com.example.mpmediamanager.events.SongChangesEventType
+import com.example.mpmediamanager.events.SongCompletedEvent
+import com.example.mpmediamanager.events.SongProgressChanges
 import com.example.mpmediamanager.factory.AudioManagerFactoryImpl
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 object MpAudioManagerApi {
 
@@ -43,17 +52,26 @@ object MpAudioManagerApi {
     /**
      * Listen to current playing son completion
      */
-    fun setSongCompleteListener(onComplete: () -> Unit){
-        AudioManagerFactoryImpl.create().setSongCompleteListener{
-            onComplete()
-        }
+    fun observeSongCompletion(callback: ()->Unit): IEventCanceler{
+        return MPEventHandlerApi.subscribe(
+            events = arrayOf(SongCompletedEvent),
+            listener = object : MPEventListener{
+                override fun onEvent(event: MPEvent) {
+                    callback()
+                }
+            }
+        )
     }
+
+
 
     /**
      * Listen to current playing song progression
      */
-    fun setOnDurationProgressListener(onDurationProgressListener: (duration: Int) -> Unit){
-        AudioManagerFactoryImpl.create().setOnDurationProgressListener(onDurationProgressListener)
+    fun observeDurationProgress(): Flow<Int>{
+        return MPEventHandlerApi.collectEvents(
+            arrayOf(SongChangesEventType.SONG_PROGRESS_CHANGES)
+        ).map { if (it is SongProgressChanges) it.progress else -1 }
     }
 
     /**

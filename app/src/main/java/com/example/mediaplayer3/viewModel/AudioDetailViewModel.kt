@@ -6,20 +6,20 @@ import com.example.mediaplayer3.domain.AudioConfigurationUseCase
 import com.example.mediaplayer3.domain.AudioForwardOrRewindUseCase
 import com.example.mediaplayer3.domain.AudioPauseOrResumeUseCase
 import com.example.mediaplayer3.domain.AudioPlayUseCase
+import com.example.mediaplayer3.domain.FetchDataUseCase
 import com.example.mediaplayer3.domain.IAudioConfiguratorUseCase
 import com.example.mediaplayer3.domain.IAudioForwardOrRewindUseCase
 import com.example.mediaplayer3.domain.IAudioPauseOrResumeUseCase
 import com.example.mediaplayer3.domain.IAudioPlayUseCase
+import com.example.mediaplayer3.domain.IFetchDataUseCase
 import com.example.mediaplayer3.domain.ISongEditUseCase
-import com.example.mediaplayer3.domain.ISongExtractorUseCase
 import com.example.mediaplayer3.domain.SongEditUseCase
-import com.example.mediaplayer3.domain.SongExtractorUseCase
 import com.example.mediaplayer3.viewModel.data.trackDetail.TrackDetailUiState
 import com.example.mediaplayer3.viewModel.data.trackDetail.TrackDetailsUiEvent
 import com.example.mediaplayer3.viewModel.delegates.AudioProgressJob
 import com.example.mediaplayer3.viewModel.delegates.IJobController
 import com.example.mediaplayer3.viewModel.delegates.JobController
-import com.example.mpdataprovider.datastore.RepeatMode
+import com.example.mediaplayer3.data.entity.RepeatMode
 import com.example.mplog.MPLogger
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +30,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class AudioDetailViewModel(
-    private val songExtractorUseCase: ISongExtractorUseCase = SongExtractorUseCase,
+    private val fetchDataUseCase: IFetchDataUseCase = FetchDataUseCase,
     private val audioPlayUseCase: IAudioPlayUseCase = AudioPlayUseCase,
     private val audioPauseOrResumeUseCase: IAudioPauseOrResumeUseCase = AudioPauseOrResumeUseCase,
     private val audioForwardOrRewindUseCase: IAudioForwardOrRewindUseCase = AudioForwardOrRewindUseCase,
@@ -71,7 +71,7 @@ class AudioDetailViewModel(
         }
     }
 
-    val repeatModeCollectJob: IJobController by JobController{list->
+    private val repeatModeCollectJob: IJobController by JobController{ list->
         viewModelScope.launch {
             var context: Context? = null
             list.forEach { arg->
@@ -79,12 +79,14 @@ class AudioDetailViewModel(
                     context = arg
                 }
             }
-            context?.let {
-                audioConfiguratorUseCase.getRepeatMode(it).collectLatest { repeatMode->
+            context?.let {cont->
+                audioConfiguratorUseCase.getRepeatMode(cont).collectLatest { repeatMode->
                     MPLogger.d(CLASS_NAME,"repeatModeCollectJob", TAG,"repeatMode: $repeatMode")
+                    /*
                     _uiState.update {
                         it.copy(repeatMode = repeatMode)
                     }
+                    */
                 }
             }
         }
@@ -92,7 +94,8 @@ class AudioDetailViewModel(
     
     init {
         val repo = getAudioRepo(viewModelScope)
-        (songExtractorUseCase as SongExtractorUseCase).invoke(repo)
+        val audioDataRepo = getAudioDataRepo()
+        (fetchDataUseCase as FetchDataUseCase).invoke(audioDataRepo,viewModelScope)
         (audioPlayUseCase as AudioPlayUseCase).invoke(repo,viewModelScope)
         (audioPauseOrResumeUseCase as AudioPauseOrResumeUseCase).invoke(repo)
         (audioForwardOrRewindUseCase as AudioForwardOrRewindUseCase).invoke(repo)
@@ -203,19 +206,19 @@ class AudioDetailViewModel(
             RepeatMode.NO_REPEAT->{
                 viewModelScope.launch {
                     MPLogger.i(CLASS_NAME,"handleChangeRepeatModeEvent", TAG,"change repeat mode to ONE_REPEAT")
-                    audioConfiguratorUseCase.changeRepeatMode(event.context,RepeatMode.ONE_REPEAT)
+                    //audioConfiguratorUseCase.changeRepeatMode(event.context,RepeatMode.ONE_REPEAT)
                 }
             }
             RepeatMode.ONE_REPEAT->{
                 viewModelScope.launch {
                     MPLogger.i(CLASS_NAME,"handleChangeRepeatModeEvent", TAG,"change repeat mode to REPEAT_ALL")
-                    audioConfiguratorUseCase.changeRepeatMode(event.context,RepeatMode.REPEAT_ALL)
+                    //audioConfiguratorUseCase.changeRepeatMode(event.context,RepeatMode.REPEAT_ALL)
                 }
             }
             RepeatMode.REPEAT_ALL->{
                 viewModelScope.launch {
                     MPLogger.i(CLASS_NAME,"handleChangeRepeatModeEvent", TAG,"change repeat mode to NO_REPEAT")
-                    audioConfiguratorUseCase.changeRepeatMode(event.context,RepeatMode.NO_REPEAT)
+                    //audioConfiguratorUseCase.changeRepeatMode(event.context,RepeatMode.NO_REPEAT)
                 }
             }
         }
@@ -272,7 +275,7 @@ class AudioDetailViewModel(
 
     private fun handlePlayPreviousSongEvent(event: TrackDetailsUiEvent.PlayPreviousSong) {
         MPLogger.d(CLASS_NAME,"handlePlayPreviousSongEvent", TAG,"Try to play previous song")
-        with(songExtractorUseCase.getExtractedSongList()){
+        with(fetchDataUseCase.getExtractedSongList()){
             if (!uiState.value.isInRandomMode){
                 find { it.id == uiState.value.currentSong.id }?.let {
                     val index = indexOf(it)
@@ -290,7 +293,7 @@ class AudioDetailViewModel(
 
     private fun handlePlayNextSongEvent(event: TrackDetailsUiEvent.PlayNextSong) {
         MPLogger.d(CLASS_NAME,"handlePlayNextSongEvent", TAG,"try to play next song")
-        with(songExtractorUseCase.getExtractedSongList()){
+        with(fetchDataUseCase.getExtractedSongList()){
             if (!uiState.value.isInRandomMode){
                 find { it.id == uiState.value.currentSong.id }?.let {
                     val index: Int = indexOf(it)
@@ -308,7 +311,7 @@ class AudioDetailViewModel(
 
     private fun handleSearchForCurrentSongEvent(event: TrackDetailsUiEvent.SearchForCurrentSong) {
         MPLogger.d(CLASS_NAME,"handleSearchForCurrentSongEvent", TAG,"songId: ${event.songId}")
-        songExtractorUseCase.getExtractedSongList().find { it.id == event.songId }?.let {uiAudio->
+        fetchDataUseCase.getExtractedSongList().find { it.id == event.songId }?.let { uiAudio->
             _uiState.update {
                 it.copy(currentSong = uiAudio)
             }

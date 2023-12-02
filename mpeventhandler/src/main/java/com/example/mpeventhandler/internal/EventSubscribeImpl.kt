@@ -1,8 +1,8 @@
 package com.example.mpeventhandler.internal
 
 import com.example.mpeventhandler.data.MPEvent
-import kotlinx.coroutines.DisposableHandle
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
 
 internal object EventSubscribeImpl: IEventSubscriber {
 
@@ -29,18 +29,29 @@ internal object EventSubscribeImpl: IEventSubscriber {
         }
         val subs = EventHandler(filter, listener)
         subscribers = subscribers+ subs
+        subs.onEventCanceled = {
+            subscribers = subscribers - subs
+        }
         return subs
     }
 
-    override suspend fun  subscribeAsync(
-        events: Array<MPEvent>,
-        listener: MPEventListener
-    ) {
+    override fun collectEvent(events: Array<String>)= callbackFlow {
         val filter = {mpEvent: MPEvent->
-            mpEvent.type in events.map { it.type }
+            mpEvent.type in events
         }
-        val subs = EventHandler(filter, listener)
+        val subs = EventHandler(filter,object : MPEventListener{
+            override fun onEvent(event: MPEvent) {
+                trySend(event)
+            }
+        })
         subscribers = subscribers+ subs
+        awaitClose {
+            subs.dispose()
+            subs.let {
+                subscribers = subscribers - it
+            }
+        }
+
     }
 
     override fun oneShotSubscriber(events: Array<MPEvent>, listener: MPEventListener) {

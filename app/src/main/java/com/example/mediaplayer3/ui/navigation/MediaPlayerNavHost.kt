@@ -4,23 +4,19 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.mediaplayer3.ui.screen.AudioDetailScreen
 import com.example.mediaplayer3.ui.screen.SplashScreen
-import com.example.mediaplayer3.ui.screen.TrackDetailScreen
-import com.example.mediaplayer3.ui.screen.TrackListDetail
-import com.example.mediaplayer3.viewModel.AudioListViewModel
+import com.example.mediaplayer3.ui.screen.TrackListScreen
 
 
 @Composable
 fun MediaPlayerNavHost(
     navController: NavHostController,
-    modifier: Modifier = Modifier,
-    audioViewModel: AudioListViewModel = viewModel()
+    modifier: Modifier = Modifier
 ) {
     NavHost(
         navController = navController,
@@ -28,17 +24,20 @@ fun MediaPlayerNavHost(
         modifier = modifier
     ) {
         composable(route = SplashScreenDest.route){
-            SplashScreen()
+            SplashScreen(){
+                navController.navigateToTrackList()
+            }
         }
-        /*
-        composable(route = TrackListDest.route) {
-            TrackListDetail(audioViewModel = audioViewModel) {
+
+        composable(route = TrackListDest.route){
+            TrackListScreen{
                 navController.navigateToTrackDetail(it)
             }
         }
         composable(
             route = TrackDetailDest.routeWithArgs,
-            arguments = TrackDetailDest.arguments,enterTransition = {
+            arguments = TrackDetailDest.arguments,
+            enterTransition = {
                 slideIntoContainer(
                     AnimatedContentTransitionScope.SlideDirection.Up,
                     animationSpec = tween(700)
@@ -62,15 +61,14 @@ fun MediaPlayerNavHost(
                     animationSpec = tween(700)
                 )
             }
-        ) { navBackStackEntry ->
+        ){navBackStackEntry ->
             val songId = navBackStackEntry.arguments?.getLong(TrackDetailDest.ID_ARGS)
-            if (songId != null) {
-                TrackDetailScreen(songId = songId){
+            if (songId != null){
+                AudioDetailScreen(songId = songId){
                     navController.navigateUp()
                 }
             }
         }
-        */
     }
 }
 
@@ -93,4 +91,8 @@ fun NavHostController.navigateSingleTopTo(route: String) =
 
 private fun NavHostController.navigateToTrackDetail(songId: Long){
     this.navigateSingleTopTo("${TrackDetailDest.route}/$songId")
+}
+
+private fun NavHostController.navigateToTrackList(){
+    this.navigateSingleTopTo(TrackListDest.route)
 }

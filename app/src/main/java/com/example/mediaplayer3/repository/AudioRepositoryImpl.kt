@@ -9,13 +9,11 @@ import com.example.mpdataprovider.datastore.AudioDataStoreApi
 import com.example.mplog.MPLogger
 import com.example.mpmediamanager.MpAudioManagerApi
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
-import java.lang.Exception
 
-class AudioRepositoryImpl(val coroutineScope: CoroutineScope): IAudioRepository {
+class AudioRepositoryImpl(private val coroutineScope: CoroutineScope): IAudioRepository {
 
     override suspend fun getAllSongs(context: Context): Result<List<MPAudio>> {
         return try {
@@ -122,21 +120,11 @@ class AudioRepositoryImpl(val coroutineScope: CoroutineScope): IAudioRepository 
     }
 
     override fun onSongCompletionListener(onSongCompleted: () -> Unit) {
-        MpAudioManagerApi.setSongCompleteListener{
-            MPLogger.d(CLASS_NAME,"onSongCompletionListener", TAG,"song completed")
-            onSongCompleted()
-        }
+
     }
 
     override fun songPlayingProgress(context: Context) = callbackFlow<Int> {
-        MpAudioManagerApi.setOnDurationProgressListener {
-            MPLogger.d(CLASS_NAME,"songPlayingProgress", TAG,"Duration: $it")
-            trySend(it)
-            coroutineScope.launch {
-                AudioDataStoreApi.lastPlayingSongLastDuration(context).updateValue(it)
-            }
-        }
-        awaitClose()
+
     }
 
     override fun getLastPlayingSongDuration(context: Context): Flow<Int> {

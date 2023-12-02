@@ -39,6 +39,7 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(project(":mplogger"))
+    implementation(project(":mpeventhandler"))
     testImplementation(libs.junit)
     testImplementation(libs.android.test.rules)
     testImplementation(libs.reboletric)

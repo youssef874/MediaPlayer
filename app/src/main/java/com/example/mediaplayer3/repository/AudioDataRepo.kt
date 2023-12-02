@@ -1,13 +1,14 @@
 package com.example.mediaplayer3.repository
 
 import android.content.Context
+import android.net.Uri
 import com.example.mediaplayer3.data.entity.MPAppAudio
+import com.example.mpdataprovider.datastore.AudioDataStoreApi
 import com.example.mplog.MPLogger
+import com.example.mpmediamanager.MpAudioManagerApi
 import com.example.mpstorage.database.DataBaseApi
 import com.example.mpstorage.database.data.SearchAudio
 import com.example.mpstorage.synchronizer.MPSynchroniseApi
-import com.example.mpstorage.synchronizer.event.SynchronisationChanges
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -28,7 +29,9 @@ class AudioDataRepo: IAudioDataRepo {
         val eventCanceler = MPSynchroniseApi.subscribeToSynchronizationChanges {
             trySend(it)
         }
-        awaitClose { eventCanceler.dispose() }
+        awaitClose {
+            eventCanceler.dispose()
+        }
     }
 
     override fun getAllSong(context: Context): Flow<List<MPAppAudio>> {
@@ -60,5 +63,51 @@ class AudioDataRepo: IAudioDataRepo {
         MPLogger.i(CLASS_NAME,"getSongsBySongName", TAG,"songName: $songName")
         return DataBaseApi.forAudio(context)
             .query(SearchAudio.SearchBySongName(songName)).map { value -> value.map { it.toMPAppAudio() } }
+    }
+
+    override fun playSong(context: Context, uri: Uri, playAt: Int) {
+        MPLogger.d(CLASS_NAME,"playSong", TAG,"uri: $uri, playAt: $playAt")
+        MpAudioManagerApi.playSong(context, uri,playAt)
+    }
+
+    override fun resumeSong(context: Context, seekTo: Int) {
+        MPLogger.d(CLASS_NAME,"resumeSong", TAG,"seekTo: $seekTo")
+        MpAudioManagerApi.resumeSong(context, seekTo)
+    }
+
+    override fun stopSong(context: Context, uri: Uri) {
+        MPLogger.d(CLASS_NAME,"stopSong", TAG,"uri: $uri")
+        MpAudioManagerApi.stopSong(context, uri)
+    }
+
+    override fun pauseSong(context: Context) {
+        MPLogger.d(CLASS_NAME,"pauseSong", TAG,"pause current playing song")
+        MpAudioManagerApi.pauseSong(context)
+    }
+
+    override fun observeSongCompletion(
+        onComplete: () -> Unit
+    ) {
+        MpAudioManagerApi.observeSongCompletion(onComplete)
+    }
+
+    override fun observeSongProgression() = MpAudioManagerApi.observeDurationProgress()
+
+    override suspend fun updateLastPlayingSong(context: Context, songId: Long) {
+        MPLogger.i(CLASS_NAME,"updateLastPlayingSong", TAG,"songId: $songId")
+        AudioDataStoreApi.lastPlayingSong(context).updateValue(songId)
+    }
+
+    override fun observeLastPlayingSong(context: Context): Flow<Long> {
+        return AudioDataStoreApi.lastPlayingSong(context).getValue()
+    }
+
+    override suspend fun updateLastSongProgress(context: Context, progress: Int) {
+        MPLogger.d(CLASS_NAME,"updateLastSongProgress", TAG,"progress: $progress")
+        AudioDataStoreApi.lastPlayingSongLastDuration(context).updateValue(progress)
+    }
+
+    override fun observeLastSongProgression(context: Context): Flow<Int> {
+        return AudioDataStoreApi.lastPlayingSongLastDuration(context).getValue()
     }
 }

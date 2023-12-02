@@ -8,6 +8,8 @@ internal interface IEventHandler: IEventCanceler {
 
     var onEventDelivered: (()->Unit)?
 
+    var onEventCanceled: (()-> Unit)?
+
     fun onNext(event: MPEvent)
 
 }

@@ -1,6 +1,7 @@
 package com.example.mpeventhandler.internal
 
 import com.example.mpeventhandler.data.MPEvent
+import kotlinx.coroutines.flow.Flow
 
 internal interface IEventSubscriber {
 
@@ -10,5 +11,5 @@ internal interface IEventSubscriber {
 
     fun oneShotSubscriber(events: Array<MPEvent>, listener: MPEventListener)
 
-    suspend fun  subscribeAsync(events: Array<MPEvent>, listener: MPEventListener)
+    fun collectEvent(events: Array<String>): Flow<MPEvent>
 }

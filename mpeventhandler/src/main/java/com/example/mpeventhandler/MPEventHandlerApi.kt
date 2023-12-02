@@ -4,7 +4,7 @@ import com.example.mpeventhandler.data.MPEvent
 import com.example.mpeventhandler.internal.IEventCanceler
 import com.example.mpeventhandler.internal.MPEventListener
 import com.example.mpeventhandler.internal.factory.EventSubscriberFactoryImpl
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 
 object MPEventHandlerApi {
 
@@ -36,13 +36,7 @@ object MPEventHandlerApi {
         return EventSubscriberFactoryImpl.create().subscribe(events, listener)
     }
 
-    /**
-     * Call this method to subscribe to event freely
-     * @@param events: events subscribe to
-     * @param listener: event callback
-     * @return [IEventCanceler] to cancel the event subscription with
-     */
-    suspend fun subscribeAsync( events: Array<MPEvent>, listener: MPEventListener){
-        EventSubscriberFactoryImpl.create().subscribeAsync(events, listener)
+    fun collectEvents(events: Array<String>): Flow<MPEvent>{
+        return EventSubscriberFactoryImpl.create().collectEvent(events)
     }
 }

@@ -26,6 +26,7 @@ class Constant {
     class Utils{
         companion object{
             const val DELTA_TIME = 30000
+            const val PAGE_SIZE = 10
         }
     }
 }

@@ -3,7 +3,7 @@ package com.example.mpeventhandler.internal
 import com.example.mpeventhandler.data.MPEvent
 
 internal class EventHandler(
-    val filter: (MPEvent)->Boolean,
+    inline val filter: (MPEvent)->Boolean,
     listener: MPEventListener
 ): IEventHandler {
 
@@ -12,6 +12,7 @@ internal class EventHandler(
         get() = _listener
 
     override var onEventDelivered: (() -> Unit)? = null
+    override var onEventCanceled: (() -> Unit)?  = null
 
     private var _isDisposed = false
     override val isDisposed: Boolean
@@ -20,6 +21,7 @@ internal class EventHandler(
     override fun dispose() {
         _listener = null
         _isDisposed = false
+        onEventCanceled?.invoke()
     }
 
     override fun onNext(event: MPEvent) {

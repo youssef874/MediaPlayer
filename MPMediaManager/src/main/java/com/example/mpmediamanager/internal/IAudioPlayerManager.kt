@@ -33,16 +33,6 @@ internal interface IAudioPlayerManager {
     fun resumeSong(context: Context,seekTo: Int = -1)
 
     /**
-     * Set listener player duration progress
-     */
-    fun setOnDurationProgressListener(onDurationProgressListener: (duration: Int)->Unit)
-
-    /**
-     * Set listener player completion
-     */
-    fun setSongCompleteListener(onComplete: () -> Unit)
-
-    /**
      * forward song by the provided duration or 30 s by default
      * @param forwardWith: the duration to forward
      */

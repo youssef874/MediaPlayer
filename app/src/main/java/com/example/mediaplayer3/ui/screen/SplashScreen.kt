@@ -3,7 +3,6 @@ package com.example.mediaplayer3.ui.screen
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
-import android.window.SplashScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -12,6 +11,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mediaplayer3.ui.Constant
+import com.example.mediaplayer3.ui.ErrorScreen
+import com.example.mediaplayer3.ui.LoadingScreen
 import com.example.mediaplayer3.ui.RequestPermissionDialog
 import com.example.mediaplayer3.ui.RequestSinglePermission
 import com.example.mediaplayer3.viewModel.SplashViewModel
@@ -20,12 +21,13 @@ import com.example.mplog.MPLogger
 
 
 @Composable
-fun SplashScreen(splashViewModel: SplashViewModel = viewModel()) {
+fun SplashScreen(splashViewModel: SplashViewModel = viewModel(), onNavigateToTrackList: ()->Unit) {
     MPLogger.i(Constant.SplashScreen.CLASS_NAME,"SplashScreen",Constant.SplashScreen.TAG,"display splash screen")
     val context = LocalContext.current
     LaunchedEffect(key1 = Unit){
         splashViewModel.onEvent(SplashUiEvent.Sync(context))
     }
+
     val state by splashViewModel.uiState.collectAsState()
     val permission =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) Manifest.permission.READ_MEDIA_AUDIO
@@ -37,8 +39,9 @@ fun SplashScreen(splashViewModel: SplashViewModel = viewModel()) {
     if (state.isSync){
         MPLogger.i(Constant.SplashScreen.CLASS_NAME,"SplashScreen",Constant.SplashScreen.TAG,"sync success")
         LoadingScreen()
-        LaunchedEffect(key1 = Unit){
-            splashViewModel.onEvent(SplashUiEvent.RequestData(context))
+        MPLogger.i(Constant.SplashScreen.CLASS_NAME,"SplashScreen",Constant.SplashScreen.TAG,"navigate to audio list screen")
+        LaunchedEffect(key1 = true){
+            onNavigateToTrackList()
         }
     }
     if (state.isFailed){
