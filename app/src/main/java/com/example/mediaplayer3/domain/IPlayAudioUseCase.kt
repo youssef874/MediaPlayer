@@ -10,6 +10,8 @@ interface IPlayAudioUseCase {
 
     val isPlaying: Boolean
 
+    val currentSongProgression: Int
+
     fun playSong(context: Context,uiAudio: UiAudio,seekTo: Int = -1)
 
     fun stopSong(context: Context)

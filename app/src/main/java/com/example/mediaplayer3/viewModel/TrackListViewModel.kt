@@ -4,12 +4,14 @@ import android.content.Context
 import androidx.lifecycle.viewModelScope
 import com.example.mediaplayer3.data.common.DefaultPagination
 import com.example.mediaplayer3.data.entity.Result
+import com.example.mediaplayer3.domain.AudioConfigurationUseCaseImpl
 import com.example.mediaplayer3.domain.FetchDataUseCase
+import com.example.mediaplayer3.domain.IAudioConfiguratorUseCase
 import com.example.mediaplayer3.domain.IAudioPauseOrResumeUseCase
 import com.example.mediaplayer3.domain.IFetchDataUseCase
 import com.example.mediaplayer3.domain.IPlayAudioUseCase
+import com.example.mediaplayer3.domain.PlayAudioUseCase
 import com.example.mediaplayer3.domain.ResumePauseSongUseCaseImpl
-import com.example.mediaplayer3.domain.entity.PlayAudioUseCase
 import com.example.mediaplayer3.domain.entity.UiAudio
 import com.example.mediaplayer3.ui.Constant
 import com.example.mediaplayer3.viewModel.data.tracklist.TrackListUiEvent
@@ -20,16 +22,20 @@ import com.example.mediaplayer3.viewModel.delegates.NextOrPreviousDelegate
 import com.example.mplog.MPLogger
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class TrackListViewModel(
     private val fetchDataUseCase: IFetchDataUseCase = FetchDataUseCase,
     private val playAudioUseCase: IPlayAudioUseCase = PlayAudioUseCase,
-    private val pauseOrResumeUseCase: IAudioPauseOrResumeUseCase = ResumePauseSongUseCaseImpl
+    private val pauseOrResumeUseCase: IAudioPauseOrResumeUseCase = ResumePauseSongUseCaseImpl,
+    private val audioConfiguratorUseCase: IAudioConfiguratorUseCase = AudioConfigurationUseCaseImpl
 ) : BaseViewModel<TrackListUiEvent, TrackListUiState>() {
 
     private val _uiState = MutableStateFlow(TrackListUiState())
@@ -46,10 +52,12 @@ class TrackListViewModel(
         onRequest = { nextKey ->
             MPLogger.d(CLASS_NAME, "onRequest", TAG, "nextKey: $nextKey")
             val staringIndex = nextKey * Constant.Utils.PAGE_SIZE
-            if (staringIndex + nextKey < dataList.size) {
+            if (staringIndex + Constant.Utils.PAGE_SIZE < dataList.size) {
                 Result.Success(
                     dataList.slice(staringIndex until staringIndex + Constant.Utils.PAGE_SIZE)
                 )
+            } else if (dataList.isNotEmpty()){
+                Result.Success(dataList)
             } else {
                 Result.Success(emptyList())
             }
@@ -110,12 +118,31 @@ class TrackListViewModel(
         }
     }
 
-    private val nextOrPreviousDelegate: INextOrPreviousItem<UiAudio> by  NextOrPreviousDelegate()
+    private val collectLastProgressionJob by JobController{args->
+        var context: Context? = null
+        args.forEach {
+            if (it is Context) {
+                context = it
+            }
+        }
+        context?.let {
+            //Start collecting after loading all song to have a a cashed progression when navigation to screen detail
+            //If didn't play any song before
+            playAudioUseCase.lastSongProgress(it)?.collect()
+        }
+    }
+
+    private val nextOrPreviousDelegate: INextOrPreviousItem<UiAudio> by NextOrPreviousDelegate()
 
     init {
         val repo = getAudioDataRepo()
         (fetchDataUseCase as FetchDataUseCase).invoke(repo, viewModelScope)
-        (playAudioUseCase as PlayAudioUseCase).invoke(repo, fetchDataUseCase)
+        (audioConfiguratorUseCase as AudioConfigurationUseCaseImpl).invoke(repo, viewModelScope)
+        (playAudioUseCase as PlayAudioUseCase).invoke(
+            repo,
+            fetchDataUseCase,
+            audioConfiguratorUseCase
+        )
         (pauseOrResumeUseCase as ResumePauseSongUseCaseImpl).invoke(repo, playAudioUseCase)
         handleEvent()
         var playJob: Job? = null
@@ -206,8 +233,13 @@ class TrackListViewModel(
             currentSelectedItem?.let {
                 nextOrPreviousDelegate.previousItem(
                     list = dataList,
-                    currentItem = it
-                ){previous: UiAudio ->
+                    currentItem = it,
+                    isRandom = audioConfiguratorUseCase.isRandomModeInFlow(event.context).stateIn(
+                        scope = viewModelScope,
+                        started = SharingStarted.WhileSubscribed(),
+                        initialValue = false
+                    ).value
+                ) { previous: UiAudio ->
                     MPLogger.i(
                         CLASS_NAME,
                         "handlePlayPreviousSongEvent",
@@ -227,8 +259,13 @@ class TrackListViewModel(
             currentSelectedItem?.let {
                 nextOrPreviousDelegate.nextItem(
                     list = dataList,
-                    currentItem = it
-                ){next: UiAudio ->
+                    currentItem = it,
+                    isRandom = audioConfiguratorUseCase.isRandomModeInFlow(event.context).stateIn(
+                        scope = viewModelScope,
+                        started = SharingStarted.WhileSubscribed(),
+                        initialValue = false
+                    ).value
+                ) { next: UiAudio ->
                     MPLogger.i(CLASS_NAME, "handlePlayNextSongEvent", TAG, "play next Song: $next")
                     playAudioUseCase.playSong(event.context, next, 0)
                 }
@@ -295,8 +332,9 @@ class TrackListViewModel(
     private fun handleClickSongEvent(event: TrackListUiEvent.ClickSong) {
         MPLogger.i(CLASS_NAME, "handleClickSongEvent", TAG, "uiAudio: ${event.uiAudio}")
         lastPlayingSongJob.cancelJob()
+        collectLastProgressionJob.cancelJob()
         playAudioUseCase.stopSong(event.context)
-        playAudioUseCase.playSong(event.context, event.uiAudio)
+        playAudioUseCase.playSong(event.context, event.uiAudio,0)
     }
 
     private fun handleLoadNextDataEvent() {
@@ -325,6 +363,7 @@ class TrackListViewModel(
                 }
             }
         }
+        collectLastProgressionJob.launchJob(event.context)
     }
 
     private fun loadNextList() {

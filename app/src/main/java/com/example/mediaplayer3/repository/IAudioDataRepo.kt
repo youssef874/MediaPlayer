@@ -3,6 +3,7 @@ package com.example.mediaplayer3.repository
 import android.content.Context
 import android.net.Uri
 import com.example.mediaplayer3.data.entity.MPAppAudio
+import com.example.mediaplayer3.data.entity.RepeatMode
 import com.example.mpstorage.synchronizer.event.SynchronisationChanges
 import kotlinx.coroutines.flow.Flow
 
@@ -41,4 +42,18 @@ interface IAudioDataRepo {
     suspend fun updateLastSongProgress(context: Context, progress: Int)
 
     fun observeLastSongProgression(context: Context): Flow<Int>
+
+    suspend fun updateRandomMode(context: Context, isRandom: Boolean)
+
+    fun observeIsRandomMode(context: Context): Flow<Boolean>
+
+    suspend fun updateRepeatMode(context: Context, repeatMode: RepeatMode)
+
+    fun observeRepeatMode(context: Context): Flow<RepeatMode>
+
+    suspend fun setPlayingPosition(context: Context, uri: Uri, position: Int)
+
+    fun forward(forwardTo: Int)
+
+    fun rewind(rewindTo: Int)
 }

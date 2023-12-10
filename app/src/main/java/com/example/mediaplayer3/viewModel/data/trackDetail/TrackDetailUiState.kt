@@ -5,7 +5,7 @@ import com.example.mediaplayer3.data.entity.RepeatMode
 
 data class TrackDetailUiState (
     val currentSong: UiAudio = UiAudio() ,
-    val songProgress: Int = -1,
+    val songProgress: Int = 0,
     val isPlaying: Boolean = false,
     val isInRandomMode: Boolean = false,
     val repeatMode: RepeatMode = RepeatMode.NO_REPEAT

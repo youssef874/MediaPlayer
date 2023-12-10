@@ -1,7 +1,7 @@
 package com.example.mediaplayer3.domain
 
 import android.content.Context
-import com.example.mpdataprovider.datastore.RepeatMode
+import com.example.mediaplayer3.data.entity.RepeatMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 
@@ -11,7 +11,7 @@ interface IAudioConfiguratorUseCase {
 
     fun isRandomModeInFlow(context: Context): SharedFlow<Boolean>
 
-    suspend fun changeRepeatMode(context: Context,@RepeatMode repeatMode: Int)
+    suspend fun changeRepeatMode(context: Context, repeatMode: RepeatMode)
 
-    fun getRepeatMode(context: Context): Flow<@RepeatMode Int>
+    fun getRepeatMode(context: Context): Flow< RepeatMode>
 }

@@ -3,6 +3,7 @@ package com.example.mediaplayer3.repository
 import android.content.Context
 import android.net.Uri
 import com.example.mediaplayer3.data.entity.MPAppAudio
+import com.example.mediaplayer3.data.entity.RepeatMode
 import com.example.mpdataprovider.datastore.AudioDataStoreApi
 import com.example.mplog.MPLogger
 import com.example.mpmediamanager.MpAudioManagerApi
@@ -109,5 +110,38 @@ class AudioDataRepo: IAudioDataRepo {
 
     override fun observeLastSongProgression(context: Context): Flow<Int> {
         return AudioDataStoreApi.lastPlayingSongLastDuration(context).getValue()
+    }
+
+    override suspend fun updateRandomMode(context: Context, isRandom: Boolean) {
+        MPLogger.d(CLASS_NAME,"updateRandomMode", TAG,"isRandom: $isRandom")
+        AudioDataStoreApi.isInRandomMode(context).updateValue(isRandom)
+    }
+
+    override fun observeIsRandomMode(context: Context): Flow<Boolean> {
+        return AudioDataStoreApi.isInRandomMode(context).getValue()
+    }
+
+    override suspend fun updateRepeatMode(context: Context, repeatMode: RepeatMode) {
+        AudioDataStoreApi.repeatMode(context).updateValue(repeatMode.toAnnotation())
+    }
+
+    override fun observeRepeatMode(context: Context): Flow<RepeatMode> {
+        return AudioDataStoreApi.repeatMode(context).getValue().map { it.toEnum() }
+    }
+
+    override suspend fun setPlayingPosition(context: Context, uri: Uri, position: Int) {
+        MPLogger.d(CLASS_NAME,"setPlayingPosition", TAG,"uri: $uri, position: $position")
+        MpAudioManagerApi.setThePositionToPlayWith(context, uri, position)
+        AudioDataStoreApi.lastPlayingSongLastDuration(context).updateValue(position)
+    }
+
+    override fun forward(forwardTo: Int) {
+        MPLogger.d(CLASS_NAME,"forward", TAG,"forwardTo: $forwardTo")
+        MpAudioManagerApi.forward(forwardWith = forwardTo)
+    }
+
+    override fun rewind(rewindTo: Int) {
+        MPLogger.d(CLASS_NAME,"rewind", TAG,"forwardTo: $rewindTo")
+        MpAudioManagerApi.rewind(rewindWith = rewindTo)
     }
 }

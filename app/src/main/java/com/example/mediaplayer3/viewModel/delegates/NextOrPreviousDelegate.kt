@@ -17,16 +17,34 @@ class NextOrPreviousDelegate <T>: ReadWriteProperty<ViewModel,INextOrPreviousIte
         //Do nothing
     }
 
-    override fun nextItem(list: List<T>, currentItem: T, onNext: (next: T) -> Unit) {
+    override fun nextItem(
+        list: List<T>,
+        currentItem: T,
+        isRandom: Boolean,
+        onNext: (next: T) -> Unit
+    ) {
         val currentIndex = list.indexOf(currentItem)
-        val nextIndex = if (currentIndex + 1 <= list.size-1) currentIndex+1 else 0
+        val nextIndex = if (!isRandom){
+            if (currentIndex + 1 <= list.size-1) currentIndex+1 else 0
+        }else{
+            list.indices.random()
+        }
         val nextItem = list[nextIndex]
         onNext(nextItem)
     }
 
-    override fun previousItem(list: List<T>, currentItem: T, onPrevious: (previous: T) -> Unit) {
+    override fun previousItem(
+        list: List<T>,
+        currentItem: T,
+        isRandom: Boolean,
+        onPrevious: (previous: T) -> Unit
+    ) {
         val currentIndex = list.indexOf(currentItem)
-        val previousIndex = if (currentIndex - 1 >= 0) currentIndex-1 else list.size-1
+        val previousIndex = if (!isRandom){
+            if (currentIndex - 1 >= 0) currentIndex-1 else list.size-1
+        }else{
+            list.indices.random()
+        }
         val previousItem = list[previousIndex]
         onPrevious(previousItem)
     }

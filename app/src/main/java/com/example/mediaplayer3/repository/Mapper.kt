@@ -1,6 +1,7 @@
 package com.example.mediaplayer3.repository
 
 import com.example.mediaplayer3.data.entity.MPAppAudio
+import com.example.mediaplayer3.data.entity.RepeatMode
 import com.example.mediaplayer3.domain.entity.UiAudio
 import com.example.mpstorage.database.data.DBAudioData
 
@@ -19,4 +20,21 @@ fun MPAppAudio.toUiAudio(): UiAudio{
         artistName = artist, album = album, songName = songName,
         albumThumbnailUri = albumThumbnailUri, isFavorite = isFavorite
     )
+}
+
+fun RepeatMode.toAnnotation():@com.example.mpdataprovider.datastore.RepeatMode Int{
+    return when(this){
+        RepeatMode.NO_REPEAT->com.example.mpdataprovider.datastore.RepeatMode.NO_REPEAT
+        RepeatMode.REPEAT_ALL->com.example.mpdataprovider.datastore.RepeatMode.REPEAT_ALL
+        RepeatMode.ONE_REPEAT->com.example.mpdataprovider.datastore.RepeatMode.ONE_REPEAT
+    }
+}
+
+fun @com.example.mpdataprovider.datastore.RepeatMode Int.toEnum(): RepeatMode{
+    return when(this){
+        com.example.mpdataprovider.datastore.RepeatMode.NO_REPEAT->RepeatMode.NO_REPEAT
+        com.example.mpdataprovider.datastore.RepeatMode.ONE_REPEAT->RepeatMode.ONE_REPEAT
+        com.example.mpdataprovider.datastore.RepeatMode.REPEAT_ALL->RepeatMode.REPEAT_ALL
+        else -> RepeatMode.NO_REPEAT
+    }
 }

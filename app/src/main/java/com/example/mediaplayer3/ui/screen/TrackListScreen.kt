@@ -1,6 +1,8 @@
 package com.example.mediaplayer3.ui.screen
 
+import android.app.Activity
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -64,6 +66,10 @@ fun TrackListScreen(trackListViewModel: TrackListViewModel = viewModel(),navigat
         "track list displayed"
     )
     val context = LocalContext.current
+    val activity = LocalContext.current as? Activity
+    BackHandler {
+        activity?.finish()
+    }
     LaunchedEffect(key1 = Unit) {
         trackListViewModel.onEvent(TrackListUiEvent.LoadData(context))
     }

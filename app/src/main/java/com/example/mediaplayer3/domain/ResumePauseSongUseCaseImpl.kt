@@ -1,7 +1,6 @@
 package com.example.mediaplayer3.domain
 
 import android.content.Context
-import com.example.mediaplayer3.domain.entity.PlayAudioUseCase
 import com.example.mediaplayer3.domain.entity.UiAudio
 import com.example.mediaplayer3.repository.IAudioDataRepo
 import com.example.mediaplayer3.ui.uiAudioFun0

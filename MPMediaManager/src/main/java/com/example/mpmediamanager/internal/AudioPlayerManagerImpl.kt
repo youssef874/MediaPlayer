@@ -100,7 +100,6 @@ internal class AudioPlayerManagerImpl : IAudioPlayerManager {
 
     override fun stopSong(context: Context, uri: Uri) {
         MPLogger.d(CLASS_NAME, "stopSong", TAG, "uri: $uri")
-        cleanup()
         currentMediaPlayer?.let {
             MPLogger.d(CLASS_NAME, "stopSong", TAG, "stop the song")
             it.stop()
@@ -113,6 +112,7 @@ internal class AudioPlayerManagerImpl : IAudioPlayerManager {
                 "cannot stop this song $uri as it is not playing"
             )
         }
+        cleanup()
     }
 
     override fun pauseSong(context: Context) {

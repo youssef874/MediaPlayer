@@ -82,6 +82,7 @@ internal class AudioExtractorImpl(private val contentResolver: ContentResolver) 
                 allSongs += mpAudio
             }
         }
+        isCached = true
         query?.close()
         MPLogger.i(
             CLASS_NAME,
