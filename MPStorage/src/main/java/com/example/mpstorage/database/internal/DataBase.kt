@@ -5,7 +5,6 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.mpstorage.database.internal.entity.AudioEntity
-import com.example.mpstorage.internal.entity.IAudioDao
 import kotlin.concurrent.Volatile
 
 @Database(entities = [AudioEntity::class], version = 1)

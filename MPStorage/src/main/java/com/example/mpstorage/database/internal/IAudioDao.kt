@@ -1,4 +1,4 @@
-package com.example.mpstorage.internal.entity
+package com.example.mpstorage.database.internal
 
 import androidx.room.Dao
 import androidx.room.Delete

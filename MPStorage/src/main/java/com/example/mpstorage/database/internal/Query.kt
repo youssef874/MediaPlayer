@@ -1,7 +1,6 @@
 package com.example.mpstorage.database.internal
 
 import com.example.mpstorage.database.data.DBAudioData
-import com.example.mpstorage.internal.entity.IAudioDao
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -18,7 +17,7 @@ internal sealed class AudioQuery(private val audioDao: IAudioDao): Query {
 
     }
 
-    class FindBayAlbumQuery(audioDao: IAudioDao,private val album: String): AudioQuery(audioDao) {
+    class FindBayAlbumQuery(audioDao: IAudioDao, private val album: String): AudioQuery(audioDao) {
         override fun find(): Flow<List<DBAudioData>> {
             return super.audioDao.getAudioByAlbum(album).map { it.map { item->item.toDBAudio() } }
         }

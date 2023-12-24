@@ -11,15 +11,14 @@ import com.example.mediaplayer3.domain.IAudioForwardOrRewindUseCase
 import com.example.mediaplayer3.domain.IAudioPauseOrResumeUseCase
 import com.example.mediaplayer3.domain.IFetchDataUseCase
 import com.example.mediaplayer3.domain.IPlayAudioUseCase
+import com.example.mediaplayer3.domain.IPlayNextOrPreviousSongUseCase
 import com.example.mediaplayer3.domain.PlayAudioUseCase
+import com.example.mediaplayer3.domain.PlayNextPreviousSongUseCase
 import com.example.mediaplayer3.domain.ResumePauseSongUseCaseImpl
-import com.example.mediaplayer3.domain.entity.UiAudio
 import com.example.mediaplayer3.viewModel.data.trackDetail.TrackDetailUiState
 import com.example.mediaplayer3.viewModel.data.trackDetail.TrackDetailsUiEvent
 import com.example.mediaplayer3.viewModel.delegates.IJobController
-import com.example.mediaplayer3.viewModel.delegates.INextOrPreviousItem
 import com.example.mediaplayer3.viewModel.delegates.JobController
-import com.example.mediaplayer3.viewModel.delegates.NextOrPreviousDelegate
 import com.example.mplog.MPLogger
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,13 +35,13 @@ class TrackDetailViewModel(
     private val playAudioUseCase: IPlayAudioUseCase = PlayAudioUseCase,
     private val pauseOrResumeUseCase: IAudioPauseOrResumeUseCase = ResumePauseSongUseCaseImpl,
     private val audioConfiguratorUseCase: IAudioConfiguratorUseCase = AudioConfigurationUseCaseImpl,
-    private val audioForwardOrRewindUseCase: IAudioForwardOrRewindUseCase = AudioForwardOrRewindUseCaseImp
+    private val audioForwardOrRewindUseCase: IAudioForwardOrRewindUseCase = AudioForwardOrRewindUseCaseImp,
+    private val playNextOrPreviousSongUseCase: IPlayNextOrPreviousSongUseCase = PlayNextPreviousSongUseCase
 ) : BaseViewModel<TrackDetailsUiEvent, TrackDetailUiState>() {
 
     private val _uiState = MutableStateFlow(TrackDetailUiState())
     override val uiState: StateFlow<TrackDetailUiState> = _uiState.asStateFlow()
 
-    private val nextOrPreviousDelegate: INextOrPreviousItem<UiAudio> by NextOrPreviousDelegate()
 
     private val collectIsRandomJob: IJobController by JobController { args ->
         var context: Context? = null
@@ -124,6 +123,7 @@ class TrackDetailViewModel(
             scope = viewModelScope,
             playUseCase = playAudioUseCase
         )
+        (playNextOrPreviousSongUseCase as PlayNextPreviousSongUseCase).invoke(playAudioUseCase, fetchDataUseCase)
         handleEvents()
 
         var stopJob: Job? = null
@@ -264,34 +264,20 @@ class TrackDetailViewModel(
 
     private fun handlePlayPreviousSongEvent(event: TrackDetailsUiEvent.PlayPreviousSong) {
         MPLogger.i(CLASS_NAME, "handlePlayPreviousSongEvent", TAG, "try to play next song")
-        nextOrPreviousDelegate.previousItem(
-            list = fetchDataUseCase.getExtractedSongList(),
-            currentItem = uiState.value.currentSong,
-            isRandom = uiState.value.isInRandomMode
-        ) { previous: UiAudio ->
-            MPLogger.i(
-                CLASS_NAME,
-                "handlePlayPreviousSongEvent",
-                TAG,
-                "play previous song: $previous"
-            )
-            playAudioUseCase.playSong(event.context, previous, seekTo = 0)
-        }
+        playNextOrPreviousSongUseCase.playPrevious(
+            currentSong = uiState.value.currentSong,
+            isRandom =uiState.value.isInRandomMode,
+            context = event.context
+        )
     }
 
     private fun handlePlayNextSongEvent(event: TrackDetailsUiEvent.PlayNextSong) {
         MPLogger.i(CLASS_NAME, "handlePlayNextSongEvent", TAG, "try to play previous song")
-        nextOrPreviousDelegate.nextItem(
-            list = fetchDataUseCase.getExtractedSongList(),
-            currentItem = uiState.value.currentSong,
-            isRandom = uiState.value.isInRandomMode
-        ) { next: UiAudio ->
-            MPLogger.i(
-                CLASS_NAME, "handlePlayNextSongEvent",
-                TAG, "play next Song: $next"
-            )
-            playAudioUseCase.playSong(event.context, next, 0)
-        }
+        playNextOrPreviousSongUseCase.playNext(
+            currentSong = uiState.value.currentSong,
+            isRandom = uiState.value.isInRandomMode,
+            context = event.context
+        )
     }
 
     private fun handlePauseOrResumeEvent(event: TrackDetailsUiEvent.PauseOrResume) {

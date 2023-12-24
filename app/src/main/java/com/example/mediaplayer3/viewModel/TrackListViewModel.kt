@@ -10,15 +10,15 @@ import com.example.mediaplayer3.domain.IAudioConfiguratorUseCase
 import com.example.mediaplayer3.domain.IAudioPauseOrResumeUseCase
 import com.example.mediaplayer3.domain.IFetchDataUseCase
 import com.example.mediaplayer3.domain.IPlayAudioUseCase
+import com.example.mediaplayer3.domain.IPlayNextOrPreviousSongUseCase
 import com.example.mediaplayer3.domain.PlayAudioUseCase
+import com.example.mediaplayer3.domain.PlayNextPreviousSongUseCase
 import com.example.mediaplayer3.domain.ResumePauseSongUseCaseImpl
 import com.example.mediaplayer3.domain.entity.UiAudio
 import com.example.mediaplayer3.ui.Constant
 import com.example.mediaplayer3.viewModel.data.tracklist.TrackListUiEvent
 import com.example.mediaplayer3.viewModel.data.tracklist.TrackListUiState
-import com.example.mediaplayer3.viewModel.delegates.INextOrPreviousItem
 import com.example.mediaplayer3.viewModel.delegates.JobController
-import com.example.mediaplayer3.viewModel.delegates.NextOrPreviousDelegate
 import com.example.mplog.MPLogger
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,7 +35,8 @@ class TrackListViewModel(
     private val fetchDataUseCase: IFetchDataUseCase = FetchDataUseCase,
     private val playAudioUseCase: IPlayAudioUseCase = PlayAudioUseCase,
     private val pauseOrResumeUseCase: IAudioPauseOrResumeUseCase = ResumePauseSongUseCaseImpl,
-    private val audioConfiguratorUseCase: IAudioConfiguratorUseCase = AudioConfigurationUseCaseImpl
+    private val audioConfiguratorUseCase: IAudioConfiguratorUseCase = AudioConfigurationUseCaseImpl,
+    private val playNextOrPreviousSongUseCase: IPlayNextOrPreviousSongUseCase = PlayNextPreviousSongUseCase
 ) : BaseViewModel<TrackListUiEvent, TrackListUiState>() {
 
     private val _uiState = MutableStateFlow(TrackListUiState())
@@ -132,7 +133,6 @@ class TrackListViewModel(
         }
     }
 
-    private val nextOrPreviousDelegate: INextOrPreviousItem<UiAudio> by NextOrPreviousDelegate()
 
     init {
         val repo = getAudioDataRepo()
@@ -144,6 +144,7 @@ class TrackListViewModel(
             audioConfiguratorUseCase
         )
         (pauseOrResumeUseCase as ResumePauseSongUseCaseImpl).invoke(repo, playAudioUseCase)
+        (playNextOrPreviousSongUseCase as PlayNextPreviousSongUseCase).invoke(playAudioUseCase, fetchDataUseCase)
         handleEvent()
         var playJob: Job? = null
         playJob = viewModelScope.launch {
@@ -231,23 +232,15 @@ class TrackListViewModel(
         lastPlayingSongJob.cancelJob()
         with(uiState.value) {
             currentSelectedItem?.let {
-                nextOrPreviousDelegate.previousItem(
-                    list = dataList,
-                    currentItem = it,
+                playNextOrPreviousSongUseCase.playPrevious(
+                    currentSong = it,
                     isRandom = audioConfiguratorUseCase.isRandomModeInFlow(event.context).stateIn(
                         scope = viewModelScope,
                         started = SharingStarted.WhileSubscribed(),
                         initialValue = false
-                    ).value
-                ) { previous: UiAudio ->
-                    MPLogger.i(
-                        CLASS_NAME,
-                        "handlePlayPreviousSongEvent",
-                        TAG,
-                        "play previous song: $previous"
-                    )
-                    playAudioUseCase.playSong(event.context, previous, seekTo = 0)
-                }
+                    ).value,
+                    context = event.context
+                )
             }
         }
     }
@@ -257,18 +250,15 @@ class TrackListViewModel(
         lastPlayingSongJob.cancelJob()
         with(uiState.value) {
             currentSelectedItem?.let {
-                nextOrPreviousDelegate.nextItem(
-                    list = dataList,
-                    currentItem = it,
+                playNextOrPreviousSongUseCase.playNext(
+                    currentSong = it,
                     isRandom = audioConfiguratorUseCase.isRandomModeInFlow(event.context).stateIn(
                         scope = viewModelScope,
                         started = SharingStarted.WhileSubscribed(),
                         initialValue = false
-                    ).value
-                ) { next: UiAudio ->
-                    MPLogger.i(CLASS_NAME, "handlePlayNextSongEvent", TAG, "play next Song: $next")
-                    playAudioUseCase.playSong(event.context, next, 0)
-                }
+                    ).value,
+                    context = event.context
+                )
             }
         }
     }

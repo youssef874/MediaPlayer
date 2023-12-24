@@ -8,6 +8,7 @@ import com.example.mplog.MPLogger
 import com.example.mpstorage.database.data.DBAudioData
 import com.example.mpstorage.database.internal.IAudioDataProvider
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.withContext
 
@@ -30,7 +31,7 @@ internal class DataBaseSynchronize(private val audioDataProvider: IAudioDataProv
                     if (isEmpty() && AudioApi.getAllSongs(context).isNotEmpty()){
                         MPLogger.i(CLASS_NAME,"synchronize", TAG,"no data in database need synchronization")
                         AudioDataStoreApi.isSynchronisationWithContentProviderCompleted(context).updateValue(false)
-                        loadData(context,true)
+                        async { loadData(context,true) }.await()
                         AudioDataStoreApi.isSynchronisationWithContentProviderCompleted(context).updateValue(true)
                         onSynchronizeCompletedListeners.forEach {
                             if (it()){
@@ -52,8 +53,7 @@ internal class DataBaseSynchronize(private val audioDataProvider: IAudioDataProv
                         AudioDataStoreApi.isSynchronisationWithContentProviderCompleted(context).getValue().collectLatest {
                             if (!it && isEmpty()){
                                 MPLogger.i(CLASS_NAME,"synchronize", TAG,"the synchronization did not complete or there a changes in preference")
-                                loadData(context, false)
-                                return@collectLatest
+                                async { loadData(context, false) }.await()
                             }else{
                                 onSynchronizeCompletedListeners.forEach {
                                     if (it()){
@@ -62,7 +62,6 @@ internal class DataBaseSynchronize(private val audioDataProvider: IAudioDataProv
                                         }
                                     }
                                 }
-                                return@collectLatest
                             }
                         }
                     }
@@ -84,6 +83,7 @@ internal class DataBaseSynchronize(private val audioDataProvider: IAudioDataProv
         try {
             if (isEmpty){
                 AudioApi.getAllSongs(context).forEach {
+                    MPLogger.d(CLASS_NAME,"loadData", TAG,"song: $it")
                     audioDataProvider.add(
                         DBAudioData(
                             album = it.album,
@@ -93,13 +93,15 @@ internal class DataBaseSynchronize(private val audioDataProvider: IAudioDataProv
                             duration = it.duration,
                             size = it.size,
                             albumThumbnailUri = it.albumThumbnailUri,
-                            externalId = it.id
+                            externalId = it.id,
+                            isFavorite = false
                         )
                     )
                 }
             }else{
                 AudioApi.getAllSongs(context).forEach {mpAudio->
                     audioDataProvider.getAll().find { it.externalId == mpAudio.id }?.let {
+                        MPLogger.d(CLASS_NAME,"loadData", TAG,"song: $it")
                         audioDataProvider.update(
                             DBAudioData(
                                 album = mpAudio.album,
@@ -110,10 +112,12 @@ internal class DataBaseSynchronize(private val audioDataProvider: IAudioDataProv
                                 size = mpAudio.size,
                                 albumThumbnailUri = mpAudio.albumThumbnailUri,
                                 externalId = mpAudio.id,
-                                idAudio = it.idAudio
+                                idAudio = it.idAudio,
+                                isFavorite = false
                             )
                         )
                     }?:run {
+                        MPLogger.d(CLASS_NAME,"loadData", TAG,"song: $mpAudio")
                         audioDataProvider.add(
                             DBAudioData(
                                 album = mpAudio.album,
@@ -123,7 +127,8 @@ internal class DataBaseSynchronize(private val audioDataProvider: IAudioDataProv
                                 duration = mpAudio.duration,
                                 size = mpAudio.size,
                                 albumThumbnailUri = mpAudio.albumThumbnailUri,
-                                externalId = mpAudio.id
+                                externalId = mpAudio.id,
+                                isFavorite = false
                             )
                         )
                     }

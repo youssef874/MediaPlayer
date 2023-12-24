@@ -11,7 +11,7 @@ data class DBAudioData(
     val duration: Int = -1,
     val size: Int = -1,
     val albumThumbnailUri: Uri? = null,
-    val isFavorite: Boolean = true,
+    val isFavorite: Boolean = false,
     val isInternal: Boolean = true,
     val isOwned: Boolean = true,
     val externalId: Long = 0

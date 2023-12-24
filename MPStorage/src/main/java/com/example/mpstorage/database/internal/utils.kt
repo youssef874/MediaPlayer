@@ -4,7 +4,6 @@ import android.net.Uri
 import com.example.mpstorage.database.data.DBAudioData
 import com.example.mpstorage.database.data.SearchAudio
 import com.example.mpstorage.database.internal.entity.AudioEntity
-import com.example.mpstorage.internal.entity.IAudioDao
 
 
 internal fun DBAudioData.toAudioEntity(): AudioEntity {
