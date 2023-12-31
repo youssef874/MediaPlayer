@@ -23,6 +23,8 @@ interface IAudioDataRepo {
 
     fun getSongsBySongName(context: Context, songName: String): Flow<List<MPAppAudio>>
 
+    suspend fun changeIsFavoriteStatusToSong(context: Context,songId: Long,isFavorite: Boolean)
+
     fun playSong(context: Context,uri: Uri,playAt: Int = -1)
 
     fun resumeSong(context: Context, seekTo: Int)

@@ -2,6 +2,7 @@ package com.example.mpstorage.database.internal
 
 import android.net.Uri
 import com.example.mpstorage.database.data.DBAudioData
+import com.example.mpstorage.database.data.QueryAudio
 import com.example.mpstorage.database.data.SearchAudio
 import com.example.mpstorage.database.internal.entity.AudioEntity
 
@@ -39,10 +40,16 @@ internal fun AudioEntity.toDBAudio(): DBAudioData {
     )
 }
 
-internal fun SearchAudio.toQueryAudio(audioDao: IAudioDao): AudioQuery {
+internal fun SearchAudio.toBaseQueryAudio(audioDao: IAudioDao): BaseAudioQuery {
     return when (this) {
-        is SearchAudio.SearchByAlbum -> AudioQuery.FindBayAlbumQuery(audioDao, album)
-        is SearchAudio.SearchByArtist -> AudioQuery.FindByArtistNameObject(audioDao, artist)
-        is SearchAudio.SearchBySongName -> AudioQuery.FindBySongNameQuery(audioDao, songName)
+        is SearchAudio.SearchByAlbum -> BaseAudioQuery.FindBayAlbumQueryBase(audioDao, album)
+        is SearchAudio.SearchByArtist -> BaseAudioQuery.FindByArtistNameObject(audioDao, artist)
+        is SearchAudio.SearchBySongName -> BaseAudioQuery.FindBySongNameQueryBase(audioDao, songName)
+    }
+}
+
+internal fun QueryAudio.toInternalQueryAudio(audioDao: IAudioDao): InternalAudioQuery{
+    return when(this){
+        is QueryAudio.ChaneIsFavorite->InternalAudioQuery.ChangeIsFavorite(audioDao,songId,isFavorite)
     }
 }

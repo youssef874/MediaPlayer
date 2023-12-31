@@ -45,6 +45,17 @@ class AudioExtractorImplTest{
         contentResolver.insert(contentUri,secondContentValue)
     }
 
+    private fun update(id: Long, album: String, artist: String, duration: Int, size: Int, displayName: String){
+        val contentValues = ContentValues()
+        contentValues.put(MediaStore.Audio.Media._ID,id)
+        contentValues.put(MediaStore.Audio.Media.ALBUM,album)
+        contentValues.put(MediaStore.Audio.Media.ARTIST,artist)
+        contentValues.put(MediaStore.Audio.Media.DURATION,duration)
+        contentValues.put(MediaStore.Audio.Media.SIZE,size)
+        contentValues.put(MediaStore.Audio.Media.DISPLAY_NAME,displayName)
+        contentResolver.insert(contentUri,contentValues)
+    }
+
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
@@ -61,5 +72,24 @@ class AudioExtractorImplTest{
             val fakeId = find { it.id == 4L }
             assert(fakeId == null)
         }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun test_setOnDataChangesListener() = runTest {
+        audioExtractor.loadAllAudio()
+        var isUpdated = false
+        audioExtractor.setOnDataChangesListener {
+            isUpdated = true
+        }
+        update(
+            id = 3L,
+            album = "album3",
+            artist = "artist3",
+            duration = 50,
+            size = 150,
+            displayName = "displayName"
+        )
+        assert(isUpdated)
     }
 }

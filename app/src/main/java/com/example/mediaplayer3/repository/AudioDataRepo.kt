@@ -8,6 +8,7 @@ import com.example.mpdataprovider.datastore.AudioDataStoreApi
 import com.example.mplog.MPLogger
 import com.example.mpmediamanager.MpAudioManagerApi
 import com.example.mpstorage.database.DataBaseApi
+import com.example.mpstorage.database.data.QueryAudio
 import com.example.mpstorage.database.data.SearchAudio
 import com.example.mpstorage.synchronizer.MPSynchroniseApi
 import kotlinx.coroutines.channels.awaitClose
@@ -64,6 +65,15 @@ class AudioDataRepo: IAudioDataRepo {
         MPLogger.i(CLASS_NAME,"getSongsBySongName", TAG,"songName: $songName")
         return DataBaseApi.forAudio(context)
             .query(SearchAudio.SearchBySongName(songName)).map { value -> value.map { it.toMPAppAudio() } }
+    }
+
+    override suspend fun changeIsFavoriteStatusToSong(
+        context: Context,
+        songId: Long,
+        isFavorite: Boolean
+    ) {
+        MPLogger.d(CLASS_NAME,"changeIsFavoriteStatusToSong", TAG,"songId: $songId, isFavorite: $isFavorite")
+        DataBaseApi.forAudio(context).query(QueryAudio.ChaneIsFavorite(songId, isFavorite))
     }
 
     override fun playSong(context: Context, uri: Uri, playAt: Int) {

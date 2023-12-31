@@ -18,18 +18,6 @@
           <timeTargetWasSelectedWithDropDown value="2023-11-17T17:49:52.738131Z" />
         </State>
       </entry>
-      <entry key="test_PlaySong()">
-        <State />
-      </entry>
-      <entry key="test_changeAudioIsFavoriteStatus()">
-        <State />
-      </entry>
-      <entry key="test_getSongById_with_permission_granted()">
-        <State />
-      </entry>
-      <entry key="test_getSongById_with_permission_not_granted()">
-        <State />
-      </entry>
     </value>
   </component>
 </project>

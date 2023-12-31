@@ -121,7 +121,7 @@ fun AudioDetailScreen(
                         .height(50.dp),
                     isFavorite = state.currentSong.isFavorite,
                     onFavoriteButtonClicked = {
-                        //trackDetailViewModel.onEvent(TrackDetailsUiEvent.ChangeFavoriteStatus(context))
+                        trackDetailViewModel.onEvent(TrackDetailsUiEvent.ChangeFavoriteStatus(context))
                     })
                 AudioRangeLabel(
                     duration = state.currentSong.duration,

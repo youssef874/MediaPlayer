@@ -5,10 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.mediaplayer3.data.entity.RepeatMode
 import com.example.mediaplayer3.domain.AudioConfigurationUseCaseImpl
 import com.example.mediaplayer3.domain.AudioForwardOrRewindUseCaseImp
+import com.example.mediaplayer3.domain.EditSongUseCase
 import com.example.mediaplayer3.domain.FetchDataUseCase
 import com.example.mediaplayer3.domain.IAudioConfiguratorUseCase
 import com.example.mediaplayer3.domain.IAudioForwardOrRewindUseCase
 import com.example.mediaplayer3.domain.IAudioPauseOrResumeUseCase
+import com.example.mediaplayer3.domain.IEditSongUseCase
 import com.example.mediaplayer3.domain.IFetchDataUseCase
 import com.example.mediaplayer3.domain.IPlayAudioUseCase
 import com.example.mediaplayer3.domain.IPlayNextOrPreviousSongUseCase
@@ -20,6 +22,7 @@ import com.example.mediaplayer3.viewModel.data.trackDetail.TrackDetailsUiEvent
 import com.example.mediaplayer3.viewModel.delegates.IJobController
 import com.example.mediaplayer3.viewModel.delegates.JobController
 import com.example.mplog.MPLogger
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,6 +32,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class TrackDetailViewModel(
     private val fetchDataUseCase: IFetchDataUseCase = FetchDataUseCase,
@@ -36,7 +40,8 @@ class TrackDetailViewModel(
     private val pauseOrResumeUseCase: IAudioPauseOrResumeUseCase = ResumePauseSongUseCaseImpl,
     private val audioConfiguratorUseCase: IAudioConfiguratorUseCase = AudioConfigurationUseCaseImpl,
     private val audioForwardOrRewindUseCase: IAudioForwardOrRewindUseCase = AudioForwardOrRewindUseCaseImp,
-    private val playNextOrPreviousSongUseCase: IPlayNextOrPreviousSongUseCase = PlayNextPreviousSongUseCase
+    private val playNextOrPreviousSongUseCase: IPlayNextOrPreviousSongUseCase = PlayNextPreviousSongUseCase,
+    private val editSongUseCase: IEditSongUseCase = EditSongUseCase
 ) : BaseViewModel<TrackDetailsUiEvent, TrackDetailUiState>() {
 
     private val _uiState = MutableStateFlow(TrackDetailUiState())
@@ -108,6 +113,23 @@ class TrackDetailViewModel(
         }
     }
 
+    private val collectCurrentSongChanges: IJobController by JobController{args->
+        var context: Context? = null
+        args.forEach {
+            if (it is Context) {
+                context = it
+            }
+        }
+        context?.let { ctx->
+            fetchDataUseCase.getSong(ctx,uiState.value.currentSong.id).collectLatest {uiAudio->
+                MPLogger.d(CLASS_NAME,"collectCurrentSongChanges", TAG,"$uiAudio")
+                _uiState.update {
+                    it.copy(uiAudio)
+                }
+            }
+        }
+    }
+
     init {
         val repo = getAudioDataRepo()
         (fetchDataUseCase as FetchDataUseCase).invoke(repo, viewModelScope)
@@ -124,6 +146,7 @@ class TrackDetailViewModel(
             playUseCase = playAudioUseCase
         )
         (playNextOrPreviousSongUseCase as PlayNextPreviousSongUseCase).invoke(playAudioUseCase, fetchDataUseCase)
+        (editSongUseCase as EditSongUseCase).invoke(repo)
         handleEvents()
 
         var stopJob: Job? = null
@@ -202,8 +225,23 @@ class TrackDetailViewModel(
                     is TrackDetailsUiEvent.Rewind->{
                         handleRewindEvent(event)
                     }
-                    else -> Unit
+                    is TrackDetailsUiEvent.ChangeFavoriteStatus->{
+                        handleChangeFavoriteStatusEvent(event)
+                    }
                 }
+            }
+        }
+    }
+
+    private fun handleChangeFavoriteStatusEvent(event: TrackDetailsUiEvent.ChangeFavoriteStatus) {
+        MPLogger.d(CLASS_NAME,"handleChangeFavoriteStatusEvent", TAG,"current song is favorite: ${uiState.value.currentSong.isFavorite}")
+        viewModelScope.launch {
+            withContext(Dispatchers.IO){
+                editSongUseCase.changeIsFavoriteStatus(
+                    event.context,
+                    songId = uiState.value.currentSong.id,
+                    isFavorite = !uiState.value.currentSong.isFavorite
+                )
             }
         }
     }
@@ -336,6 +374,7 @@ class TrackDetailViewModel(
         collectProgress.launchJob(event.context)
         collectIsRandomJob.launchJob(event.context)
         collectRepeatModeJob.launchJob(event.context)
+        collectCurrentSongChanges.launchJob(event.context)
         fetchDataUseCase.getExtractedSongList().find { it.id == event.songId }?.let { uiAudio ->
             _uiState.update {
                 it.copy(currentSong = uiAudio, isPlaying = playAudioUseCase.isPlaying, songProgress = playAudioUseCase.currentSongProgression)

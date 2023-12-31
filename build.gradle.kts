@@ -19,7 +19,7 @@ buildscript{
         // other plugins...
         classpath ("org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0")
         classpath("com.google.dagger:hilt-android-gradle-plugin:2.44.2")
-        classpath("org.jetbrains.kotlinx:kotlinx-coroutines-test-jvm:1.7.3")
+        classpath("org.jetbrains.kotlinx:kotlinx-coroutines-test-jvm:1.7.1")
     }
 }
 

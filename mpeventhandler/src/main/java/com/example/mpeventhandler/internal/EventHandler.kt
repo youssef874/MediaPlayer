@@ -20,7 +20,7 @@ internal class EventHandler(
 
     override fun dispose() {
         _listener = null
-        _isDisposed = false
+        _isDisposed = true
         onEventCanceled?.invoke()
     }
 

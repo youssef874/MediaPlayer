@@ -34,6 +34,10 @@ class FakeAudioExtractor: IAudioExtractor {
         )
     }
 
+    override fun setOnDataChangesListener(onDataChanges: () -> Unit) {
+        //TODO("Not yet implemented")
+    }
+
     override fun getAllAudio(): List<MPAudio> {
         return cache
     }

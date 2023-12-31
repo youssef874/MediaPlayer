@@ -98,6 +98,7 @@ class TrackListViewModel(
         }
         context?.let { cont ->
             fetchDataUseCase.observeLastPlayingSongId(cont).collectLatest { id ->
+
                 MPLogger.d(CLASS_NAME, "lastPlayingSongJob", TAG, "id: $id")
                 if (id != -1L) {
                     val currentAudio = result?.find { uiAudio -> uiAudio.id == id }
@@ -371,6 +372,7 @@ class TrackListViewModel(
 
     override fun onCleared() {
         super.onCleared()
+        MPLogger.d(CLASS_NAME,"onCleared", TAG,"this viewModel is cleared")
         lastPlayingSongJob.cancelJob()
     }
 
