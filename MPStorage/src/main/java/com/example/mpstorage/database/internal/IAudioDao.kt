@@ -28,10 +28,10 @@ internal interface IAudioDao {
     suspend fun getAllAudios(): List<AudioEntity>
 
     @Query("SELECT * FROM audio WHERE audio_id = :id")
-    fun observeAudioById(id: Long): Flow<AudioEntity>
+    fun observeAudioById(id: Long): Flow<AudioEntity?>
 
     @Query("SELECT * FROM audio WHERE audio_id = :id")
-    suspend fun getAudioById(id: Long): AudioEntity
+    suspend fun getAudioById(id: Long): AudioEntity?
 
     @Query("SELECT * FROM audio WHERE songName = :songName")
     fun getAudioBySongName(songName: String): Flow<List<AudioEntity>>

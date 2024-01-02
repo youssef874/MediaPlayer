@@ -76,8 +76,8 @@ object FetchDataUseCase: IFetchDataUseCase,IUseCase {
         }
     }
 
-    override fun getSong(context: Context, id: Long): Flow<UiAudio> {
-        return audioDataRepo.getById(context, id).map { it.toUiAudio() }
+    override fun getSong(context: Context, id: Long): Flow<UiAudio?> {
+        return audioDataRepo.getById(context, id).map { it?.toUiAudio() }
     }
 
     override fun getExtractedSongList(): List<UiAudio> {

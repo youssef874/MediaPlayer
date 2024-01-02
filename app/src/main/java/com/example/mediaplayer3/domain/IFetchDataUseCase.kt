@@ -15,7 +15,7 @@ interface IFetchDataUseCase {
         filterByArtist: (()->String)? = null,
     ):Flow<List<UiAudio>>
 
-    fun getSong(context: Context, id: Long): Flow<UiAudio>
+    fun getSong(context: Context, id: Long): Flow<UiAudio?>
 
     fun getExtractedSongList(): List<UiAudio>
 

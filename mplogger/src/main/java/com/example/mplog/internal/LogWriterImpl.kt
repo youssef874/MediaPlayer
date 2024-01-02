@@ -62,7 +62,7 @@ internal class LogWriterImpl: ILogWriter {
     private fun getStackOffset(
         trace: Array<StackTraceElement>
     ): Int {
-        var i: Int = 3
+        var i = 3
         while (i < trace.size) {
             val e = trace[i]
             val name = e.className
@@ -75,7 +75,7 @@ internal class LogWriterImpl: ILogWriter {
         return -1
     }
 
-    fun isContainIgnored(name: String): Boolean{
+    private fun isContainIgnored(name: String): Boolean{
         if (name.isEmpty()){
             return false
         }

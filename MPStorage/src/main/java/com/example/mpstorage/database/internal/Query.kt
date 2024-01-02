@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.map
 internal sealed interface Query
 
 
-internal sealed class BaseAudioQuery(private val audioDao: IAudioDao): Query {
+internal sealed class BaseAudioQuery(protected val audioDao: IAudioDao): Query {
 
     abstract fun find(): Flow<List<DBAudioData>>
 
@@ -31,15 +31,17 @@ internal sealed class BaseAudioQuery(private val audioDao: IAudioDao): Query {
     }
 }
 
-internal sealed class InternalAudioQuery(private val audioDao: IAudioDao){
+internal sealed class InternalAudioQuery(protected val audioDao: IAudioDao): Query{
 
     abstract suspend fun action()
 
     class ChangeIsFavorite(audioDao: IAudioDao,private val songId: Long, private val isFavorite: Boolean):InternalAudioQuery(audioDao){
         override suspend fun action() {
             val audio = super.audioDao.getAudioById(songId)
-            val updatedAudio = audio.copy(isFavorite = isFavorite)
-            super.audioDao.updateAudio(updatedAudio)
+            val updatedAudio = audio?.copy(isFavorite = isFavorite)
+            if (updatedAudio != null) {
+                super.audioDao.updateAudio(updatedAudio)
+            }
         }
 
     }

@@ -75,14 +75,19 @@ class TrackDetailViewModel(
         context?.let { cont ->
             playAudioUseCase.lastSongProgress(cont)?.let { lastProgress ->
                 playAudioUseCase.songProgression(viewModelScope)
-                    ?.combine(lastProgress){ currentProgress, lastP->
-                        MPLogger.d(CLASS_NAME,"collectProgress", TAG,"currentProgress: $currentProgress, lastP: $lastP")
+                    ?.combine(lastProgress) { currentProgress, lastP ->
+                        MPLogger.d(
+                            CLASS_NAME,
+                            "collectProgress",
+                            TAG,
+                            "currentProgress: $currentProgress, lastP: $lastP"
+                        )
                         _uiState.update {
                             it.copy(
-                                songProgress = uiState.value.isPlaying.let { isPlaying->
-                                    if (isPlaying){
+                                songProgress = uiState.value.isPlaying.let { isPlaying ->
+                                    if (isPlaying) {
                                         if (currentProgress == -1) 0 else currentProgress
-                                    }else{
+                                    } else {
                                         if (lastP == -1) 0 else lastP
                                     }
                                 }
@@ -113,19 +118,20 @@ class TrackDetailViewModel(
         }
     }
 
-    private val collectCurrentSongChanges: IJobController by JobController{args->
+    private val collectCurrentSongChanges: IJobController by JobController { args ->
         var context: Context? = null
         args.forEach {
             if (it is Context) {
                 context = it
             }
         }
-        context?.let { ctx->
-            fetchDataUseCase.getSong(ctx,uiState.value.currentSong.id).collectLatest {uiAudio->
-                MPLogger.d(CLASS_NAME,"collectCurrentSongChanges", TAG,"$uiAudio")
-                _uiState.update {
-                    it.copy(uiAudio)
-                }
+        context?.let { ctx ->
+            fetchDataUseCase.getSong(ctx, uiState.value.currentSong.id).collectLatest { uiAudio ->
+                MPLogger.d(CLASS_NAME, "collectCurrentSongChanges", TAG, "$uiAudio")
+                if (uiAudio != null)
+                    _uiState.update {
+                        it.copy(uiAudio)
+                    }
             }
         }
     }
@@ -145,7 +151,10 @@ class TrackDetailViewModel(
             scope = viewModelScope,
             playUseCase = playAudioUseCase
         )
-        (playNextOrPreviousSongUseCase as PlayNextPreviousSongUseCase).invoke(playAudioUseCase, fetchDataUseCase)
+        (playNextOrPreviousSongUseCase as PlayNextPreviousSongUseCase).invoke(
+            playAudioUseCase,
+            fetchDataUseCase
+        )
         (editSongUseCase as EditSongUseCase).invoke(repo)
         handleEvents()
 
@@ -201,31 +210,40 @@ class TrackDetailViewModel(
                     is TrackDetailsUiEvent.SearchForCurrentSong -> {
                         handleSearchForCurrentSongEvent(event)
                     }
+
                     is TrackDetailsUiEvent.PauseOrResume -> {
                         handlePauseOrResumeEvent(event)
                     }
+
                     is TrackDetailsUiEvent.PlayNextSong -> {
                         handlePlayNextSongEvent(event)
                     }
+
                     is TrackDetailsUiEvent.PlayPreviousSong -> {
                         handlePlayPreviousSongEvent(event)
                     }
+
                     is TrackDetailsUiEvent.ChangePlayNextBehavior -> {
                         handleChangePlayNextBehaviorEvent(event)
                     }
+
                     is TrackDetailsUiEvent.ChangeRepeatMode -> {
                         handleChangeRepeatModeEvent(event)
                     }
-                    is TrackDetailsUiEvent.UpdatePlayingPosition->{
+
+                    is TrackDetailsUiEvent.UpdatePlayingPosition -> {
                         handleUpdatePlayingPositionEvent(event)
                     }
-                    is TrackDetailsUiEvent.Forward->{
+
+                    is TrackDetailsUiEvent.Forward -> {
                         handleForwardEvent(event)
                     }
-                    is TrackDetailsUiEvent.Rewind->{
+
+                    is TrackDetailsUiEvent.Rewind -> {
                         handleRewindEvent(event)
                     }
-                    is TrackDetailsUiEvent.ChangeFavoriteStatus->{
+
+                    is TrackDetailsUiEvent.ChangeFavoriteStatus -> {
                         handleChangeFavoriteStatusEvent(event)
                     }
                 }
@@ -234,9 +252,14 @@ class TrackDetailViewModel(
     }
 
     private fun handleChangeFavoriteStatusEvent(event: TrackDetailsUiEvent.ChangeFavoriteStatus) {
-        MPLogger.d(CLASS_NAME,"handleChangeFavoriteStatusEvent", TAG,"current song is favorite: ${uiState.value.currentSong.isFavorite}")
+        MPLogger.d(
+            CLASS_NAME,
+            "handleChangeFavoriteStatusEvent",
+            TAG,
+            "current song is favorite: ${uiState.value.currentSong.isFavorite}"
+        )
         viewModelScope.launch {
-            withContext(Dispatchers.IO){
+            withContext(Dispatchers.IO) {
                 editSongUseCase.changeIsFavoriteStatus(
                     event.context,
                     songId = uiState.value.currentSong.id,
@@ -247,17 +270,22 @@ class TrackDetailViewModel(
     }
 
     private fun handleRewindEvent(event: TrackDetailsUiEvent.Rewind) {
-        MPLogger.d(CLASS_NAME,"handleRewindEvent", TAG,"rewindAt: ${event.rewindTo}")
+        MPLogger.d(CLASS_NAME, "handleRewindEvent", TAG, "rewindAt: ${event.rewindTo}")
         audioForwardOrRewindUseCase.rewind(rewindAt = event.rewindTo)
     }
 
     private fun handleForwardEvent(event: TrackDetailsUiEvent.Forward) {
-        MPLogger.d(CLASS_NAME,"handleForwardEvent", TAG,"forwardTo: ${event.forwardTo}")
+        MPLogger.d(CLASS_NAME, "handleForwardEvent", TAG, "forwardTo: ${event.forwardTo}")
         audioForwardOrRewindUseCase.forward(forwardAt = event.forwardTo)
     }
 
     private fun handleUpdatePlayingPositionEvent(event: TrackDetailsUiEvent.UpdatePlayingPosition) {
-        MPLogger.i(CLASS_NAME,"handleUpdatePlayingPositionEvent", TAG,"position: ${event.position}")
+        MPLogger.i(
+            CLASS_NAME,
+            "handleUpdatePlayingPositionEvent",
+            TAG,
+            "position: ${event.position}"
+        )
         audioForwardOrRewindUseCase.setPlayingPosition(
             context = event.context,
             uri = uiState.value.currentSong.uri,
@@ -304,7 +332,7 @@ class TrackDetailViewModel(
         MPLogger.i(CLASS_NAME, "handlePlayPreviousSongEvent", TAG, "try to play next song")
         playNextOrPreviousSongUseCase.playPrevious(
             currentSong = uiState.value.currentSong,
-            isRandom =uiState.value.isInRandomMode,
+            isRandom = uiState.value.isInRandomMode,
             context = event.context
         )
     }
@@ -377,7 +405,11 @@ class TrackDetailViewModel(
         collectCurrentSongChanges.launchJob(event.context)
         fetchDataUseCase.getExtractedSongList().find { it.id == event.songId }?.let { uiAudio ->
             _uiState.update {
-                it.copy(currentSong = uiAudio, isPlaying = playAudioUseCase.isPlaying, songProgress = playAudioUseCase.currentSongProgression)
+                it.copy(
+                    currentSong = uiAudio,
+                    isPlaying = playAudioUseCase.isPlaying,
+                    songProgress = playAudioUseCase.currentSongProgression
+                )
             }
         }
     }

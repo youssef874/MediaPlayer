@@ -15,7 +15,7 @@ interface IAudioDataRepo {
 
     fun getAllSong(context: Context): Flow<List<MPAppAudio>>
 
-    fun getById(context: Context,id: Long): Flow<MPAppAudio>
+    fun getById(context: Context,id: Long): Flow<MPAppAudio?>
 
     fun getSongsByAlbum(context: Context, album: String): Flow<List<MPAppAudio>>
 

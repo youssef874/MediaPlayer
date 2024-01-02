@@ -18,6 +18,18 @@
           <timeTargetWasSelectedWithDropDown value="2023-11-17T17:49:52.738131Z" />
         </State>
       </entry>
+      <entry key="tes_update()">
+        <State />
+      </entry>
+      <entry key="test_add()">
+        <State />
+      </entry>
+      <entry key="test_changeIsFavorite()">
+        <State />
+      </entry>
+      <entry key="test_search_query()">
+        <State />
+      </entry>
     </value>
   </component>
 </project>
