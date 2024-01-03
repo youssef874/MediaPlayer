@@ -159,7 +159,7 @@ class TrackListViewModel(
                         )
                     }
                 },
-                onPlaySongFailed = { uiAudio ->
+                onPlaySongFailed = { _ ->
                     _uiState.update {
                         it.copy(isPlaying = false)
                     }
@@ -335,12 +335,13 @@ class TrackListViewModel(
     }
 
     private val dataList = mutableListOf<UiAudio>()
+    private var loadDataJob: Job? = null
     private fun handleLoadDataEvent(event: TrackListUiEvent.LoadData) {
         MPLogger.d(CLASS_NAME, "handleLoadDataEvent", TAG, "event: $event")
         _uiState.update {
             it.copy(isLoading = true)
         }
-        viewModelScope.launch {
+        loadDataJob = viewModelScope.launch {
             try {
                 fetchDataUseCase.requestData(event.context).collectLatest {
                     MPLogger.d(CLASS_NAME, "handleLoadDataEvent", TAG, "result: $it")
@@ -368,6 +369,12 @@ class TrackListViewModel(
             pagination.loadNextItem()
         }
 
+    }
+
+    override fun clear() {
+        MPLogger.i(CLASS_NAME,"clear", TAG,"clear jobs")
+        lastPlayingSongJob.cancelJob()
+        loadDataJob?.cancel()
     }
 
     override fun onCleared() {

@@ -4,11 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mplog.MPLogger
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 abstract class BaseViewModel<EVENT,STATE>: ViewModel() {
@@ -25,6 +23,8 @@ abstract class BaseViewModel<EVENT,STATE>: ViewModel() {
             _uiEvent.emit(event)
         }
     }
+
+    abstract fun clear()
 
     companion object{
         private const val CLASS_NAME = "BaseViewModel"

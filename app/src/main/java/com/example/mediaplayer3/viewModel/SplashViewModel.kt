@@ -7,6 +7,7 @@ import com.example.mediaplayer3.viewModel.data.splash.SplashUiEvent
 import com.example.mediaplayer3.viewModel.data.splash.SplashUiState
 import com.example.mplog.MPLogger
 import com.example.mpstorage.synchronizer.event.SynchronisationType
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,12 +22,14 @@ class SplashViewModel(
     private val _uiState = MutableStateFlow(SplashUiState())
     override val uiState: StateFlow<SplashUiState> = _uiState.asStateFlow()
 
+    private var syncChangesObserver: Job
+
     init {
         (audioSyncUseCase as AudioSyncUseCase).invoke(getAudioDataRepo(),viewModelScope)
 
         handleEvents()
 
-        viewModelScope.launch {
+        syncChangesObserver = viewModelScope.launch {
             audioSyncUseCase.syncChanges?.collectLatest {event->
                 MPLogger.d(CLASS_NAME,"init", TAG,"synchronizationType: ${event.synchronizationType}")
                 when(event.synchronizationType){
@@ -66,6 +69,16 @@ class SplashViewModel(
     private fun handleSyncEvents(event: SplashUiEvent.Sync) {
         MPLogger.d(CLASS_NAME,"handleSyncEvents", TAG,"sync")
         audioSyncUseCase.sync(event.context)
+    }
+
+    override fun clear() {
+        MPLogger.d(CLASS_NAME,"clear", TAG,"clear jobs")
+        syncChangesObserver.cancel()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        MPLogger.d(CLASS_NAME,"onCleared", TAG,"this view model is cleared")
     }
 
     companion object{

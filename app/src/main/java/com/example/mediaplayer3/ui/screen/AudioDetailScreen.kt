@@ -28,7 +28,6 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +40,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mediaplayer3.R
 import com.example.mediaplayer3.data.entity.RepeatMode
@@ -73,7 +73,7 @@ fun AudioDetailScreen(
     BackHandler {
         onBack()
     }
-    val state by trackDetailViewModel.uiState.collectAsState()
+    val state by trackDetailViewModel.uiState.collectAsStateWithLifecycle()
     if (songId != -1L) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,

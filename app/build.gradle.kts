@@ -63,6 +63,7 @@ dependencies {
     implementation(libs.io.coeil.kt)
     implementation(libs.compose.icon.material.extended)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.lifecycle.runtime.ktx.compose)
     implementation(project(":mpdatadrovider"))
     implementation(project(":mplogger"))
     implementation(project(":mpmediamanager"))

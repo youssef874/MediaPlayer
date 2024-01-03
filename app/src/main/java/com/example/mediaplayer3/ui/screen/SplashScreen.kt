@@ -5,10 +5,10 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mediaplayer3.ui.Constant
 import com.example.mediaplayer3.ui.ErrorScreen
@@ -28,7 +28,7 @@ fun SplashScreen(splashViewModel: SplashViewModel = viewModel(), onNavigateToTra
         splashViewModel.onEvent(SplashUiEvent.Sync(context))
     }
 
-    val state by splashViewModel.uiState.collectAsState()
+    val state by splashViewModel.uiState.collectAsStateWithLifecycle()
     val permission =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) Manifest.permission.READ_MEDIA_AUDIO
         else Manifest.permission.READ_EXTERNAL_STORAGE

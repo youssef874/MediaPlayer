@@ -29,6 +29,7 @@ espresso-core = { group = "androidx.test.espresso", name = "espresso-core", vers
 android-test_rules = {group = "com.android.support", name = "test-rules", version.ref ="android-test"}
 reboletric = {group = "org.robolectric", name = "robolectric", version.ref = "rebolic"}
 lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle-runtime-ktx" }
+lifecycle-runtime-ktx-compose = {group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle-runtime-ktx"}
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
 ui = { group = "androidx.compose.ui", name = "ui" }

@@ -28,7 +28,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,6 +38,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.mediaplayer3.R
@@ -73,7 +73,7 @@ fun TrackListScreen(trackListViewModel: TrackListViewModel = viewModel(),navigat
     LaunchedEffect(key1 = Unit) {
         trackListViewModel.onEvent(TrackListUiEvent.LoadData(context))
     }
-    val state by trackListViewModel.uiState.collectAsState()
+    val state by trackListViewModel.uiState.collectAsStateWithLifecycle()
 
     if (state.isLoading) {
         MPLogger.d(

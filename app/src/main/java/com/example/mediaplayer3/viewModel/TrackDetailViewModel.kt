@@ -414,6 +414,14 @@ class TrackDetailViewModel(
         }
     }
 
+    override fun clear() {
+        MPLogger.i(CLASS_NAME,"clear", TAG,"clear Jobs")
+        collectProgress.cancelJob()
+        collectIsRandomJob.cancelJob()
+        collectRepeatModeJob.cancelJob()
+        collectCurrentSongChanges.cancelJob()
+    }
+
     companion object {
         private const val CLASS_NAME = "TrackDetailVieModel"
         private const val TAG = "DETAIL"
