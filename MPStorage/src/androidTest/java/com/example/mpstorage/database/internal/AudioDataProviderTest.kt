@@ -44,7 +44,7 @@ class AudioDataProviderTest{
         val updated = dbAudioData.copy(isOwned = false)
         audioDataProvider.update(updated)
         backgroundScope.launch {
-            with(audioDataProvider.getById(updated.idAudio)){
+            with(audioDataProvider.observeById(updated.idAudio)){
                 assert(count() == 1)
                 assert(single()?.isOwned == false)
             }
@@ -85,7 +85,7 @@ class AudioDataProviderTest{
         audioDataProvider.add(dbAudioData)
         audioDataProvider.query(QueryAudio.ChaneIsFavorite(dbAudioData.idAudio,true))
         backgroundScope.launch {
-            with(audioDataProvider.getById(dbAudioData.idAudio)){
+            with(audioDataProvider.observeById(dbAudioData.idAudio)){
                 assert(count() == 1)
                 assert(single()?.isFavorite == true)
             }

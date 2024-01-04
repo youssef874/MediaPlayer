@@ -16,7 +16,9 @@ interface IBaseDataBaseProvider<T: BaseDatabaseData,Q: Search> {
 
     suspend fun getAll(): List<T>
 
-    fun getById(id: Long): Flow<T?>
+    fun observeById(id: Long): Flow<T?>
+
+    suspend fun getById(id: Long): T?
 
     fun  query(query: Q): Flow<List<T>>
 }

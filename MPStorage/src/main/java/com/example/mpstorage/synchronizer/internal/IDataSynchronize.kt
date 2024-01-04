@@ -12,5 +12,5 @@ internal interface IDataSynchronize {
 
     fun setOnSynchronizeCompletedListener(onSynchronizeCompleted: syncFun)
 
-    fun setOnSynchronizeFiled(onSynchronizeFailed: syncFun)
+    fun setOnSynchronizeFailed(onSynchronizeFailed: syncFun)
 }

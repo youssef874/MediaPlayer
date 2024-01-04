@@ -47,11 +47,11 @@ internal object DataSynchroniseManagerImpl : IDataSynchronizeManager {
     ) {
         var completeCounter = 0
         dataSynchronize.forEach {
-            it.setOnSynchronizeFiled {
+            it.setOnSynchronizeFailed {
                 MPLogger.i(CLASS_NAME, "handleSynchronisationEvents", TAG, "synchronisation failed")
                 MPEventHandlerApi.dispatchEvent(SynchronisationChanges(SynchronisationType.SYNCHRONIZATION_FAILED))
                 AudioDataStoreApi.isSynchronisationFinished(context).updateValue(false)
-                return@setOnSynchronizeFiled true
+                return@setOnSynchronizeFailed true
             }
             it.setOnSynchronizeCompletedListener {
                 completeCounter++

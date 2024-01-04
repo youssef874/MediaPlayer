@@ -13,11 +13,11 @@ internal object DataSynchroniseManagerFactoryImpl : IDataSynchroniseManagerFacto
 
     override fun create(context: Context): IDataSynchronizeManager {
         return sInstance.run {
-            val dataBaseSynchronize = DataBaseSynchronize(AudioDataProviderFactory.create(context))
+            val dataBaseSynchronize = DataBaseSynchronize(AudioDataProviderFactory.create(context),DataSourceSynchronizerFactoryImpl.create())
             this?.synchronize(dataBaseSynchronize, context = context)
             this
         } ?: synchronized(this) {
-            val dataBaseSynchronize = DataBaseSynchronize(AudioDataProviderFactory.create(context))
+            val dataBaseSynchronize = DataBaseSynchronize(AudioDataProviderFactory.create(context),DataSourceSynchronizerFactoryImpl.create())
             val instance = DataSynchroniseManagerImpl
             instance.synchronize(dataBaseSynchronize, context = context)
             sInstance = instance

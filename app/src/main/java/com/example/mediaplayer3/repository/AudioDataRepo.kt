@@ -46,7 +46,7 @@ class AudioDataRepo: IAudioDataRepo {
 
     override fun getById(context: Context, id: Long): Flow<MPAppAudio?> {
         MPLogger.i(CLASS_NAME,"getById", TAG,"id: $id")
-        return DataBaseApi.forAudio(context).getById(id).map { it?.toMPAppAudio() }
+        return DataBaseApi.forAudio(context).observeById(id).map { it?.toMPAppAudio() }
     }
 
     override fun getSongsByAlbum(context: Context, album: String): Flow<List<MPAppAudio>> {

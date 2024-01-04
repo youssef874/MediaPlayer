@@ -18,16 +18,19 @@
           <timeTargetWasSelectedWithDropDown value="2023-11-17T17:49:52.738131Z" />
         </State>
       </entry>
-      <entry key="tes_update()">
+      <entry key="test_synchronize_with_one_failed_dataSynchronizer()">
         <State />
       </entry>
-      <entry key="test_add()">
+      <entry key="test_synchronize_with_one_success_and_one_failed_dataSynchronizer()">
         <State />
       </entry>
-      <entry key="test_changeIsFavorite()">
+      <entry key="test_synchronize_with_one_success_dataSynchronizer()">
         <State />
       </entry>
-      <entry key="test_search_query()">
+      <entry key="test_synchronize_with_tow_failed_dataSynchronizer()">
+        <State />
+      </entry>
+      <entry key="test_synchronize_with_tow_success_dataSynchronizer()">
         <State />
       </entry>
     </value>

@@ -39,9 +39,14 @@ internal class AudioDataProvider(private val audioDao: IAudioDao): IAudioDataPro
         return audioDao.getAllAudios().map { it.toDBAudio() }
     }
 
-    override fun getById(id: Long): Flow<DBAudioData?> {
-        MPLogger.d(CLASS_NAME,"getById", TAG,"id: $id")
+    override fun observeById(id: Long): Flow<DBAudioData?> {
+        MPLogger.d(CLASS_NAME,"observeById", TAG,"id: $id")
         return audioDao.observeAudioById(id).map { it?.toDBAudio() }
+    }
+
+    override suspend fun getById(id: Long): DBAudioData? {
+        MPLogger.d(CLASS_NAME,"getById", TAG,"id: $id")
+        return audioDao.getAudioById(id)?.toDBAudio()
     }
 
     override fun query(query: SearchAudio): Flow<List<DBAudioData>> {
