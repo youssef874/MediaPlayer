@@ -8,8 +8,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mediaplayer3.ui.Constant
 import com.example.mediaplayer3.ui.ErrorScreen
 import com.example.mediaplayer3.ui.LoadingScreen
@@ -21,7 +21,7 @@ import com.example.mplog.MPLogger
 
 
 @Composable
-fun SplashScreen(splashViewModel: SplashViewModel = viewModel(), onNavigateToTrackList: ()->Unit) {
+fun SplashScreen(splashViewModel: SplashViewModel = hiltViewModel(), onNavigateToTrackList: ()->Unit) {
     MPLogger.i(Constant.SplashScreen.CLASS_NAME,"SplashScreen",Constant.SplashScreen.TAG,"display splash screen")
     val context = LocalContext.current
     LaunchedEffect(key1 = Unit){
