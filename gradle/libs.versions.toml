@@ -19,6 +19,8 @@ rebolic = "4.8.2"
 coroutine = "1.6,1"
 androidX-Room = "2.6.1"
 androidx-test = "1.5.0"
+hilt = "2.50"
+hilt-navigation = "1.1.0"
 
 
 [libraries]
@@ -52,6 +54,8 @@ androidx-room = {group = "androidx.room", name = "room-runtime", version.ref = "
 androidx-room-test = {group = "androidx.room", name = "room-testing", version.ref = "androidX-Room"}
 room-Ktx = {group = "androidx.room", name = "room-ktx", version.ref = "androidX-Room"}
 androidx-test-core = {group = "androidx.test", name = "core", version.ref = "androidx-test"}
+android-hilt = {group = "com.google.dagger", name = "hilt-android", version.ref = "hilt"}
+android-hilt-navigation = {group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hilt-navigation"}
 
 
 

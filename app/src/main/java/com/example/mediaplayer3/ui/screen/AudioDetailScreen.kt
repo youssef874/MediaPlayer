@@ -40,8 +40,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mediaplayer3.R
 import com.example.mediaplayer3.data.entity.RepeatMode
 import com.example.mediaplayer3.ui.Constant
@@ -56,7 +56,7 @@ import kotlin.math.abs
 
 @Composable
 fun AudioDetailScreen(
-    trackDetailViewModel: TrackDetailViewModel = viewModel(),
+    trackDetailViewModel: TrackDetailViewModel = hiltViewModel(),
     songId: Long,
     onBack: () -> Unit
 ) {

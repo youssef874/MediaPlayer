@@ -38,8 +38,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.mediaplayer3.R
 import com.example.mediaplayer3.domain.entity.UiAudio
@@ -58,7 +58,7 @@ import com.example.mplog.MPLogger
 
 
 @Composable
-fun TrackListScreen(trackListViewModel: TrackListViewModel = viewModel(),navigateToTrackDetail: (Long)->Unit) {
+fun TrackListScreen(trackListViewModel: TrackListViewModel = hiltViewModel(), navigateToTrackDetail: (Long)->Unit) {
     MPLogger.i(
         Constant.TrackList.CLASS_NAME,
         "TrackListScreen",

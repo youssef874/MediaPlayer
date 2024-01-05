@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.kotlinAndroid) apply false
     alias(libs.plugins.androidLibrary) apply false
     id("org.jetbrains.kotlin.kapt") version "1.9.0"
-    id("com.google.dagger.hilt.android") version "2.44" apply false
+    id("com.google.dagger.hilt.android") version "2.50" apply false
 }
 true // Needed to make the Suppress annotation work for the plugins block
 
@@ -18,7 +18,7 @@ buildscript{
     dependencies {
         // other plugins...
         classpath ("org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0")
-        classpath("com.google.dagger:hilt-android-gradle-plugin:2.44.2")
+        classpath("com.google.dagger:hilt-android-gradle-plugin:2.50")
         classpath("org.jetbrains.kotlinx:kotlinx-coroutines-test-jvm:1.7.1")
     }
 }

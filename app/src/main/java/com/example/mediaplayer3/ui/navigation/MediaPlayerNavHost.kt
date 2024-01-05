@@ -4,7 +4,7 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -28,7 +28,7 @@ fun MediaPlayerNavHost(
         modifier = modifier
     ) {
         composable(route = SplashScreenDest.route){
-            val viewModel: SplashViewModel = viewModel()
+            val viewModel: SplashViewModel = hiltViewModel()
             SplashScreen(splashViewModel = viewModel){
                 navController.navigateToTrackList()
                 viewModel.clear()
@@ -36,7 +36,7 @@ fun MediaPlayerNavHost(
         }
 
         composable(route = TrackListDest.route){
-            val viewModel: TrackListViewModel = viewModel()
+            val viewModel: TrackListViewModel = hiltViewModel()
             TrackListScreen(trackListViewModel = viewModel){
                 navController.navigateToTrackDetail(it)
                 viewModel.clear()
@@ -72,7 +72,7 @@ fun MediaPlayerNavHost(
         ){navBackStackEntry ->
             val songId = navBackStackEntry.arguments?.getLong(TrackDetailDest.ID_ARGS)
             if (songId != null){
-                val viewModel: TrackDetailViewModel = viewModel()
+                val viewModel: TrackDetailViewModel = hiltViewModel()
                 AudioDetailScreen(trackDetailViewModel = viewModel,songId = songId){
                     navController.navigateUp()
                 }

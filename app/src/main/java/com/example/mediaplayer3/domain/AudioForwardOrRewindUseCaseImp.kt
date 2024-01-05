@@ -7,48 +7,45 @@ import com.example.mplog.MPLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-object AudioForwardOrRewindUseCaseImp : IAudioForwardOrRewindUseCase, IUseCase {
+class AudioForwardOrRewindUseCaseImp @Inject constructor(
+    private val audioDataRepo: IAudioDataRepo,
+    private val playUseCase: IPlayAudioUseCase
+) : IAudioForwardOrRewindUseCase, IUseCase {
 
-    private const val CLASS_NAME = "AudioForwardOrRewindUseCaseImp"
-    private const val TAG = "AUDIO"
+    companion object {
+        private const val CLASS_NAME = "AudioForwardOrRewindUseCaseImp"
+        private const val TAG = "AUDIO"
+    }
 
-    private var audioDataRepo: IAudioDataRepo? = null
-    private var playUseCase: IPlayAudioUseCase? = null
 
-
-    private var _scope = CoroutineScope(Dispatchers.Default)
+    private val _scope: CoroutineScope = CoroutineScope(Dispatchers.Default)
     override val scope: CoroutineScope
         get() = _scope
 
-    operator fun invoke(audioDataRepo: IAudioDataRepo, scope: CoroutineScope,playUseCase: IPlayAudioUseCase) {
-        this.audioDataRepo = audioDataRepo
-        this._scope = scope
-        this.playUseCase = playUseCase
-    }
-
     override fun forward(forwardAt: Int) {
-        playUseCase?.currentPlayingSong()?.let {
+        playUseCase.currentPlayingSong()?.let {
             MPLogger.d(CLASS_NAME, "forward", TAG, "forwardAt: $forwardAt")
-            audioDataRepo?.forward(forwardAt)
-        }?:run {
-            MPLogger.w(CLASS_NAME,"forward", TAG,"no current song to forward")
+            audioDataRepo.forward(forwardAt)
+        } ?: run {
+            MPLogger.w(CLASS_NAME, "forward", TAG, "no current song to forward")
         }
     }
 
     override fun rewind(rewindAt: Int) {
-        playUseCase?.currentPlayingSong()?.let {
+        playUseCase.currentPlayingSong()?.let {
             MPLogger.d(CLASS_NAME, "rewind", TAG, "rewindAt: $rewindAt")
-            audioDataRepo?.rewind(rewindAt)
-        }?:run {
-            MPLogger.w(CLASS_NAME,"rewind", TAG,"no current song to rewind")
+            audioDataRepo.rewind(rewindAt)
+        } ?: run {
+            MPLogger.w(CLASS_NAME, "rewind", TAG, "no current song to rewind")
         }
     }
 
     override fun setPlayingPosition(context: Context, uri: Uri, position: Int) {
-        MPLogger.d(CLASS_NAME,"setPlayingPosition", TAG,"uri: $uri, position: $position")
+        MPLogger.d(CLASS_NAME, "setPlayingPosition", TAG, "uri: $uri, position: $position")
         scope.launch {
-            audioDataRepo?.setPlayingPosition(context, uri, position)
+            audioDataRepo.setPlayingPosition(context, uri, position)
         }
     }
 }

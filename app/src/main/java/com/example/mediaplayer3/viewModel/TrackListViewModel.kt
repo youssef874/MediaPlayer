@@ -4,22 +4,18 @@ import android.content.Context
 import androidx.lifecycle.viewModelScope
 import com.example.mediaplayer3.data.common.DefaultPagination
 import com.example.mediaplayer3.data.entity.Result
-import com.example.mediaplayer3.domain.AudioConfigurationUseCaseImpl
-import com.example.mediaplayer3.domain.FetchDataUseCase
 import com.example.mediaplayer3.domain.IAudioConfiguratorUseCase
 import com.example.mediaplayer3.domain.IAudioPauseOrResumeUseCase
 import com.example.mediaplayer3.domain.IFetchDataUseCase
 import com.example.mediaplayer3.domain.IPlayAudioUseCase
 import com.example.mediaplayer3.domain.IPlayNextOrPreviousSongUseCase
-import com.example.mediaplayer3.domain.PlayAudioUseCase
-import com.example.mediaplayer3.domain.PlayNextPreviousSongUseCase
-import com.example.mediaplayer3.domain.ResumePauseSongUseCaseImpl
 import com.example.mediaplayer3.domain.entity.UiAudio
 import com.example.mediaplayer3.ui.Constant
 import com.example.mediaplayer3.viewModel.data.tracklist.TrackListUiEvent
 import com.example.mediaplayer3.viewModel.data.tracklist.TrackListUiState
 import com.example.mediaplayer3.viewModel.delegates.JobController
 import com.example.mplog.MPLogger
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -30,13 +26,15 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class TrackListViewModel(
-    private val fetchDataUseCase: IFetchDataUseCase = FetchDataUseCase,
-    private val playAudioUseCase: IPlayAudioUseCase = PlayAudioUseCase,
-    private val pauseOrResumeUseCase: IAudioPauseOrResumeUseCase = ResumePauseSongUseCaseImpl,
-    private val audioConfiguratorUseCase: IAudioConfiguratorUseCase = AudioConfigurationUseCaseImpl,
-    private val playNextOrPreviousSongUseCase: IPlayNextOrPreviousSongUseCase = PlayNextPreviousSongUseCase
+@HiltViewModel
+class TrackListViewModel @Inject constructor(
+    private val fetchDataUseCase: IFetchDataUseCase ,
+    private val playAudioUseCase: IPlayAudioUseCase,
+    private val pauseOrResumeUseCase: IAudioPauseOrResumeUseCase,
+    private val audioConfiguratorUseCase: IAudioConfiguratorUseCase,
+    private val playNextOrPreviousSongUseCase: IPlayNextOrPreviousSongUseCase
 ) : BaseViewModel<TrackListUiEvent, TrackListUiState>() {
 
     private val _uiState = MutableStateFlow(TrackListUiState())
@@ -130,22 +128,12 @@ class TrackListViewModel(
         context?.let {
             //Start collecting after loading all song to have a a cashed progression when navigation to screen detail
             //If didn't play any song before
-            playAudioUseCase.lastSongProgress(it)?.collect()
+            playAudioUseCase.lastSongProgress(it).collect()
         }
     }
 
 
     init {
-        val repo = getAudioDataRepo()
-        (fetchDataUseCase as FetchDataUseCase).invoke(repo, viewModelScope)
-        (audioConfiguratorUseCase as AudioConfigurationUseCaseImpl).invoke(repo, viewModelScope)
-        (playAudioUseCase as PlayAudioUseCase).invoke(
-            repo,
-            fetchDataUseCase,
-            audioConfiguratorUseCase
-        )
-        (pauseOrResumeUseCase as ResumePauseSongUseCaseImpl).invoke(repo, playAudioUseCase)
-        (playNextOrPreviousSongUseCase as PlayNextPreviousSongUseCase).invoke(playAudioUseCase, fetchDataUseCase)
         handleEvent()
         var playJob: Job? = null
         playJob = viewModelScope.launch {

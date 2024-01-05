@@ -2,6 +2,8 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
+    id ("com.google.dagger.hilt.android")
+    kotlin("kapt")
 }
 
 android {
@@ -64,6 +66,9 @@ dependencies {
     implementation(libs.compose.icon.material.extended)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.lifecycle.runtime.ktx.compose)
+    implementation(libs.android.hilt)
+    implementation(libs.android.hilt.navigation)
+    kapt("com.google.dagger:hilt-compiler:2.50")
     implementation(project(":mpdatadrovider"))
     implementation(project(":mplogger"))
     implementation(project(":mpmediamanager"))
@@ -77,4 +82,8 @@ dependencies {
 
     debugImplementation(libs.ui.tooling)
     debugImplementation(libs.ui.test.manifest)
+}
+
+kapt {
+    correctErrorTypes = true
 }

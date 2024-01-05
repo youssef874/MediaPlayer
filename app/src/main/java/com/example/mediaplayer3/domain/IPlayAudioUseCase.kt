@@ -27,9 +27,9 @@ interface IPlayAudioUseCase {
         onSongStopped:  (UiAudio) -> Unit
     )
 
-    fun songProgression(coroutineScope: CoroutineScope): SharedFlow<Int>?
+    fun songProgression(coroutineScope: CoroutineScope): SharedFlow<Int>
 
-    fun lastSongProgress(context: Context): SharedFlow<Int>?
+    fun lastSongProgress(context: Context): SharedFlow<Int>
 
     fun currentPlayingSong(): UiAudio?
 

@@ -16,16 +16,18 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
+import javax.inject.Inject
 
-object FetchDataUseCase: IFetchDataUseCase,IUseCase {
+class FetchDataUseCase @Inject constructor(private val audioDataRepo: IAudioDataRepo ): IFetchDataUseCase,IUseCase {
 
-    private lateinit var audioDataRepo: IAudioDataRepo
-    private var _scope = CoroutineScope(Dispatchers.Default)
-
-    private const val CLASS_NAME = "FetchDataUseCase"
-    private const val TAG = "AUDIO"
+    companion object{
+        private const val CLASS_NAME = "FetchDataUseCase"
+        private const val TAG = "AUDIO"
+    }
 
     private var audioList: StateFlow<List<UiAudio>>? = null
+
+    private val _scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 
     private val collectAudioList: IUseCaseJobScheduler by UseCaseScheduler{
         audioList?.collectLatest {
@@ -34,11 +36,6 @@ object FetchDataUseCase: IFetchDataUseCase,IUseCase {
     }
     override val scope: CoroutineScope
         get() = _scope
-
-    operator fun invoke(audioDataRepo: IAudioDataRepo, coroutineScope: CoroutineScope){
-        this._scope = coroutineScope
-        this.audioDataRepo = audioDataRepo
-    }
 
 
     override fun requestData(

@@ -1,12 +1,12 @@
 package com.example.mediaplayer3.viewModel
 
 import androidx.lifecycle.viewModelScope
-import com.example.mediaplayer3.domain.AudioSyncUseCase
 import com.example.mediaplayer3.domain.IAudioSyncUseCase
 import com.example.mediaplayer3.viewModel.data.splash.SplashUiEvent
 import com.example.mediaplayer3.viewModel.data.splash.SplashUiState
 import com.example.mplog.MPLogger
 import com.example.mpstorage.synchronizer.event.SynchronisationType
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,9 +14,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SplashViewModel(
-    private val audioSyncUseCase: IAudioSyncUseCase = AudioSyncUseCase,
+
+@HiltViewModel
+class SplashViewModel @Inject constructor(
+    private val audioSyncUseCase: IAudioSyncUseCase,
 ): BaseViewModel<SplashUiEvent,SplashUiState>() {
 
     private val _uiState = MutableStateFlow(SplashUiState())
@@ -25,12 +28,11 @@ class SplashViewModel(
     private var syncChangesObserver: Job
 
     init {
-        (audioSyncUseCase as AudioSyncUseCase).invoke(getAudioDataRepo(),viewModelScope)
 
         handleEvents()
 
         syncChangesObserver = viewModelScope.launch {
-            audioSyncUseCase.syncChanges?.collectLatest {event->
+            audioSyncUseCase.syncChanges.collectLatest {event->
                 MPLogger.d(CLASS_NAME,"init", TAG,"synchronizationType: ${event.synchronizationType}")
                 when(event.synchronizationType){
                     SynchronisationType.SYNCHRONISATION_STARTED->{

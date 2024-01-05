@@ -15,8 +15,9 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-class AudioDataRepo: IAudioDataRepo {
+class AudioDataRepo @Inject constructor() : IAudioDataRepo {
 
     companion object{
         private const val CLASS_NAME = "AudioDataRepo"

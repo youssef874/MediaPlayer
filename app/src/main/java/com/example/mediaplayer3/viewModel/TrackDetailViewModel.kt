@@ -3,10 +3,6 @@ package com.example.mediaplayer3.viewModel
 import android.content.Context
 import androidx.lifecycle.viewModelScope
 import com.example.mediaplayer3.data.entity.RepeatMode
-import com.example.mediaplayer3.domain.AudioConfigurationUseCaseImpl
-import com.example.mediaplayer3.domain.AudioForwardOrRewindUseCaseImp
-import com.example.mediaplayer3.domain.EditSongUseCase
-import com.example.mediaplayer3.domain.FetchDataUseCase
 import com.example.mediaplayer3.domain.IAudioConfiguratorUseCase
 import com.example.mediaplayer3.domain.IAudioForwardOrRewindUseCase
 import com.example.mediaplayer3.domain.IAudioPauseOrResumeUseCase
@@ -14,14 +10,12 @@ import com.example.mediaplayer3.domain.IEditSongUseCase
 import com.example.mediaplayer3.domain.IFetchDataUseCase
 import com.example.mediaplayer3.domain.IPlayAudioUseCase
 import com.example.mediaplayer3.domain.IPlayNextOrPreviousSongUseCase
-import com.example.mediaplayer3.domain.PlayAudioUseCase
-import com.example.mediaplayer3.domain.PlayNextPreviousSongUseCase
-import com.example.mediaplayer3.domain.ResumePauseSongUseCaseImpl
 import com.example.mediaplayer3.viewModel.data.trackDetail.TrackDetailUiState
 import com.example.mediaplayer3.viewModel.data.trackDetail.TrackDetailsUiEvent
 import com.example.mediaplayer3.viewModel.delegates.IJobController
 import com.example.mediaplayer3.viewModel.delegates.JobController
 import com.example.mplog.MPLogger
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,15 +27,17 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class TrackDetailViewModel(
-    private val fetchDataUseCase: IFetchDataUseCase = FetchDataUseCase,
-    private val playAudioUseCase: IPlayAudioUseCase = PlayAudioUseCase,
-    private val pauseOrResumeUseCase: IAudioPauseOrResumeUseCase = ResumePauseSongUseCaseImpl,
-    private val audioConfiguratorUseCase: IAudioConfiguratorUseCase = AudioConfigurationUseCaseImpl,
-    private val audioForwardOrRewindUseCase: IAudioForwardOrRewindUseCase = AudioForwardOrRewindUseCaseImp,
-    private val playNextOrPreviousSongUseCase: IPlayNextOrPreviousSongUseCase = PlayNextPreviousSongUseCase,
-    private val editSongUseCase: IEditSongUseCase = EditSongUseCase
+@HiltViewModel
+class TrackDetailViewModel @Inject constructor(
+    private val fetchDataUseCase: IFetchDataUseCase,
+    private val playAudioUseCase: IPlayAudioUseCase ,
+    private val pauseOrResumeUseCase: IAudioPauseOrResumeUseCase ,
+    private val audioConfiguratorUseCase: IAudioConfiguratorUseCase ,
+    private val audioForwardOrRewindUseCase: IAudioForwardOrRewindUseCase,
+    private val playNextOrPreviousSongUseCase: IPlayNextOrPreviousSongUseCase,
+    private val editSongUseCase: IEditSongUseCase
 ) : BaseViewModel<TrackDetailsUiEvent, TrackDetailUiState>() {
 
     private val _uiState = MutableStateFlow(TrackDetailUiState())
@@ -73,9 +69,9 @@ class TrackDetailViewModel(
             }
         }
         context?.let { cont ->
-            playAudioUseCase.lastSongProgress(cont)?.let { lastProgress ->
+            playAudioUseCase.lastSongProgress(cont).let { lastProgress ->
                 playAudioUseCase.songProgression(viewModelScope)
-                    ?.combine(lastProgress) { currentProgress, lastP ->
+                    .combine(lastProgress) { currentProgress, lastP ->
                         MPLogger.d(
                             CLASS_NAME,
                             "collectProgress",
@@ -93,7 +89,7 @@ class TrackDetailViewModel(
                                 }
                             )
                         }
-                    }?.collect()
+                    }.collect()
             }
         }
     }
@@ -137,25 +133,6 @@ class TrackDetailViewModel(
     }
 
     init {
-        val repo = getAudioDataRepo()
-        (fetchDataUseCase as FetchDataUseCase).invoke(repo, viewModelScope)
-        (audioConfiguratorUseCase as AudioConfigurationUseCaseImpl).invoke(repo, viewModelScope)
-        (playAudioUseCase as PlayAudioUseCase).invoke(
-            repo,
-            fetchDataUseCase,
-            audioConfiguratorUseCase
-        )
-        (pauseOrResumeUseCase as ResumePauseSongUseCaseImpl).invoke(repo, playAudioUseCase)
-        (audioForwardOrRewindUseCase as AudioForwardOrRewindUseCaseImp).invoke(
-            audioDataRepo = repo,
-            scope = viewModelScope,
-            playUseCase = playAudioUseCase
-        )
-        (playNextOrPreviousSongUseCase as PlayNextPreviousSongUseCase).invoke(
-            playAudioUseCase,
-            fetchDataUseCase
-        )
-        (editSongUseCase as EditSongUseCase).invoke(repo)
         handleEvents()
 
         var stopJob: Job? = null
@@ -402,7 +379,6 @@ class TrackDetailViewModel(
         collectProgress.launchJob(event.context)
         collectIsRandomJob.launchJob(event.context)
         collectRepeatModeJob.launchJob(event.context)
-        collectCurrentSongChanges.launchJob(event.context)
         fetchDataUseCase.getExtractedSongList().find { it.id == event.songId }?.let { uiAudio ->
             _uiState.update {
                 it.copy(
@@ -412,6 +388,7 @@ class TrackDetailViewModel(
                 )
             }
         }
+        collectCurrentSongChanges.launchJob(event.context)
     }
 
     override fun clear() {

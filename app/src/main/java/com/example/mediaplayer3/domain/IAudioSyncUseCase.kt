@@ -6,6 +6,6 @@ import kotlinx.coroutines.flow.SharedFlow
 
 interface IAudioSyncUseCase {
 
-    val syncChanges: SharedFlow<SynchronisationChanges>?
+    val syncChanges: SharedFlow<SynchronisationChanges>
     fun sync(context: Context)
 }
