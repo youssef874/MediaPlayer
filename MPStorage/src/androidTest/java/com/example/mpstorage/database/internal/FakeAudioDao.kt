@@ -1,13 +1,32 @@
 package com.example.mpstorage.database.internal
 
 import com.example.mpstorage.database.internal.entity.AudioEntity
+import com.example.mpstorage.database.internal.entity.PlaylistSongCrossRef
+import com.example.mpstorage.database.internal.entity.PlaylistWithSongs
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-object FakeAudioDao: IAudioDao {
+internal object FakeAudioDao: IAudioDao {
 
     private val list = mutableListOf<AudioEntity>()
     private var notify: (suspend ()->Unit)? = null
+
+    private val listWith = mutableListOf<PlaylistWithSongs>()
+
+    suspend fun addWith(playlistSongCrossRef: PlaylistSongCrossRef){
+        val playlist = FakePlayListDao.getPlayListById(playlistSongCrossRef.playListId)
+        playlist?.let {
+            listWith.add(PlaylistWithSongs(it, list))
+        }
+        notify?.invoke()
+    }
+
+    suspend fun removeWith(playlistSongCrossRef: PlaylistSongCrossRef){
+        listWith.find { it.playListEntity.id == playlistSongCrossRef.playListId }?.let {
+            listWith.remove(it)
+        }
+        notify?.invoke()
+    }
 
     override suspend fun addAudio(audioEntity: AudioEntity) {
         list.add(audioEntity)
@@ -84,6 +103,32 @@ object FakeAudioDao: IAudioDao {
             emit(list.filter { it.artist == artist })
             notify = {
                 emit(list.filter { it.artist == artist })
+            }
+        }
+    }
+
+    override suspend fun getListOfAudioListOfPlayList(): List<PlaylistWithSongs> {
+        return listWith
+    }
+
+    override suspend fun getListOfAudioForPlayList(playListId: Long): PlaylistWithSongs? {
+        return listWith.find { it.playListEntity.id == playListId }
+    }
+
+    override fun observeListOfAudioForPlayList(playListId: Long): Flow<PlaylistWithSongs?> {
+        return flow {
+            emit(listWith.find { it.playListEntity.id == playListId })
+            notify = {
+                emit(listWith.find { it.playListEntity.id == playListId })
+            }
+        }
+    }
+
+    override fun observeListOfAudioListOfPlayList(): Flow<List<PlaylistWithSongs>> {
+        return flow {
+            emit(listWith)
+            notify = {
+                emit(listWith)
             }
         }
     }

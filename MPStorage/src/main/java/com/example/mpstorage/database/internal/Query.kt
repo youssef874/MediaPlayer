@@ -1,41 +1,88 @@
 package com.example.mpstorage.database.internal
 
 import com.example.mpstorage.database.data.DBAudioData
+import com.example.mpstorage.database.data.DBPlayListData
+import com.example.mpstorage.database.internal.entity.PlayListEntity
+import com.example.mpstorage.database.internal.entity.PlaylistSongCrossRef
+import com.example.mpstorage.database.internal.entity.PlaylistWithSongs
+import com.example.mpstorage.database.internal.entity.SongWithPlaylists
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 internal sealed interface Query
 
 
-internal sealed class BaseAudioQuery(protected val audioDao: IAudioDao): Query {
+internal sealed class BaseAudioQuery(protected val audioDao: IAudioDao) : Query {
 
     abstract fun find(): Flow<List<DBAudioData>>
 
-    class FindBySongNameQueryBase(audioDao: IAudioDao, private val songName: String): BaseAudioQuery(audioDao){
+    class FindBySongNameQueryBase(audioDao: IAudioDao, private val songName: String) :
+        BaseAudioQuery(audioDao) {
         override fun find(): Flow<List<DBAudioData>> {
-            return super.audioDao.getAudioBySongName(songName).map { it.map { item->item.toDBAudio() } }
+            return super.audioDao.getAudioBySongName(songName)
+                .map { it.map { item -> item.toDBAudio() } }
         }
 
     }
 
-    class FindBayAlbumQueryBase(audioDao: IAudioDao, private val album: String): BaseAudioQuery(audioDao) {
+    class FindBayAlbumQueryBase(audioDao: IAudioDao, private val album: String) :
+        BaseAudioQuery(audioDao) {
         override fun find(): Flow<List<DBAudioData>> {
-            return super.audioDao.getAudioByAlbum(album).map { it.map { item->item.toDBAudio() } }
+            return super.audioDao.getAudioByAlbum(album).map { it.map { item -> item.toDBAudio() } }
         }
     }
 
-    class FindByArtistNameObject(audioDao: IAudioDao, private val artist: String): BaseAudioQuery(audioDao) {
+    class FindByArtistNameObject(audioDao: IAudioDao, private val artist: String) :
+        BaseAudioQuery(audioDao) {
         override fun find(): Flow<List<DBAudioData>> {
-            return super.audioDao.getAudioArtist(artist).map { it.map { item->item.toDBAudio() } }
+            return super.audioDao.getAudioArtist(artist).map { it.map { item -> item.toDBAudio() } }
+        }
+    }
+
+    class FindAllSongForPlayList(audioDao: IAudioDao, private val playListId: Long) :
+        BaseAudioQuery(audioDao) {
+        override fun find(): Flow<List<DBAudioData>> {
+            return audioDao.observeListOfAudioForPlayList(playListId)
+                .map { value: PlaylistWithSongs? ->
+                    value?.songs?.map { it.toDBAudio() } ?: emptyList()
+                }
         }
     }
 }
 
-internal sealed class InternalAudioQuery(protected val audioDao: IAudioDao): Query{
+internal sealed class InternalPlayListFinder(protected val playListDao: IPlayListDao) : Query {
+
+    abstract fun observe(): Flow<List<DBPlayListData>>
+
+    class FindPlayListByName(playListDao: IPlayListDao, private val playListName: String) :
+        InternalPlayListFinder(playListDao) {
+        override fun observe(): Flow<List<DBPlayListData>> {
+            return playListDao.observePlayListsByName(playListName)
+                .map { value: List<PlayListEntity> -> value.map { it.toDBPlayListData() } }
+        }
+    }
+
+    class FindAllPlayListForAudio(playListDao: IPlayListDao, private val audioId: Long) :
+        InternalPlayListFinder(playListDao) {
+
+        override fun observe(): Flow<List<DBPlayListData>> {
+            return playListDao.observeListOfPlayListForAudio(audioId)
+                .map { value: SongWithPlaylists? ->
+                    value?.playLists?.map { it.toDBPlayListData() } ?: emptyList()
+                }
+        }
+    }
+}
+
+internal sealed class InternalAudioQuery(protected val audioDao: IAudioDao) : Query {
 
     abstract suspend fun action()
 
-    class ChangeIsFavorite(audioDao: IAudioDao,private val songId: Long, private val isFavorite: Boolean):InternalAudioQuery(audioDao){
+    class ChangeIsFavorite(
+        audioDao: IAudioDao,
+        private val songId: Long,
+        private val isFavorite: Boolean
+    ) : InternalAudioQuery(audioDao) {
         override suspend fun action() {
             val audio = super.audioDao.getAudioById(songId)
             val updatedAudio = audio?.copy(isFavorite = isFavorite)
@@ -44,6 +91,27 @@ internal sealed class InternalAudioQuery(protected val audioDao: IAudioDao): Que
             }
         }
 
+    }
+}
+
+internal sealed class InternalPlayListQuery(protected val playListDao: IPlayListDao) : Query {
+
+    abstract suspend fun action()
+
+    class AttachAudioToPlayList(
+        playListDao: IPlayListDao,
+        private val audioId: Long,
+        private val playList: DBPlayListData
+    ) : InternalPlayListQuery(playListDao) {
+        override suspend fun action() {
+            val playListEntity = playListDao.getPlayListById(playList.playListId)
+            if (playListEntity == null) {
+                playListDao.addPlayList(playList.toPlayListEntity())
+            }
+            playListDao.addPlaylistSongCrossRef(
+                PlaylistSongCrossRef(playListId = playList.playListId, songId = audioId)
+            )
+        }
     }
 }
 

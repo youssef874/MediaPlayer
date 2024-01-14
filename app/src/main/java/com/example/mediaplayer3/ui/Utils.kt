@@ -20,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import com.example.mediaplayer3.R
 import com.example.mediaplayer3.domain.entity.UiAudio
+import com.example.mediaplayer3.ui.listcomponent.ItemData
 
 @Composable
 fun RequestSinglePermission(
@@ -101,3 +102,19 @@ fun Int.timeFormatter(): String {
 typealias function0 = () -> Unit
 
 typealias uiAudioFun0 = (UiAudio, Context) -> Unit
+
+fun UiAudio.toItemData(): ItemData{
+    val second = duration / 1000
+    val minutes = second / 60
+    val hours = minutes / 60
+    val formattedDuration =
+        String.format("%02d:%02d:%02d", hours, minutes % 60, second % 60)
+    return ItemData(
+        id = id,
+        imageUri = albumThumbnailUri,
+        title = songName,
+        subtitle = artistName,
+        endText = formattedDuration
+
+    )
+}

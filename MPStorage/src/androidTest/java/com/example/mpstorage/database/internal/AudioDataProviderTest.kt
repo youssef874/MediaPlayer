@@ -1,16 +1,20 @@
 package com.example.mpstorage.database.internal
 
 import android.net.Uri
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.mpstorage.database.data.DBAudioData
 import com.example.mpstorage.database.data.QueryAudio
 import com.example.mpstorage.database.data.SearchAudio
+import com.example.mpstorage.database.internal.entity.PlayListEntity
+import com.example.mpstorage.database.internal.entity.PlaylistSongCrossRef
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
+import org.junit.runner.RunWith
 
-
+@RunWith(AndroidJUnit4::class)
 class AudioDataProviderTest{
 
     private val audioDataProvider: AudioDataProvider = AudioDataProvider(FakeAudioDao)
@@ -88,6 +92,22 @@ class AudioDataProviderTest{
             with(audioDataProvider.observeById(dbAudioData.idAudio)){
                 assert(count() == 1)
                 assert(single()?.isFavorite == true)
+            }
+        }
+    }
+
+    @Test
+    fun test_SearchForAllSongForPlayList()= runTest {
+        audioDataProvider.add(dbAudioData)
+        FakePlayListDao.addPlayList(
+            PlayListEntity(id = 1L, name = "play list 1")
+        )
+        FakePlayListDao.addPlaylistSongCrossRef(PlaylistSongCrossRef(playListId = 1L, songId = 1L))
+        backgroundScope.launch {
+            with(audioDataProvider.query(SearchAudio.SearchForAllSongForPlayList(playListId = 1L))){
+                val single = single()
+                assert(single.isNotEmpty())
+                assert(single.contains(dbAudioData))
             }
         }
     }

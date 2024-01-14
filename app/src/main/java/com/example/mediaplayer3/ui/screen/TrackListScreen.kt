@@ -9,22 +9,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,8 +44,9 @@ import com.example.mediaplayer3.ui.NextButton
 import com.example.mediaplayer3.ui.PauseButton
 import com.example.mediaplayer3.ui.PlayButton
 import com.example.mediaplayer3.ui.PreviousButton
-import com.example.mediaplayer3.ui.theme.ItemBackground
+import com.example.mediaplayer3.ui.listcomponent.ListComponent
 import com.example.mediaplayer3.ui.theme.LightBlue
+import com.example.mediaplayer3.ui.toItemData
 import com.example.mediaplayer3.viewModel.TrackListViewModel
 import com.example.mediaplayer3.viewModel.data.tracklist.TrackListUiEvent
 import com.example.mplog.MPLogger
@@ -101,13 +96,13 @@ fun TrackListScreen(trackListViewModel: TrackListViewModel = hiltViewModel(), na
             "loading data success ${state.dataList.size}"
         )
         Box {
-            TrackList(
-                audioList = state.dataList,
+            ListComponent(
+                dataList = state.dataList.map { it.toItemData() },
                 isEndReached = state.isEndReached,
                 isNextItemLoading = state.iNextItemsLoading,
-                selectedItem = state.currentSelectedItem,
+                selectedItem = state.currentSelectedItem?.toItemData(),
                 onListItemClick = {
-                    trackListViewModel.onEvent(TrackListUiEvent.ClickSong(it, context))
+                    trackListViewModel.onEvent(TrackListUiEvent.ClickSong(state.dataList.first { uiAudio -> uiAudio.id == it.id }, context))
                 }
             ) {
                 MPLogger.d(
@@ -137,105 +132,6 @@ fun TrackListScreen(trackListViewModel: TrackListViewModel = hiltViewModel(), na
                     }
                 )
             }
-        }
-    }
-}
-
-@Composable
-fun TrackList(
-    modifier: Modifier = Modifier,
-    audioList: List<UiAudio>,
-    isEndReached: Boolean,
-    isNextItemLoading: Boolean,
-    selectedItem: UiAudio? = null,
-    onListItemClick: (UiAudio) -> Unit,
-    loadNextItem: () -> Unit
-) {
-    LazyColumn(modifier = modifier.fillMaxSize()) {
-        items(audioList.size, key = { audioList[it].id }) {
-            val item = audioList[it]
-            if (it >= audioList.size - 1 && !isEndReached && !isNextItemLoading) {
-                LaunchedEffect(key1 = Unit) {
-                    loadNextItem()
-                }
-            }
-            if (selectedItem != null && selectedItem.id == item.id) {
-                MPLogger.d(
-                    Constant.TrackList.CLASS_NAME,
-                    "AudioList",
-                    Constant.TrackList.TAG,
-                    "selectedItem: $item"
-                )
-                AudioItem(uiAudio = selectedItem, isPlaying = true) {
-                    onListItemClick(item)
-                }
-            } else {
-                AudioItem(uiAudio = item) {
-                    onListItemClick(item)
-                }
-            }
-            if (it >= audioList.size - 1 && isEndReached && !isNextItemLoading) {
-                Spacer(modifier = Modifier.padding(bottom = 50.dp))
-            } else if (isNextItemLoading) {
-                Row(
-                    modifier = modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    LoadingScreen()
-                }
-            }
-        }
-    }
-}
-
-
-@Composable
-fun AudioItem(
-    modifier: Modifier = Modifier,
-    uiAudio: UiAudio,
-    isPlaying: Boolean = false,
-    onItemClicked: () -> Unit
-) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-            .height(100.dp)
-            .clickable {
-                onItemClicked()
-            }, elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = modifier
-                .background(color = ItemBackground)
-                .fillMaxSize()
-        ) {
-            ItemImage(
-                imageUri = uiAudio.albumThumbnailUri,
-                modifier = modifier
-                    .height(50.dp)
-                    .width(50.dp)
-                    .weight(1F)
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            Column(modifier.weight(3F)) {
-                TitleText(
-                    text = uiAudio.songName,
-                    modifier = modifier.padding(8.dp),
-                    isPlaying = isPlaying
-                )
-                SubTitleText(text = uiAudio.artistName, isPlaying = isPlaying)
-            }
-            Spacer(modifier = Modifier.weight(1F))
-            val second = uiAudio.duration / 1000
-            val minutes = second / 60
-            val hours = minutes / 60
-            val formattedDuration =
-                String.format("%02d:%02d:%02d", hours, minutes % 60, second % 60)
-            RegularText(text = formattedDuration)
         }
     }
 }

@@ -4,7 +4,7 @@ import com.example.mpstorage.database.data.BaseDatabaseData
 import com.example.mpstorage.database.data.Search
 import kotlinx.coroutines.flow.Flow
 
-interface IBaseDataBaseProvider<T: BaseDatabaseData,Q: Search> {
+ interface IBaseDataBaseProvider<T: BaseDatabaseData,Q: Search> {
 
     suspend fun add(data: T)
 

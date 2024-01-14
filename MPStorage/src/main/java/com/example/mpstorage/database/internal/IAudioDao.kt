@@ -5,8 +5,10 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import com.example.mpstorage.database.internal.entity.AudioEntity
+import com.example.mpstorage.database.internal.entity.PlaylistWithSongs
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -41,4 +43,20 @@ internal interface IAudioDao {
 
     @Query("SELECT * FROM audio WHERE artist = :artist")
     fun getAudioArtist(artist: String): Flow<List<AudioEntity>>
+
+    @Transaction
+    @Query("SELECT * FROM play_list")
+    suspend fun getListOfAudioListOfPlayList(): List<PlaylistWithSongs>
+
+    @Transaction
+    @Query("SELECT * FROM play_list WHERE play_list_id =:playListId")
+    suspend fun getListOfAudioForPlayList(playListId: Long): PlaylistWithSongs?
+
+    @Transaction
+    @Query("SELECT * FROM play_list WHERE play_list_id =:playListId")
+    fun observeListOfAudioForPlayList(playListId: Long): Flow<PlaylistWithSongs?>
+
+    @Transaction
+    @Query("SELECT * FROM play_list")
+    fun observeListOfAudioListOfPlayList(): Flow<List<PlaylistWithSongs>>
 }

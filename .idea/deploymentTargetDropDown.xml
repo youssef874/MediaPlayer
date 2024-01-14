@@ -2,6 +2,9 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
+      <entry key="Preview">
+        <State />
+      </entry>
       <entry key="app">
         <State>
           <targetSelectedWithDropDown>
@@ -18,19 +21,16 @@
           <timeTargetWasSelectedWithDropDown value="2023-11-17T17:49:52.738131Z" />
         </State>
       </entry>
-      <entry key="test_synchronize_with_one_failed_dataSynchronizer()">
+      <entry key="test_AddSongToPlayList_and_SearchSongPlayLists()">
         <State />
       </entry>
-      <entry key="test_synchronize_with_one_success_and_one_failed_dataSynchronizer()">
+      <entry key="test_delete_and_getAll()">
         <State />
       </entry>
-      <entry key="test_synchronize_with_one_success_dataSynchronizer()">
+      <entry key="test_update_and_FindPlayListByName()">
         <State />
       </entry>
-      <entry key="test_synchronize_with_tow_failed_dataSynchronizer()">
-        <State />
-      </entry>
-      <entry key="test_synchronize_with_tow_success_dataSynchronizer()">
+      <entry key="test_update_and_getAll()">
         <State />
       </entry>
     </value>

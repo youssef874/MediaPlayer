@@ -4,6 +4,8 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.mpstorage.database.internal.entity.AudioEntity
+import com.example.mpstorage.database.internal.entity.PlayListEntity
+import com.example.mpstorage.database.internal.entity.PlaylistSongCrossRef
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
@@ -17,6 +19,8 @@ class DataBaseTest{
 
     private lateinit var audioDao: IAudioDao
     private lateinit var db: DataBase
+    private lateinit var playListDao: IPlayListDao
+
 
     private val audio = AudioEntity(
         id = 1L,
@@ -48,6 +52,40 @@ class DataBaseTest{
         externalId = 2L
     )
 
+    private val playLists = mutableListOf<PlayListEntity>(
+        PlayListEntity(
+            id = 1L,
+            name = "playList1"
+        ),
+        PlayListEntity(
+            id = 2L,
+            name = "playList2"
+        )
+    )
+
+    private val playlistSongCrossRef1 = PlaylistSongCrossRef(
+        playListId = playLists.first().id,
+        songId = audio.id
+    )
+
+    private val playlistSongCrossRef2 = PlaylistSongCrossRef(
+        playListId = playLists.first().id,
+        songId = audio2.id
+    )
+
+
+    private val playlistSongCrossRef3 = PlaylistSongCrossRef(
+        playListId = playLists.last().id,
+        songId = audio.id
+    )
+
+    private val playlistSongCrossRef4 = PlaylistSongCrossRef(
+        playListId = playLists.last().id,
+        songId = audio2.id
+    )
+
+
+
     @Before
     fun setup(){
         db = Room.inMemoryDatabaseBuilder(
@@ -55,6 +93,7 @@ class DataBaseTest{
             DataBase::class.java
         ).allowMainThreadQueries().build()
         audioDao = db.getAudioDao()
+        playListDao = db.getPlayListDao()
     }
 
     @After
@@ -141,5 +180,147 @@ class DataBaseTest{
 
             }
         }
+    }
+
+    @Test
+    fun test_addPlayList_and_getPlayListById()= runTest {
+        val firsItem = playLists.first()
+        playListDao.addPlayList(firsItem)
+        val playlist = playListDao.getPlayListById(firsItem.id)
+        assert(playlist != null)
+        assert(playlist?.id == firsItem.id)
+    }
+
+    @Test
+    fun test_addPlayList_tow_item_and_getAllPlayList()= runTest {
+        playLists.forEach {
+            playListDao.addPlayList(it)
+        }
+        val list = playListDao.getAllPlayList()
+        assert(list.size == 2)
+        assert(list.any { it.id == playLists.first().id })
+        assert(list.any { it.id == playLists.last().id })
+    }
+
+    @Test
+    fun test_addPlayList_updatePlayList_getPlayListById() = runTest {
+        val firsItem = playLists.first()
+        playListDao.addPlayList(firsItem)
+        val updatedItem = firsItem.copy(name = "test")
+        playListDao.updatePlayList(updatedItem)
+        val playlist = playListDao.getPlayListById(firsItem.id)
+        assert(playlist != null)
+        assert(playlist?.id == firsItem.id)
+        assert(playlist?.name != firsItem.name)
+        assert(playlist?.name == updatedItem.name)
+    }
+
+    fun test_addPlayList_deletePlayList()= runTest {
+        val firsItem = playLists.first()
+        playListDao.addPlayList(firsItem)
+        playListDao.deletePlayList(firsItem)
+        val playlist = playListDao.getPlayListById(firsItem.id)
+        assert(playlist == null)
+    }
+
+    @Test
+    fun test_observePlayListsByName() = runTest {
+        playLists.forEach {
+            playListDao.addPlayList(it)
+        }
+        backgroundScope.launch {
+            with(playListDao.observePlayListsByName("playList1")){
+                val single = single()
+                assert(single.size == 1)
+                assert(single.find { it.id ==  playLists.first().id} != null)
+            }
+        }
+    }
+
+    @Test
+    fun test_addPlaylistSongCrossRef_and_getListOfPlayListOfSongs()= runTest {
+        playListDao.addPlaylistSongCrossRef(playlistSongCrossRef1)
+        playListDao.addPlaylistSongCrossRef(playlistSongCrossRef2)
+        //playListDao.addPlaylistSongCrossRef(playlistSongCrossRef3)
+        playListDao.addPlaylistSongCrossRef(playlistSongCrossRef4)
+        backgroundScope.launch {
+            with(playListDao.getListOfPlayListOfSongs()){
+                assert(isNotEmpty())
+                find { it.audioEntity.id == audio.id }?.let {
+                    assert(it.playLists.isNotEmpty())
+                    assert(it.playLists.any { playListEntity -> playListEntity.id == playLists.first().id })
+                    assert(it.playLists.none { playListEntity -> playListEntity.id == playLists.last().id })
+                }
+
+                find { it.audioEntity.id == audio2.id }?.let {
+                    assert(it.playLists.isNotEmpty())
+                    assert(it.playLists.any { playListEntity -> playListEntity.id == playLists.first().id })
+                    assert(it.playLists.any() { playListEntity -> playListEntity.id == playLists.last().id })
+                }
+            }
+        }
+    }
+
+    @Test
+    fun test_addPlaylistSongCrossRef_and_getListOfAudioListOfPlayList() = runTest {
+        playListDao.addPlaylistSongCrossRef(playlistSongCrossRef1)
+        //playListDao.addPlaylistSongCrossRef(playlistSongCrossRef2)
+        playListDao.addPlaylistSongCrossRef(playlistSongCrossRef3)
+        playListDao.addPlaylistSongCrossRef(playlistSongCrossRef4)
+        backgroundScope.launch {
+            with(audioDao.getListOfAudioListOfPlayList()){
+                assert(isNotEmpty())
+                find { it.playListEntity.id == playLists.first().id}?.let { playlistWithSongs ->
+                    assert(playlistWithSongs.songs.isNotEmpty())
+                    assert(playlistWithSongs.songs.any { it.id == audio.id })
+                    assert(playlistWithSongs.songs.none { it.id == audio2.id })
+                }
+                find { it.playListEntity.id == playLists.last().id}?.let { playlistWithSongs ->
+                    assert(playlistWithSongs.songs.isNotEmpty())
+                    assert(playlistWithSongs.songs.any { it.id == audio.id })
+                    assert(playlistWithSongs.songs.any { it.id == audio2.id })
+                }
+            }
+        }
+    }
+
+    @Test
+    fun test_addPlaylistSongCrossRef_and_getListOfAudioForPlayList() = runTest {
+        playLists.forEach {
+            playListDao.addPlayList(it)
+        }
+        audioDao.addAudio(audio)
+        audioDao.addAudio(audio2)
+        playListDao.addPlaylistSongCrossRef(playlistSongCrossRef1)
+        playListDao.addPlaylistSongCrossRef(playlistSongCrossRef2)
+        playListDao.addPlaylistSongCrossRef(playlistSongCrossRef3)
+        playListDao.addPlaylistSongCrossRef(playlistSongCrossRef4)
+
+        val result = audioDao.getListOfAudioForPlayList(playLists.first().id)
+        assert(result != null)
+        assert(result?.songs?.size == 2)
+        assert(result?.playListEntity?.id == playLists.first().id)
+        assert(result?.songs?.any { it.id == audio.id } != null)
+        assert(result?.songs?.any { it.id == audio2.id } != null)
+    }
+
+    @Test
+    fun test_addPlaylistSongCrossRef_and_getListOfPlayListForAudio()= runTest {
+        playLists.forEach {
+            playListDao.addPlayList(it)
+        }
+        audioDao.addAudio(audio)
+        audioDao.addAudio(audio2)
+        playListDao.addPlaylistSongCrossRef(playlistSongCrossRef1)
+        playListDao.addPlaylistSongCrossRef(playlistSongCrossRef2)
+        playListDao.addPlaylistSongCrossRef(playlistSongCrossRef3)
+        playListDao.addPlaylistSongCrossRef(playlistSongCrossRef4)
+
+        val result = playListDao.getListOfPlayListForAudio(audio.id)
+        assert(result != null)
+        assert(result?.playLists?.size == 2)
+        assert(result?.audioEntity?.id == audio.id)
+        assert(result?.playLists?.any { it.id == playLists.first().id } != null)
+        assert(result?.playLists?.any { it.id == playLists.last().id } != null)
     }
 }
