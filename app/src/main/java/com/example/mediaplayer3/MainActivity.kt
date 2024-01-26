@@ -10,8 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
+import com.example.mediaplayer3.ui.AddItemComponent
 import com.example.mediaplayer3.ui.listcomponent.ItemData
-import com.example.mediaplayer3.ui.listcomponent.ListComponent
 import com.example.mediaplayer3.ui.navigation.MediaPlayerNavHost
 import com.example.mediaplayer3.ui.theme.MediaPlayer3Theme
 import dagger.hilt.android.AndroidEntryPoint
@@ -50,19 +50,17 @@ val list = listOf(
     ItemData(title = "title7", subtitle = "subtitle7", endText = "2050000", id = 7L),
     ItemData(title = "title8", subtitle = "subtitle8", endText = "2000500", id = 8L)
 )
+
 @Preview
 @Composable
 fun Preview() {
     MediaPlayer3Theme {
 
-        ListComponent(
-            dataList = list,
-            isEndReached = true,
-            isNextItemLoading = false,
-            onListItemClick = {},
-            selectedItem = list.first { it.id == 2L }
-        ) {
-
-        }
+        AddItemComponent(
+            itemName = "Playlist",
+            defaultValue = "playList1",
+            onAddClicked = {},
+            onDismissRequest = {}
+        )
     }
 }

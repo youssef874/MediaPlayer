@@ -50,6 +50,7 @@ internal fun SearchAudio.toBaseQueryAudio(audioDao: IAudioDao): BaseAudioQuery {
         is SearchAudio.SearchByArtist -> BaseAudioQuery.FindByArtistNameObject(audioDao, artist)
         is SearchAudio.SearchBySongName -> BaseAudioQuery.FindBySongNameQueryBase(audioDao, songName)
         is SearchAudio.SearchForAllSongForPlayList->BaseAudioQuery.FindAllSongForPlayList(audioDao,playListId)
+        is SearchAudio.GetFirstSongInPlaylist->BaseAudioQuery.FindFirstPlaylistAudio(audioDao,playListId)
     }
 }
 

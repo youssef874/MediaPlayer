@@ -2,4 +2,13 @@
     <string name="app_name">MediaPlayer3</string>
     <string name="permission_needed_string">Permission needed</string>
     <string name="we_need_to_give_list_of_songs_string">we need %1$s to give list of songs</string>
+    <string name="no_play_list_string">You don\'t playlist click on + button in the bottom end add one</string>
+    <string name="default_failed_fech_string">Sorry we couldn\'t fetch you a song list for you</string>
+    <string name="Failed_fetch_play_list_string">Sorry we couldn\'t fetch your playlist</string>
+    <string name="add_item_title_string">Add %1$s</string>
+    <string name="name_add_item_tabel">%1$s name</string>
+    <string name="cancel_string">Cancel</string>
+    <string name="add_string">Add</string>
+    <string name="playlist_string">playList</string>
+    <string name="added_song_toast_message">Song added to playlist</string>
 </resources>

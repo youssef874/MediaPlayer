@@ -37,17 +37,17 @@ class SplashViewModel @Inject constructor(
                 when(event.synchronizationType){
                     SynchronisationType.SYNCHRONISATION_STARTED->{
                         _uiState.update {
-                            it.copy(isLoading = true)
+                            it.copy(isLoading = true, isSync = false, isFailed = false)
                         }
                     }
                     SynchronisationType.SYNCHRONISATION_COMPLETED->{
                         _uiState.update {
-                            it.copy(isSync = true)
+                            it.copy(isSync = true, isLoading = false, isFailed = false)
                         }
                     }
                     SynchronisationType.SYNCHRONIZATION_FAILED->{
                         _uiState.update {
-                            it.copy(isFailed=true, isLoading = false)
+                            it.copy(isFailed=true, isLoading = false, isSync = false)
                         }
                     }
                 }

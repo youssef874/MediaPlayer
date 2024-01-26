@@ -37,6 +37,10 @@ internal class PlayListDataProviderImpl(private val playListDao: IPlayListDao): 
         return playListDao.getPlayListById(id)?.toDBPlayListData()
     }
 
+    override suspend fun get(query: SearchPlayList): DBPlayListData? {
+        return null
+    }
+
     override suspend fun query(playListQuery: PlayListQuery) {
         playListQuery.toInternalPlayListQuery(playListDao).action()
     }

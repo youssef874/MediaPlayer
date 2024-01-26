@@ -26,11 +26,12 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.sql.SQLException
 import javax.inject.Inject
 
 @HiltViewModel
 class TrackListViewModel @Inject constructor(
-    private val fetchDataUseCase: IFetchDataUseCase ,
+    private val fetchDataUseCase: IFetchDataUseCase,
     private val playAudioUseCase: IPlayAudioUseCase,
     private val pauseOrResumeUseCase: IAudioPauseOrResumeUseCase,
     private val audioConfiguratorUseCase: IAudioConfiguratorUseCase,
@@ -45,7 +46,7 @@ class TrackListViewModel @Inject constructor(
         onLoadUpdated = { isLoading ->
             MPLogger.d(CLASS_NAME, "onLoadUpdated", TAG, "isLoading: $isLoading")
             _uiState.update {
-                it.copy(iNextItemsLoading = isLoading)
+                it.copy(iNextItemsLoading = isLoading, isError = false)
             }
         },
         onRequest = { nextKey ->
@@ -55,7 +56,7 @@ class TrackListViewModel @Inject constructor(
                 Result.Success(
                     dataList.slice(staringIndex until staringIndex + Constant.Utils.PAGE_SIZE)
                 )
-            } else if (dataList.isNotEmpty()){
+            } else if (dataList.isNotEmpty()) {
                 Result.Success(dataList)
             } else {
                 Result.Success(emptyList())
@@ -78,7 +79,8 @@ class TrackListViewModel @Inject constructor(
                     dataList = uiState.value.dataList + items,
                     page = newKey,
                     isEndReached = items.isEmpty(),
-                    isLoading = false
+                    isLoading = false,
+                    isError = false
                 )
             }
         }
@@ -97,28 +99,22 @@ class TrackListViewModel @Inject constructor(
         context?.let { cont ->
             fetchDataUseCase.observeLastPlayingSongId(cont).collectLatest { id ->
 
-                MPLogger.d(CLASS_NAME, "lastPlayingSongJob", TAG, "id: $id")
-                if (id != -1L) {
-                    val currentAudio = result?.find { uiAudio -> uiAudio.id == id }
-                    currentAudio?.let { uiAudio ->
-                        _uiState.update {
-                            it.copy(
-                                currentSelectedItem = uiAudio
-                            )
+                MPLogger.d(CLASS_NAME, "lastPlayingSongJob", TAG, "id: $id, result: $result")
+                _uiState.update {
+                    it.copy(currentSelectedItem = if (id != -1L) {
+                        val currentAudio = result?.find { uiAudio -> uiAudio.id == id }
+                        currentAudio ?: run {
+                            result?.first()
                         }
-                    } ?: run {
-                        _uiState.update {
-                            it.copy(
-                                currentSelectedItem = result?.first()
-                            )
-                        }
-                    }
+                    } else {
+                        result?.first()
+                    })
                 }
             }
         }
     }
 
-    private val collectLastProgressionJob by JobController{args->
+    private val collectLastProgressionJob by JobController { args ->
         var context: Context? = null
         args.forEach {
             if (it is Context) {
@@ -313,7 +309,7 @@ class TrackListViewModel @Inject constructor(
         lastPlayingSongJob.cancelJob()
         collectLastProgressionJob.cancelJob()
         playAudioUseCase.stopSong(event.context)
-        playAudioUseCase.playSong(event.context, event.uiAudio,0)
+        playAudioUseCase.playSong(event.context, event.uiAudio, 0)
     }
 
     private fun handleLoadNextDataEvent() {
@@ -327,7 +323,7 @@ class TrackListViewModel @Inject constructor(
     private fun handleLoadDataEvent(event: TrackListUiEvent.LoadData) {
         MPLogger.d(CLASS_NAME, "handleLoadDataEvent", TAG, "event: $event")
         _uiState.update {
-            it.copy(isLoading = true)
+            it.copy(isLoading = true, isError = false)
         }
         loadDataJob = viewModelScope.launch {
             try {
@@ -337,7 +333,8 @@ class TrackListViewModel @Inject constructor(
                     lastPlayingSongJob.launchJob(event.context, it)
                     loadNextList()
                 }
-            } catch (e: Exception) {
+            } catch (e: SQLException) {
+                MPLogger.e(CLASS_NAME, "handleLoadDataEvent", TAG, "error message: ${e.message}")
                 _uiState.update {
                     it.copy(isError = true, isLoading = false)
                 }
@@ -360,14 +357,14 @@ class TrackListViewModel @Inject constructor(
     }
 
     override fun clear() {
-        MPLogger.i(CLASS_NAME,"clear", TAG,"clear jobs")
+        MPLogger.i(CLASS_NAME, "clear", TAG, "clear jobs")
         lastPlayingSongJob.cancelJob()
         loadDataJob?.cancel()
     }
 
     override fun onCleared() {
         super.onCleared()
-        MPLogger.d(CLASS_NAME,"onCleared", TAG,"this viewModel is cleared")
+        MPLogger.d(CLASS_NAME, "onCleared", TAG, "this viewModel is cleared")
         lastPlayingSongJob.cancelJob()
     }
 

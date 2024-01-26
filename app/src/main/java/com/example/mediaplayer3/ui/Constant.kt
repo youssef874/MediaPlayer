@@ -23,6 +23,13 @@ class Constant {
         }
     }
 
+    class PlayListScreen{
+        companion object{
+            const val CLASS_NAME = "PlayListScreen"
+            const val TAG = "PLAY_LIST"
+        }
+    }
+
     class Utils{
         companion object{
             const val DELTA_TIME = 30000

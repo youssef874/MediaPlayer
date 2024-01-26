@@ -15,9 +15,10 @@ internal object FakePlayListDao: IPlayListDao {
 
    private var listWith = mutableListOf<SongWithPlaylists>()
 
-    override suspend fun addPlayList(playListEntity: PlayListEntity) {
+    override suspend fun addPlayList(playListEntity: PlayListEntity): Long {
         list.add(playListEntity)
         notify?.invoke()
+        return playListEntity.id
     }
 
     override suspend fun addPlaylistSongCrossRef(playlistSongCrossRef: PlaylistSongCrossRef) {

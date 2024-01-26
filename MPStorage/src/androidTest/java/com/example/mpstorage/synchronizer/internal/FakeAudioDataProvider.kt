@@ -73,4 +73,8 @@ object FakeAudioDataProvider: IAudioDataProvider {
     override suspend fun getById(id: Long): DBAudioData? {
         return list.find { it.externalId == id }
     }
+
+    override suspend fun get(query: SearchAudio): DBAudioData? {
+        return null
+    }
 }

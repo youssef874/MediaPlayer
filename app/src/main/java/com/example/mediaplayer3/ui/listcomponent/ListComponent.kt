@@ -87,7 +87,9 @@ fun ListComponent(
     loadNextItem: () -> Unit
 ) {
     LazyColumn(modifier = modifier.fillMaxSize()) {
-        items(dataList.size, key = { dataList[it].id }) {
+        items(dataList.size, key = {
+            dataList[it].id
+        }) {
             val item = dataList[it]
             if (it >= dataList.size - 1 && !isEndReached && !isNextItemLoading) {
                 LaunchedEffect(key1 = Unit) {

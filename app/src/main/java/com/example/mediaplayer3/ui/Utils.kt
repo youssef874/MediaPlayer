@@ -20,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import com.example.mediaplayer3.R
 import com.example.mediaplayer3.domain.entity.UiAudio
+import com.example.mediaplayer3.domain.entity.UiPlayList
 import com.example.mediaplayer3.ui.listcomponent.ItemData
 
 @Composable
@@ -30,7 +31,7 @@ fun RequestSinglePermission(
 ) {
     val context = LocalContext.current
     var isPermissionGranted by rememberSaveable {
-        mutableStateOf(false)
+        mutableStateOf<Boolean?>(null)
     }
     val launcherState =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) { isGranted ->
@@ -42,12 +43,16 @@ fun RequestSinglePermission(
         ) != PackageManager.PERMISSION_GRANTED
     ) {
         SideEffect {
-            launcherState.launch(permission)
+            try {
+                launcherState.launch(permission)
+            }catch (_: Exception){
+
+            }
         }
     } else {
         isPermissionGranted = true
     }
-    if (isPermissionGranted) {
+    if (isPermissionGranted == true) {
         onPermissionGranted(context)
     } else {
         onPermissionDenied()
@@ -116,5 +121,13 @@ fun UiAudio.toItemData(): ItemData{
         subtitle = artistName,
         endText = formattedDuration
 
+    )
+}
+
+fun UiPlayList.toItemData(): ItemData{
+    return ItemData(
+        id = playListId,
+        title = playListName,
+        imageUri = thumbnailUri
     )
 }

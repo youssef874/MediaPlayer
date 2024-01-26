@@ -17,6 +17,8 @@ internal class NewAudioConfigurationImpl: IAudioConfiguration {
                 Manifest.permission.READ_MEDIA_AUDIO
             ) != PackageManager.PERMISSION_GRANTED){
             list.add(Manifest.permission.READ_MEDIA_AUDIO)
+        }else{
+            list.clear()
         }
         return list
     }

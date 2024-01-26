@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.Flow
 internal interface IPlayListDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addPlayList(playListEntity: PlayListEntity)
+    suspend fun addPlayList(playListEntity: PlayListEntity): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addPlaylistSongCrossRef(playlistSongCrossRef: PlaylistSongCrossRef)

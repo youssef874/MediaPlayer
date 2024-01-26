@@ -1,7 +1,9 @@
 package com.example.mediaplayer3.domain
 
 import android.content.Context
+import com.example.mediaplayer3.domain.entity.UiPlayList
 import com.example.mediaplayer3.repository.IAudioDataRepo
+import com.example.mediaplayer3.repository.toMPAppPlayList
 import com.example.mplog.MPLogger
 import javax.inject.Inject
 
@@ -25,5 +27,14 @@ class EditSongUseCase @Inject constructor(private val audioDataRepo: IAudioDataR
             "songId: $songId, isFavorite: $isFavorite"
         )
         audioDataRepo.changeIsFavoriteStatusToSong(context, songId, isFavorite)
+    }
+
+    override suspend fun attachSongToPlayList(
+        context: Context,
+        songId: Long,
+        playList: UiPlayList
+    ) {
+        MPLogger.i(CLASS_NAME,"attachSongToPlayList", TAG,"songId: $songId, playList: $playList")
+        audioDataRepo.attachPlaylistToSong(context,songId,playList.toMPAppPlayList())
     }
 }

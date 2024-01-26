@@ -3,8 +3,10 @@ package com.example.mediaplayer3.domain
 import android.content.Context
 import com.example.mediaplayer3.data.entity.Result
 import com.example.mediaplayer3.domain.entity.UiAudio
+import com.example.mediaplayer3.domain.entity.UiPlayList
 import com.example.mediaplayer3.repository.IAudioDataRepo
 import com.example.mediaplayer3.repository.toUiAudio
+import com.example.mediaplayer3.repository.toUiPlayList
 import com.example.mplog.MPLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -73,8 +75,26 @@ class FetchDataUseCase @Inject constructor(private val audioDataRepo: IAudioData
         }
     }
 
+    override fun observeAllPlayList(context: Context): Flow<List<UiPlayList>> {
+        return audioDataRepo.getAllPlayListAsFlow(context).map { list->list.map {
+            val audio = audioDataRepo.getFirstPlaylistSong(context,it.id)
+            it.toUiPlayList(audio?.albumThumbnailUri)
+        } }
+    }
+
+    override fun observeSongListByPlayListId(
+        context: Context,
+        playlistId: Long
+    ): Flow<List<UiAudio>> {
+        return audioDataRepo.observeSongListByPlayListId(context,playlistId).map { list->list.map { it.toUiAudio() } }
+    }
+
     override fun getSong(context: Context, id: Long): Flow<UiAudio?> {
         return audioDataRepo.getById(context, id).map { it?.toUiAudio() }
+    }
+
+    override suspend fun getFirstSongForPlayList(context: Context, playlistId: Long): UiAudio? {
+        return audioDataRepo.getFirstPlaylistSong(context,playlistId)?.toUiAudio()
     }
 
     override fun getExtractedSongList(): List<UiAudio> {

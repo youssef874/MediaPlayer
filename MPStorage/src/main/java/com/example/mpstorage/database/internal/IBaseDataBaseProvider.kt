@@ -21,4 +21,6 @@ import kotlinx.coroutines.flow.Flow
     suspend fun getById(id: Long): T?
 
     fun  query(query: Q): Flow<List<T>>
-}
+
+    suspend fun get(query: Q): T?
+ }

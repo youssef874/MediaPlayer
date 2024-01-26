@@ -33,3 +33,23 @@ object TrackDetailDest: MediaPlayerDestinations{
         }
     )
 }
+
+object PlayListDest : MediaPlayerDestinations{
+    override val route: String
+        get() = "play_list"
+
+    const val ID_ARGS = "songId"
+    const val CAN_MODIFY = "canModify"
+
+    val routeWithArgs = "$route/{$ID_ARGS}/{$CAN_MODIFY}"
+
+    val arguments = listOf(
+        navArgument(ID_ARGS){
+            type = NavType.LongType
+        },
+        navArgument(CAN_MODIFY){
+            type = NavType.BoolType
+        }
+    )
+
+}

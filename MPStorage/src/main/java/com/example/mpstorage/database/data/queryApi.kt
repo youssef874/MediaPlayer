@@ -13,6 +13,8 @@ sealed class SearchAudio: Search {
     data class SearchByAlbum(val album: String): SearchAudio()
 
     data class SearchForAllSongForPlayList(val playListId: Long): SearchAudio()
+
+    data class GetFirstSongInPlaylist(val playListId: Long): SearchAudio()
 }
 
 sealed class QueryAudio: Query{

@@ -58,7 +58,8 @@ import kotlin.math.abs
 fun AudioDetailScreen(
     trackDetailViewModel: TrackDetailViewModel = hiltViewModel(),
     songId: Long,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigateToPlayListScreen: (songId: Long)->Unit
 ) {
     MPLogger.i(
         Constant.TrackDetail.CLASS_NAME,
@@ -122,6 +123,9 @@ fun AudioDetailScreen(
                     isFavorite = state.currentSong.isFavorite,
                     onFavoriteButtonClicked = {
                         trackDetailViewModel.onEvent(TrackDetailsUiEvent.ChangeFavoriteStatus(context))
+                    },
+                    onAddButtonClicked = {
+                        onNavigateToPlayListScreen(state.currentSong.id)
                     })
                 AudioRangeLabel(
                     duration = state.currentSong.duration,
@@ -376,7 +380,8 @@ fun AudioRangeLabel(modifier: Modifier = Modifier, startAt: Int = 0, duration: I
 fun OtherActions(
     modifier: Modifier = Modifier,
     isFavorite: Boolean = false,
-    onFavoriteButtonClicked: () -> Unit
+    onFavoriteButtonClicked: () -> Unit,
+    onAddButtonClicked: ()->Unit
 ) {
     Row(modifier = modifier) {
         AudioListAction(modifier = Modifier
@@ -385,20 +390,21 @@ fun OtherActions(
             .height(30.dp)) {
 
         }
+        Spacer(modifier = Modifier.weight(1F))
         FavoriteAction(
             modifier = Modifier
-                .weight(1F)
                 .width(30.dp)
                 .height(30.dp),
             isFavorite = isFavorite
         ) {
             onFavoriteButtonClicked()
         }
+        Spacer(modifier = Modifier.weight(1F))
         AddSongToAction(modifier = Modifier
             .padding(end = 16.dp)
             .width(30.dp)
             .height(30.dp)) {
-
+            onAddButtonClicked()
         }
     }
 }

@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.withContext
+import java.sql.SQLException
 
 internal class DataBaseSynchronize(
     private val audioDataProvider: IAudioDataProvider,
@@ -166,7 +167,7 @@ internal class DataBaseSynchronize(
                     }
                 }
             }
-        } catch (e: Exception) {
+        } catch (e: SQLException) {
             MPLogger.e(CLASS_NAME, "synchronize", TAG, "message: ${e.message}")
             onSynchronizeFailedListeners.forEach {
                 if (it()) {

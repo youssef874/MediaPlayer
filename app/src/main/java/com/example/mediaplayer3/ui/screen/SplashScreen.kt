@@ -35,17 +35,15 @@ fun SplashScreen(splashViewModel: SplashViewModel = hiltViewModel(), onNavigateT
     if (state.isLoading){
         MPLogger.i(Constant.SplashScreen.CLASS_NAME,"SplashScreen",Constant.SplashScreen.TAG,"screenIsLoading")
         LoadingScreen()
-    }
-    if (state.isSync){
+    }else if (state.isSync){
         MPLogger.i(Constant.SplashScreen.CLASS_NAME,"SplashScreen",Constant.SplashScreen.TAG,"sync success")
         LoadingScreen()
         MPLogger.i(Constant.SplashScreen.CLASS_NAME,"SplashScreen",Constant.SplashScreen.TAG,"navigate to audio list screen")
         LaunchedEffect(key1 = true){
             onNavigateToTrackList()
         }
-    }
-    if (state.isFailed){
-        MPLogger.i(Constant.SplashScreen.CLASS_NAME,"SplashScreen",Constant.SplashScreen.TAG,"sync failed")
+    } else if (state.isFailed){
+        MPLogger.w(Constant.SplashScreen.CLASS_NAME,"SplashScreen",Constant.SplashScreen.TAG,"sync failed")
         if (ContextCompat.checkSelfPermission(
                 context, permission
             ) != PackageManager.PERMISSION_GRANTED
@@ -53,11 +51,13 @@ fun SplashScreen(splashViewModel: SplashViewModel = hiltViewModel(), onNavigateT
             RequestSinglePermission(
                 permission = permission,
                 onPermissionGranted = {
-                      LaunchedEffect(key1 = Unit){
+                    MPLogger.i(Constant.SplashScreen.CLASS_NAME,"SplashScreen",Constant.SplashScreen.TAG,"permission granted")
+                      LaunchedEffect(key1 = state){
                           splashViewModel.onEvent(SplashUiEvent.Sync(context))
                       }
                 },
                 onPermissionDenied = {
+                    MPLogger.e(Constant.SplashScreen.CLASS_NAME,"SplashScreen",Constant.SplashScreen.TAG,"permission denied")
                     ErrorScreen()
                     RequestPermissionDialog(permissions = listOf(permission))
                 }
