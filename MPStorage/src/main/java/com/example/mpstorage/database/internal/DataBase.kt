@@ -1,7 +1,6 @@
 package com.example.mpstorage.database.internal
 
 import android.content.Context
-import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -12,9 +11,8 @@ import kotlin.concurrent.Volatile
 
 @Database(
     entities = [AudioEntity::class, PlayListEntity::class, PlaylistSongCrossRef::class],
-    version = 2,
-    exportSchema = true,
-    autoMigrations = [AutoMigration(from = 1, to = 2)]
+    version = 1,
+    exportSchema = true
 )
 internal abstract class DataBase : RoomDatabase() {
 
@@ -33,7 +31,7 @@ internal abstract class DataBase : RoomDatabase() {
                     context,
                     DataBase::class.java,
                     "mp_database"
-                ).build()
+                ).fallbackToDestructiveMigration().build()
                 INSTANCE = instance
                 instance
             }

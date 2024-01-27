@@ -157,6 +157,9 @@ fun PlayListScreen(
                 context,
                 stringResource(R.string.added_song_toast_message), Toast.LENGTH_SHORT
             ).show()
+            LaunchedEffect(key1 = true){
+                playListViewModel.onEvent(PlayListUiEvent.SongAttachedTopPlayListEventReceived)
+            }
         }
     }
 }

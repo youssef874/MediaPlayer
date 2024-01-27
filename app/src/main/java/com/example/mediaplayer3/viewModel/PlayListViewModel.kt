@@ -109,8 +109,18 @@ class PlayListViewModel @Inject constructor(
                     is PlayListUiEvent.AttachSongToPlayList -> {
                         handleAttachSongToPlayListEvent(event)
                     }
+                    is PlayListUiEvent.SongAttachedTopPlayListEventReceived->{
+                        handleSongAttachedTopPlayListEventReceivedEvent()
+                    }
                 }
             }
+        }
+    }
+
+    private fun handleSongAttachedTopPlayListEventReceivedEvent() {
+        MPLogger.i(CLASS_NAME,"handleSongAttachedTopPlayListEventReceivedEvent", TAG,"change ui state")
+        _uiState.update {
+            it.copy(isAudioAttachedToPlayList = false)
         }
     }
 

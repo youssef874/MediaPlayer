@@ -107,7 +107,11 @@ class TrackListViewModel @Inject constructor(
                             result?.first()
                         }
                     } else {
-                        result?.first()
+                        if (!result.isNullOrEmpty()){
+                            result?.first()
+                        }else{
+                            null
+                        }
                     })
                 }
             }

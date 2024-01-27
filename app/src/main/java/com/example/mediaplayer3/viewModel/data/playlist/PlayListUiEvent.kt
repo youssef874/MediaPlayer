@@ -9,4 +9,6 @@ sealed class PlayListUiEvent {
     data object LoadNextData: PlayListUiEvent()
 
     data class AttachSongToPlayList(val context: Context,val songId: Long?,val playListName: String):PlayListUiEvent()
+
+    data object SongAttachedTopPlayListEventReceived: PlayListUiEvent()
 }

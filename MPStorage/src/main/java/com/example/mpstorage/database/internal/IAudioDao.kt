@@ -8,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import com.example.mpstorage.database.internal.entity.AudioEntity
+import com.example.mpstorage.database.internal.entity.PlayListEntity
 import com.example.mpstorage.database.internal.entity.PlaylistWithSongs
 import kotlinx.coroutines.flow.Flow
 
@@ -29,19 +30,19 @@ internal interface IAudioDao {
     @Query("SELECT * from audio ORDER BY songName ASC")
     suspend fun getAllAudios(): List<AudioEntity>
 
-    @Query("SELECT * FROM audio WHERE audio_id = :id")
+    @Query("SELECT * FROM audio WHERE ${AudioEntity.ID} = :id")
     fun observeAudioById(id: Long): Flow<AudioEntity?>
 
-    @Query("SELECT * FROM audio WHERE audio_id = :id")
+    @Query("SELECT * FROM audio WHERE ${AudioEntity.ID} = :id")
     suspend fun getAudioById(id: Long): AudioEntity?
 
-    @Query("SELECT * FROM audio WHERE songName = :songName")
+    @Query("SELECT * FROM audio WHERE ${AudioEntity.SONG_NAME} = :songName")
     fun getAudioBySongName(songName: String): Flow<List<AudioEntity>>
 
-    @Query("SELECT * FROM audio WHERE album = :album")
+    @Query("SELECT * FROM audio WHERE ${AudioEntity.ALBUM} = :album")
     fun getAudioByAlbum(album: String): Flow<List<AudioEntity>>
 
-    @Query("SELECT * FROM audio WHERE artist = :artist")
+    @Query("SELECT * FROM audio WHERE ${AudioEntity.ARTIST} = :artist")
     fun getAudioArtist(artist: String): Flow<List<AudioEntity>>
 
     @Transaction
@@ -49,11 +50,11 @@ internal interface IAudioDao {
     suspend fun getListOfAudioListOfPlayList(): List<PlaylistWithSongs>
 
     @Transaction
-    @Query("SELECT * FROM play_list WHERE play_list_id =:playListId")
+    @Query("SELECT * FROM play_list WHERE ${PlayListEntity.ID} =:playListId")
     suspend fun getListOfAudioForPlayList(playListId: Long): PlaylistWithSongs?
 
     @Transaction
-    @Query("SELECT * FROM play_list WHERE play_list_id =:playListId")
+    @Query("SELECT * FROM play_list WHERE ${PlayListEntity.ID} =:playListId")
     fun observeListOfAudioForPlayList(playListId: Long): Flow<PlaylistWithSongs?>
 
     @Transaction

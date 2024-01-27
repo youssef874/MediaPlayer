@@ -5,31 +5,48 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "audio", indices = [Index(value = ["externalId"], unique = true)])
+@Entity(tableName = AudioEntity.TABLE_NAME, indices = [Index(value = [AudioEntity.EXTERNAL_ID], unique = true)])
 internal data class AudioEntity(
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "audio_id")
+    @ColumnInfo(name = ID)
     val id: Long = 0,
-    @ColumnInfo("album")
+    @ColumnInfo(ALBUM)
     val album: String = "",
-    @ColumnInfo("uri")
+    @ColumnInfo(URI)
     val uri: String = "",
-    @ColumnInfo("songName")
+    @ColumnInfo(SONG_NAME)
     val songName: String = "",
-    @ColumnInfo("artist")
+    @ColumnInfo(ARTIST)
     val artist: String = "",
-    @ColumnInfo("duration")
+    @ColumnInfo(DURATION)
     val duration: Int = -1,
-    @ColumnInfo("size")
+    @ColumnInfo(SIZE)
     val size: Int = -1,
-    @ColumnInfo("albumThumbnailUri")
+    @ColumnInfo(ALBUM_THUMBNAIL)
     val albumThumbnailUri: String = "",
-    @ColumnInfo("isFavorite")
+    @ColumnInfo(IS_FAVORITE)
     val isFavorite: Boolean = true,
-    @ColumnInfo("isInternal")
+    @ColumnInfo(IS_INTERNAL)
     val isInternal: Boolean = true,
-    @ColumnInfo("isOwned")
+    @ColumnInfo(IS_OWNED)
     val isOwned: Boolean = true,
-    @ColumnInfo("externalId")
+    @ColumnInfo(EXTERNAL_ID)
     val externalId: Long = 0
-)
+){
+
+    companion object{
+        const val TABLE_NAME = "audio"
+        const val ID = "audio_id"
+        const val ALBUM = "album"
+        const val URI = "uri"
+        const val SONG_NAME = "songName"
+        const val ARTIST = "artist"
+        const val DURATION = "duration"
+        const val SIZE = "size"
+        const val ALBUM_THUMBNAIL = "album_thumbnail_uri"
+        const val IS_FAVORITE = "is_favorite"
+        const val IS_INTERNAL = "is_internal"
+        const val IS_OWNED = "is_owned"
+        const val EXTERNAL_ID = "external_id"
+    }
+}
