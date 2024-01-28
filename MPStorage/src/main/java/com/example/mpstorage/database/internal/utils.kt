@@ -44,19 +44,20 @@ internal fun AudioEntity.toDBAudio(): DBAudioData {
     )
 }
 
-internal fun SearchAudio.toBaseQueryAudio(audioDao: IAudioDao): BaseAudioQuery {
-    return when (this) {
-        is SearchAudio.SearchByAlbum -> BaseAudioQuery.FindBayAlbumQueryBase(audioDao, album)
-        is SearchAudio.SearchByArtist -> BaseAudioQuery.FindByArtistNameObject(audioDao, artist)
-        is SearchAudio.SearchBySongName -> BaseAudioQuery.FindBySongNameQueryBase(audioDao, songName)
-        is SearchAudio.SearchForAllSongForPlayList->BaseAudioQuery.FindAllSongForPlayList(audioDao,playListId)
+internal fun SearchAudio.toIAudioOneShotFinder(audioDao: IAudioDao): IAudioOneShotFinder{
+    return when(this){
         is SearchAudio.GetFirstSongInPlaylist->BaseAudioQuery.FindFirstPlaylistAudio(audioDao,playListId)
+        else->throw IllegalArgumentException("Wrong query")
     }
 }
 
-internal fun QueryAudio.toInternalQueryAudio(audioDao: IAudioDao): InternalAudioQuery{
+internal fun SearchAudio.toIAudioRealTimeListFinder(audioDao: IAudioDao): IAudioRealTimeListFinder{
     return when(this){
-        is QueryAudio.ChaneIsFavorite->InternalAudioQuery.ChangeIsFavorite(audioDao,songId,isFavorite)
+        is SearchAudio.SearchByAlbum->BaseAudioQuery.FindBayAlbumQueryBase(audioDao,album)
+        is SearchAudio.SearchByArtist -> BaseAudioQuery.FindByArtistNameObject(audioDao, artist)
+        is SearchAudio.SearchBySongName -> BaseAudioQuery.FindBySongNameQueryBase(audioDao, songName)
+        is SearchAudio.SearchForAllSongForPlayList->BaseAudioQuery.FindAllSongForPlayList(audioDao,playListId)
+        else->throw IllegalArgumentException("Wrong query")
     }
 }
 
@@ -74,14 +75,20 @@ internal fun PlayListEntity.toDBPlayListData(): DBPlayListData{
     )
 }
 
-internal fun SearchPlayList.toInternalPlayListFinder(playListDao: IPlayListDao): InternalPlayListFinder{
+internal fun SearchPlayList.toIPlaylistRealTimeListFinder(playListDao: IPlayListDao): IPlaylistRealTimeListFinder{
     return when(this){
-        is SearchPlayList.SearchByName->InternalPlayListFinder.FindPlayListByName(playListDao,playListName)
-        is SearchPlayList.SearchSongPlayLists->InternalPlayListFinder.FindAllPlayListForAudio(playListDao,songId)
+        is SearchPlayList.SearchByName->InternalPlayListQuery.FindPlayListByName(playListDao,playListName)
+        is SearchPlayList.SearchSongPlayLists->InternalPlayListQuery.FindAllPlayListForAudio(playListDao,songId)
     }
 }
 
-internal fun PlayListQuery.toInternalPlayListQuery(playListDao: IPlayListDao): InternalPlayListQuery{
+internal fun QueryAudio.toIOperationQuery(audioDao: IAudioDao): IOperationQuery{
+    return when(this){
+        is QueryAudio.ChaneIsFavorite->BaseAudioQuery.ChangeIsFavorite(audioDao,songId,isFavorite)
+    }
+}
+
+internal fun PlayListQuery.toIOperationQuery(playListDao: IPlayListDao): IOperationQuery{
     return when(this){
         is PlayListQuery.AddSongToPlayList->InternalPlayListQuery.AttachAudioToPlayList(playListDao,songId,playList)
     }

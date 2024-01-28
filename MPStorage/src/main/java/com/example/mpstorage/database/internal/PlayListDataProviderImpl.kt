@@ -42,10 +42,10 @@ internal class PlayListDataProviderImpl(private val playListDao: IPlayListDao): 
     }
 
     override suspend fun query(playListQuery: PlayListQuery) {
-        playListQuery.toInternalPlayListQuery(playListDao).action()
+        playListQuery.toIOperationQuery(playListDao).doSomething()
     }
 
     override fun query(query: SearchPlayList): Flow<List<DBPlayListData>> {
-        return query.toInternalPlayListFinder(playListDao).observe()
+        return query.toIPlaylistRealTimeListFinder(playListDao).observe()
     }
 }

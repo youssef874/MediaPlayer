@@ -31,7 +31,7 @@ internal abstract class DataBase : RoomDatabase() {
                     context,
                     DataBase::class.java,
                     "mp_database"
-                ).fallbackToDestructiveMigration().build()
+                ).build()
                 INSTANCE = instance
                 instance
             }

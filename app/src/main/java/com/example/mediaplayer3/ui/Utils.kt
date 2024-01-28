@@ -2,6 +2,7 @@ package com.example.mediaplayer3.ui
 
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.AlertDialog
@@ -57,6 +58,7 @@ fun RequestSinglePermission(
     } else {
         onPermissionDenied()
     }
+    Build.VERSION_CODES.R
 }
 
 @Composable

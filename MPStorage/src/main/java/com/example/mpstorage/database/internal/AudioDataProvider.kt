@@ -12,7 +12,7 @@ internal class AudioDataProvider(private val audioDao: IAudioDao): IAudioDataPro
 
     override suspend fun query(queryAudio: QueryAudio) {
         MPLogger.d(CLASS_NAME,"query", TAG,"query: $queryAudio")
-        queryAudio.toInternalQueryAudio(audioDao).action()
+        queryAudio.toIOperationQuery(audioDao).doSomething()
     }
 
 
@@ -51,17 +51,12 @@ internal class AudioDataProvider(private val audioDao: IAudioDao): IAudioDataPro
 
     override suspend fun get(query: SearchAudio): DBAudioData? {
         MPLogger.d(CLASS_NAME,"get", TAG,"query: $query")
-        val search = query.toBaseQueryAudio(audioDao)
-        return if (search is IAudioOneShotFinder){
-            search.oneShotFinder()
-        }else{
-            null
-        }
+        return query.toIAudioOneShotFinder(audioDao).oneShotFinder()
     }
 
     override fun query(query: SearchAudio): Flow<List<DBAudioData>> {
         MPLogger.d(CLASS_NAME,"query", TAG,"query: $query")
-        return query.toBaseQueryAudio(audioDao).find()
+        return query.toIAudioRealTimeListFinder(audioDao).observe()
     }
 
     companion object{
