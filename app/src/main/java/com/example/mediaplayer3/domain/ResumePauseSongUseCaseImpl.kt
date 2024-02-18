@@ -28,6 +28,7 @@ class ResumePauseSongUseCaseImpl @Inject constructor(
             if (it.id == uiAudio.id) {
                 MPLogger.d(CLASS_NAME, "pauseSong", TAG, "pause the song")
                 audioDataRepository.pauseSong(context)
+                playUseCase.updatePlyingStatus(false)
                 audioPauseListeners.forEach { function ->
                     function(uiAudio)
                 }
@@ -50,6 +51,7 @@ class ResumePauseSongUseCaseImpl @Inject constructor(
             if (it.id == uiAudio.id) {
                 MPLogger.d(CLASS_NAME, "resumeSong", TAG, " resume song: $uiAudio, at: $seekTo")
                 audioDataRepository.resumeSong(context, seekTo)
+                playUseCase.updatePlyingStatus(true)
                 audioResumeSuccessListeners.forEach { function ->
                     function(uiAudio, context)
                 }

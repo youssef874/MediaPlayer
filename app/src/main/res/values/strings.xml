@@ -11,4 +11,10 @@
     <string name="add_string">Add</string>
     <string name="playlist_string">playList</string>
     <string name="added_song_toast_message">Song added to playlist</string>
+    <string name="previous_string">previous</string>
+    <string name="play_string">play</string>
+    <string name="next_string">next</string>
+    <string name="music_thumbnail_string">music_thumbnail</string>
+    <string name="music_string">music</string>
+    <string name="play_music_string">play music</string>
 </resources>

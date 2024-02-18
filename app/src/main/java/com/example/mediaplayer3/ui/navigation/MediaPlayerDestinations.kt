@@ -2,6 +2,7 @@ package com.example.mediaplayer3.ui.navigation
 
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 
 interface MediaPlayerDestinations{
 
@@ -25,12 +26,18 @@ object TrackDetailDest: MediaPlayerDestinations{
 
     const val ID_ARGS = "songId"
 
+    val uri = "myapp://example.com"
+
     val routeWithArgs = "$route/{$ID_ARGS}"
 
     val arguments = listOf(
         navArgument(ID_ARGS){
             type = NavType.LongType
         }
+    )
+
+    val deepLink = listOf(
+        navDeepLink { uriPattern = "$uri/$ID_ARGS={songId}" }
     )
 }
 

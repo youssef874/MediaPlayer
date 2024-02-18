@@ -16,14 +16,27 @@ interface IPlayAudioUseCase {
 
     fun stopSong(context: Context)
 
+    fun updatePlyingStatus(isPlaying: Boolean)
+
     suspend fun setOnPlaySongListener(
         onPlaySongSuccess:  (UiAudio)->Unit,
         onPlaySongFailed:  (UiAudio) -> Unit,
         job: Job?
     )
 
+    suspend fun setOnPlaySongListener(
+        onPlaySongSuccess:  (UiAudio)->Unit,
+        onPlaySongFailed:  (UiAudio) -> Unit,
+        predicate: ()->Boolean
+    )
+
     suspend fun setOnStopListener(
         job: Job?,
+        onSongStopped:  (UiAudio) -> Unit
+    )
+
+    suspend fun setOnStopListener(
+        predicate: ()->Boolean,
         onSongStopped:  (UiAudio) -> Unit
     )
 

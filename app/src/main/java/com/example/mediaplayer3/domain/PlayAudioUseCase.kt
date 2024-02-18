@@ -74,6 +74,7 @@ class PlayAudioUseCase @Inject constructor(
         }
         context?.let {
             audioConfiguratorUseCase.isRandomModeInFlow(it).collectLatest { _isRandom ->
+                MPLogger.d(CLASS_NAME, "collectRepeatModeJob", TAG, "_isRandom: $_isRandom")
                 isRandom = _isRandom
             }
         }
@@ -157,6 +158,9 @@ class PlayAudioUseCase @Inject constructor(
                 val audioList = fetchDataUseCase.getExtractedSongList()
                 val currentSongIndex = audioList.indexOf(uiAudio)
                 val nextSongIndex = getNextSongIndex(currentSongIndex, audioList)
+                scope.launch {
+                    audioDataRepository.updateLastSongProgress(context,0)
+                }
                 val nextSong = audioList[nextSongIndex]
                 MPLogger.d(CLASS_NAME, "onSongCompleted", TAG, "nextSong: $nextSong")
                 playSong(context, nextSong)
@@ -216,6 +220,11 @@ class PlayAudioUseCase @Inject constructor(
         }
     }
 
+    override fun updatePlyingStatus(isPlaying: Boolean) {
+        MPLogger.i(CLASS_NAME, "updatePlyingStatus", TAG, "isPlaying: $isPlaying")
+        _isPlaying = isPlaying
+    }
+
     override suspend fun setOnPlaySongListener(
         onPlaySongSuccess: (UiAudio) -> Unit,
         onPlaySongFailed: (UiAudio) -> Unit,
@@ -229,6 +238,20 @@ class PlayAudioUseCase @Inject constructor(
         }
     }
 
+    override suspend fun setOnPlaySongListener(
+        onPlaySongSuccess: (UiAudio) -> Unit,
+        onPlaySongFailed: (UiAudio) -> Unit,
+        predicate: () -> Boolean
+    ) {
+        audioPlaySuccessListener.add(onPlaySongSuccess)
+        audioPlayFailedListener.add(onPlaySongFailed)
+        while (predicate()){
+            //Wait
+        }
+        audioPlayFailedListener.remove(onPlaySongFailed)
+        audioPlaySuccessListener.remove(onPlaySongSuccess)
+    }
+
     override suspend fun setOnStopListener(
         job: Job?,
         onSongStopped: (UiAudio) -> Unit
@@ -237,6 +260,17 @@ class PlayAudioUseCase @Inject constructor(
         job?.invokeOnCompletion {
             audioStopListener.remove(onSongStopped)
         }
+    }
+
+    override suspend fun setOnStopListener(
+        predicate: () -> Boolean,
+        onSongStopped: (UiAudio) -> Unit
+    ) {
+        audioStopListener.add(onSongStopped)
+        while (predicate()){
+            //Wait
+        }
+        audioStopListener.remove(onSongStopped)
     }
 
     override fun songProgression(coroutineScope: CoroutineScope): SharedFlow<Int> {

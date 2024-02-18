@@ -46,6 +46,7 @@ fun MediaPlayerNavHost(
         composable(
             route = TrackDetailDest.routeWithArgs,
             arguments = TrackDetailDest.arguments,
+            deepLinks = TrackDetailDest.deepLink,
             enterTransition = {
                 slideIntoContainer(
                     AnimatedContentTransitionScope.SlideDirection.Up,
