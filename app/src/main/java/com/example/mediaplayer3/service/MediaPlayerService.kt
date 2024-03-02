@@ -5,10 +5,6 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.Looper
-import androidx.media3.common.ForwardingPlayer
-import androidx.media3.common.Player
-import androidx.media3.common.Player.Commands
-import androidx.media3.common.SimpleBasePlayer
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
@@ -23,11 +19,10 @@ import com.example.mediaplayer3.notification.NotificationManager
 import com.example.mediaplayer3.service.delegate.ServiceJobScheduler
 import com.example.mediaplayer3.viewModel.delegates.IJobController
 import com.example.mplog.MPLogger
-import com.google.common.util.concurrent.Futures
-import com.google.common.util.concurrent.ListenableFuture
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -42,8 +37,6 @@ class MediaPlayerService : MediaSessionService(), IBaseService {
         private const val TAG = "BACKGROUND"
         const val START = "start"
         const val STOP = "stop"
-        private const val PLAY_NEXT_COMMAND = "play_next_action"
-        private const val PLAY_PREVIOUS_COMMAND = "play_previous_action"
     }
 
 
@@ -64,163 +57,15 @@ class MediaPlayerService : MediaSessionService(), IBaseService {
     @Inject
     lateinit var audioConfiguratorUseCase: IAudioConfiguratorUseCase
 
-    private val player: Player? = Looper.myLooper()?.let {
-        object : SimpleBasePlayer(it) {
-            override fun getState(): State {
-                val index = fetchDataUseCase.getExtractedSongList()
-                    .indexOf(playAudioUseCase.currentPlayingSong())
-                return State.Builder()
-                    .setAvailableCommands(
-                        Commands.Builder()
-                            .addAll(
-                                Player.COMMAND_PLAY_PAUSE,
-                                Player.COMMAND_SEEK_TO_PREVIOUS,
-                                Player.COMMAND_SEEK_TO_NEXT,
-                                Player.COMMAND_GET_CURRENT_MEDIA_ITEM,
-                                Player.COMMAND_SET_PLAYLIST_METADATA
-                            ).build()
-                    ).setPlayWhenReady(true, Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST)
-                    .setCurrentMediaItemIndex(index)
-                    .setContentPositionMs(playAudioUseCase.currentSongProgression.toLong())
-                    .setTotalBufferedDurationMs(
-                        PositionSupplier.getConstant(
-                            playAudioUseCase.currentPlayingSong()?.duration?.toLong() ?: 0L
-                        )
-                    )
-                    .setPlaylist(
-                        fetchDataUseCase.getExtractedSongList().map {
-                            MediaItemData.Builder(it.id).build()
-                        }
-                    )
-                    .setPlaybackState(if (playAudioUseCase.isPlaying) STATE_READY else STATE_IDLE)
-                    .build()
-            }
-
-            override fun handleSetPlayWhenReady(playWhenReady: Boolean): ListenableFuture<*> {
-
-                playAudioUseCase.currentPlayingSong()?.let { uiAudio ->
-                    MPLogger.i(
-                        CLASS_NAME,
-                        "handleSetPlayWhenReady",
-                        TAG,
-                        "uiAudio: $uiAudio, isPlaying: $isPlaying , ${playAudioUseCase.isPlaying}, playWhenReady: $playWhenReady"
-                    )
-                    state
-                }
-                return Futures.immediateVoidFuture()
-            }
-
-            override fun handleSeek(
-                mediaItemIndex: Int,
-                positionMs: Long,
-                seekCommand: Int
-            ): ListenableFuture<*> {
-                playAudioUseCase.currentPlayingSong()?.let { uiAudio ->
-                    MPLogger.i(
-                        CLASS_NAME,
-                        "handleSeek",
-                        TAG,
-                        "uiAudio: $uiAudio, ${mediaSession?.controllerForCurrentRequest?.packageName}"
-                    )
-                }
-                return super.handleSeek(mediaItemIndex, positionMs, seekCommand)
-            }
-        }
-    }
-
-    private val forwardingPlayer: ForwardingPlayer? = player?.let {
-        object : ForwardingPlayer(it) {
-
-            override fun play() {
-                playAudioUseCase.currentPlayingSong()?.let { uiAudio ->
-                    MPLogger.i(
-                        CLASS_NAME,
-                        "play",
-                        TAG,
-                        "uiAudio: $uiAudio, ${mediaSession?.controllerForCurrentRequest?.packageName}"
-                    )
-                    if (!playAudioUseCase.isPlaying){
-                        playAudioUseCase.playSong(this@MediaPlayerService, uiAudio)
-                    }
-                }
-                super.play()
-            }
-
-            override fun pause() {
-                playAudioUseCase.currentPlayingSong()?.let { uiAudio ->
-                    MPLogger.i(
-                        CLASS_NAME,
-                        "pause",
-                        TAG,
-                        "uiAudio: $uiAudio, ${mediaSession?.controllerForCurrentRequest?.packageName}"
-                    )
-                    pauseOrResumeUseCase.pauseSong(this@MediaPlayerService, uiAudio)
-                }
-                super.pause()
-            }
-
-            override fun stop() {
-                playAudioUseCase.currentPlayingSong()?.let { uiAudio ->
-                    MPLogger.i(
-                        CLASS_NAME,
-                        "stop",
-                        TAG,
-                        "uiAudio: $uiAudio, ${mediaSession?.controllerForCurrentRequest?.packageName}"
-                    )
-                    pauseOrResumeUseCase.pauseSong(this@MediaPlayerService, uiAudio)
-                }
-                super.stop()
-            }
-
-            override fun seekToNext() {
-                playAudioUseCase.currentPlayingSong()?.let { uiAudio ->
-                    collectIsRandomJobScheduler.cancelJob()
-                    MPLogger.i(
-                        CLASS_NAME,
-                        "seekToNext",
-                        TAG,
-                        "uiAudio: $uiAudio, ${mediaSession?.controllerForCurrentRequest?.packageName}"
-                    )
-                    collectIsRandomJobScheduler.launchJob(
-                        this@MediaPlayerService,
-                        PLAY_NEXT_COMMAND
-                    )
-                }
-                super.seekToNext()
-            }
-
-            override fun seekToPrevious() {
-                playAudioUseCase.currentPlayingSong()?.let { uiAudio ->
-                    collectIsRandomJobScheduler.cancelJob()
-                    MPLogger.i(CLASS_NAME, "seekToPrevious", TAG, "uiAudio: $uiAudio")
-                    collectIsRandomJobScheduler.launchJob(
-                        this@MediaPlayerService,
-                        PLAY_PREVIOUS_COMMAND
-                    )
-                }
-                super.seekToPrevious()
-            }
-
-            override fun getCurrentPosition(): Long {
-                return playAudioUseCase.currentSongProgression.toLong()
-            }
-
-            override fun getDuration(): Long {
-                return playAudioUseCase.currentPlayingSong()?.duration?.toLong()?:0L
-            }
-
-        }
-    }
 
     private var mediaSession: MediaSession? = null
 
     private var mediaPlayerNotification = mediaSession?.let {
-            NotificationManager.getMediaNotification(
-                uiAudio = playAudioUseCase.currentPlayingSong() ?: UiAudio(),
-                mediaSession = it
-            )
-        }
-
+        NotificationManager.getMediaNotification(
+            uiAudio = playAudioUseCase.currentPlayingSong() ?: UiAudio(),
+            mediaSession = it
+        )
+    }
     private val collectIsRandomJobScheduler: IJobController by ServiceJobScheduler { args ->
         var context: Context? = null
         var action = ""
@@ -235,56 +80,55 @@ class MediaPlayerService : MediaSessionService(), IBaseService {
         context?.let { cont ->
             audioConfiguratorUseCase.isRandomModeInFlow(cont).collectLatest {
                 MPLogger.d(CLASS_NAME, "isRandomModeInFlow", TAG, "isRandom: $it")
-                if (action == PLAY_NEXT_COMMAND) {
-                    playAudioUseCase.currentPlayingSong()?.let { uiAudio ->
-                        playNextOrPreviousSongUseCase.playNext(
-                            currentSong = uiAudio,
-                            isRandom = it,
-                            context = cont
-                        )
-                    }
-                    collectIsRandomJobScheduler.cancelJob()
-                } else if (action == PLAY_PREVIOUS_COMMAND) {
-                    playAudioUseCase.currentPlayingSong()?.let { uiAudio ->
-                        playNextOrPreviousSongUseCase.playPrevious(
-                            currentSong = uiAudio,
-                            context = cont,
-                            isRandom = it
-                        )
-                    }
-                    collectIsRandomJobScheduler.cancelJob()
+                if (action == MediaPlayerMPNotificationImpl.SHUFFLE_ACTION) {
+                    mediaSession?.player?.shuffleModeEnabled = it
                 }
+                collectIsRandomJobScheduler.cancelJob()
             }
         }
     }
 
     override fun onCreate() {
         super.onCreate()
-        mediaSession = forwardingPlayer?.let {
-            MediaSession.Builder(this, it)
-                .build()
+        mediaSession = Looper.myLooper()?.let {
+            MPCustomForwardPlayer(
+                playUseCase = playAudioUseCase,
+                fetchDataUseCase = fetchDataUseCase,
+                configuratorUseCase = audioConfiguratorUseCase,
+                resumePauseSongUseCaseImpl = pauseOrResumeUseCase,
+                playNextOrPreviousSongUseCase = playNextOrPreviousSongUseCase,
+                context = this,
+                coroutineScope = scope,
+                looper = it
+            ).let { mpCustomMediaThreePlayer ->
+                MediaSession.Builder(this, mpCustomMediaThreePlayer)
+                    .build()
+            }
         }
+
     }
 
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? {
         return mediaSession
     }
 
-    private fun refreshNotification(){
-        mediaSession?.let {
-            NotificationManager.getMediaNotification(
-                uiAudio = playAudioUseCase.currentPlayingSong() ?: UiAudio(),
-                mediaSession = it
-            ).showNotification(this)
-        }
+    override fun onUpdateNotification(session: MediaSession, startInForegroundRequired: Boolean) {
+        super.onUpdateNotification(session, startInForegroundRequired)
+        MPLogger.d(
+            CLASS_NAME,
+            "onUpdateNotification",
+            TAG,
+            "startInForegroundRequired: $startInForegroundRequired, session: $session"
+        )
     }
 
-    override fun onTaskRemoved(rootIntent: Intent?) {
-        val player = mediaSession?.player!!
-        if (!player.playWhenReady || player.mediaItemCount == 0) {
-            // Stop the service if not playing, continue playing in the background
-            // otherwise.
-            stopSelf()
+    private fun refreshNotification() {
+        mediaSession?.let {
+            mediaPlayerNotification = NotificationManager.getMediaNotification(
+                uiAudio = playAudioUseCase.currentPlayingSong() ?: UiAudio(),
+                mediaSession = it
+            )
+            mediaPlayerNotification?.showNotification(this)
         }
     }
 
@@ -297,16 +141,17 @@ class MediaPlayerService : MediaSessionService(), IBaseService {
         serviceScope.launch {
             playAudioUseCase.setOnPlaySongListener(
                 onPlaySongSuccess = { uiAudio ->
-                    MPLogger.d(CLASS_NAME,"onStartCommand", TAG,"onPlaySongSuccess: uiAudio: $uiAudio")
-                    mediaPlayerNotification?.showNotification(this@MediaPlayerService)
-                    if (!playAudioUseCase.isPlaying){
-                        forwardingPlayer?.play()
-                    }
+                    MPLogger.d(
+                        CLASS_NAME,
+                        "onStartCommand",
+                        TAG,
+                        "onPlaySongSuccess: uiAudio: $uiAudio"
+                    )
+                    mediaSession?.player?.play()
                     refreshNotification()
                 },
                 onPlaySongFailed = { _ ->
-                    MPLogger.d(CLASS_NAME,"onStartCommand", TAG,"onPlaySongFailed")
-                    mediaPlayerNotification?.showNotification(this@MediaPlayerService)
+                    MPLogger.d(CLASS_NAME, "onStartCommand", TAG, "onPlaySongFailed")
                     refreshNotification()
                 },
                 predicate = { isActive }
@@ -316,9 +161,9 @@ class MediaPlayerService : MediaSessionService(), IBaseService {
             playAudioUseCase.setOnStopListener(
                 predicate = { isActive },
                 onSongStopped = { _ ->
-                    MPLogger.d(CLASS_NAME,"onStartCommand", TAG,"onSongStopped")
+                    MPLogger.d(CLASS_NAME, "onStartCommand", TAG, "onSongStopped")
                     mediaPlayerNotification?.showNotification(this@MediaPlayerService)
-                    forwardingPlayer?.pause()
+                    mediaSession?.player?.pause()
                     refreshNotification()
                 }
             )
@@ -339,12 +184,24 @@ class MediaPlayerService : MediaSessionService(), IBaseService {
                 )
                 handleStopServiceRequest()
             }
-            MediaPlayerMPNotificationImpl.CANCEL_NOTIFICATION->{
+
+            MediaPlayerMPNotificationImpl.CANCEL_NOTIFICATION -> {
                 MPLogger.d(
                     CLASS_NAME, "onStartCommand",
                     TAG, "notification canceled"
                 )
                 handleStopServiceRequest()
+            }
+
+            MediaPlayerMPNotificationImpl.SHUFFLE_ACTION -> {
+                MPLogger.d(
+                    CLASS_NAME, "onStartCommand",
+                    TAG, "change is repeat mode"
+                )
+                collectIsRandomJobScheduler.launchJob(
+                    this,
+                    MediaPlayerMPNotificationImpl.SHUFFLE_ACTION
+                )
             }
         }
 
@@ -374,24 +231,24 @@ class MediaPlayerService : MediaSessionService(), IBaseService {
         } else {
             startForeground(NotificationManager.MEDIA_PLAYER_NOTIFICATION_ID.toInt(), notification)
         }
-        forwardingPlayer?.play()
 
     }
 
     override fun handleStopServiceRequest() {
-        MPLogger.e(
+        MPLogger.d(
             CLASS_NAME,
             "handleStopServiceRequest",
             TAG,
             "stop service"
         )
         collectIsRandomJobScheduler.cancelJob()
-        mediaPlayerNotification?.cancelNotification(this)
+        scope.cancel()
         mediaSession?.run {
-            this.player.release()
+            player.stop()
             release()
-            mediaSession = null
         }
+        mediaSession = null
+        mediaPlayerNotification?.cancelNotification(this)
         stopSelf()
     }
 

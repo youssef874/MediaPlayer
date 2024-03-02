@@ -70,6 +70,7 @@ dependencies {
     implementation(libs.android.hilt.navigation)
     implementation(libs.material)
     implementation(libs.androidx.media3.session)
+    implementation(libs.androidx.media3.ui)
     kapt("com.google.dagger:hilt-compiler:2.50")
     implementation(project(":mpdatadrovider"))
     implementation(project(":mplogger"))

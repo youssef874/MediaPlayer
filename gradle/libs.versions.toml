@@ -7,12 +7,12 @@ androidx-test-ext-junit = "1.1.5"
 espresso-core = "3.5.1"
 lifecycle-runtime-ktx = "2.7.0"
 activity-compose = "1.8.2"
-compose-bom = "2023.10.01"
+compose-bom = "2024.02.01"
 appcompat = "1.6.1"
 material = "1.11.0"
 coiel = "2.4.0"
 data-strore = "1.0.0"
-androidx-material = "1.6.1"
+androidx-material = "1.6.2"
 compose-navigation = "2.7.7"
 android-test = "1.0"
 rebolic = "4.8.2"
@@ -20,8 +20,9 @@ coroutine = "1.6,1"
 androidX-Room = "2.6.1"
 androidx-test = "1.5.0"
 hilt = "2.50"
-hilt-navigation = "1.1.0"
+hilt-navigation = "1.2.0"
 media3Session = "1.2.1"
+media3Ui = "1.2.1"
 
 
 [libraries]
@@ -58,6 +59,7 @@ androidx-test-core = {group = "androidx.test", name = "core", version.ref = "and
 android-hilt = {group = "com.google.dagger", name = "hilt-android", version.ref = "hilt"}
 android-hilt-navigation = {group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hilt-navigation"}
 androidx-media3-session = { group = "androidx.media3", name = "media3-session", version.ref = "media3Session" }
+androidx-media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "media3Ui" }
 
 
 

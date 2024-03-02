@@ -64,14 +64,14 @@ internal class MediaPlayerMPNotificationImpl(
         val builder = NotificationCompat.Builder(context, channelId.toString())
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setSmallIcon(R.drawable.baseline_audio_file_24)
-            .setStyle(MediaStyleNotificationHelper.MediaStyle(mediaSession)
-                .setShowActionsInCompactView(0,1,2))
+            .setStyle(MediaStyleNotificationHelper.MediaStyle(mediaSession))
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setContentTitle(uiAudio.songName)
             .setContentText(uiAudio.artistName)
             .setLargeIcon(bitmap)
             .setDeleteIntent(getDeletePendingIntent(context))
             .setContentIntent(getContentPendingIntent(context))
+
 
         notificationManager.createNotificationChannel(
             channelId = channelId.toString(),
@@ -121,5 +121,6 @@ internal class MediaPlayerMPNotificationImpl(
         private const val TAG = "BACKGROUND"
         const val CANCEL_NOTIFICATION = "cancel_notification"
         const val SONG_ID = "songId"
+        const val SHUFFLE_ACTION = "shuffle"
     }
 }

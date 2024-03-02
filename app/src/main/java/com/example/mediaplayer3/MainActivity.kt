@@ -62,6 +62,13 @@ class MainActivity : ComponentActivity() {
         intent.action = MediaPlayerService.STOP
         stopService(intent)
     }
+
+    @OptIn(UnstableApi::class) override fun onDestroy() {
+        super.onDestroy()
+        val intent = Intent(this,MediaPlayerService::class.java)
+        intent.action = MediaPlayerService.STOP
+        stopService(intent)
+    }
 }
 
 val list = listOf(
