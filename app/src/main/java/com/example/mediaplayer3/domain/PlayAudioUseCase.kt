@@ -4,7 +4,7 @@ import android.content.Context
 import com.example.mediaplayer3.data.entity.RepeatMode
 import com.example.mediaplayer3.domain.entity.UiAudio
 import com.example.mediaplayer3.repository.IAudioDataRepo
-import com.example.mplog.MPLogger
+import com.example.mpcore.api.log.MPLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -58,7 +58,7 @@ class PlayAudioUseCase @Inject constructor(
             }
         }
         songProgression(scope).collectLatest { progress ->
-            MPLogger.d(CLASS_NAME, "progressSongJobScheduler", TAG, "progress: $progress")
+            MPLog.d(CLASS_NAME, "progressSongJobScheduler", TAG, "progress: $progress")
             context?.let {
                 audioDataRepository.updateLastSongProgress(it, progress)
             }
@@ -74,7 +74,7 @@ class PlayAudioUseCase @Inject constructor(
         }
         context?.let {
             audioConfiguratorUseCase.isRandomModeInFlow(it).collectLatest { _isRandom ->
-                MPLogger.d(CLASS_NAME, "collectRepeatModeJob", TAG, "_isRandom: $_isRandom")
+                MPLog.d(CLASS_NAME, "collectRepeatModeJob", TAG, "_isRandom: $_isRandom")
                 isRandom = _isRandom
             }
         }
@@ -89,7 +89,7 @@ class PlayAudioUseCase @Inject constructor(
         }
         context?.let {
             audioConfiguratorUseCase.getRepeatMode(it).collectLatest { value: RepeatMode ->
-                MPLogger.d(CLASS_NAME, "collectRepeatModeJob", TAG, "repeatMode: $value")
+                MPLog.d(CLASS_NAME, "collectRepeatModeJob", TAG, "repeatMode: $value")
                 repeatMode = value
             }
         }
@@ -116,12 +116,12 @@ class PlayAudioUseCase @Inject constructor(
         uiAudio: UiAudio,
         seekTo: Int
     ) {
-        MPLogger.d(CLASS_NAME, "playSong", TAG, "try to play: $uiAudio")
+        MPLog.d(CLASS_NAME, "playSong", TAG, "try to play: $uiAudio")
         collectIsRandomJobScheduler.launchJob(context)
         collectRepeatModeJob.launchJob(context)
         try {
             if (seekTo != -1) {
-                MPLogger.d(CLASS_NAME, "playSong", TAG, "play: $uiAudio, at: $seekTo")
+                MPLog.d(CLASS_NAME, "playSong", TAG, "play: $uiAudio, at: $seekTo")
                 scope.launch {
                     audioDataRepository.updateLastSongProgress(context, seekTo)
                 }
@@ -137,7 +137,7 @@ class PlayAudioUseCase @Inject constructor(
                 }
                 job = scope.launch {
                     lastSongProgress(context).collectLatest {
-                        MPLogger.d(CLASS_NAME, "playSong", TAG, "lastSongProgress: $it")
+                        MPLog.d(CLASS_NAME, "playSong", TAG, "lastSongProgress: $it")
                         if (it != -1) {
                             audioDataRepository.playSong(context, uiAudio.uri, it)
                         } else {
@@ -154,7 +154,7 @@ class PlayAudioUseCase @Inject constructor(
                 }
             }
             audioDataRepository.observeSongCompletion {
-                MPLogger.d(CLASS_NAME, "onSongCompleted", TAG, "current playing song completed")
+                MPLog.d(CLASS_NAME, "onSongCompleted", TAG, "current playing song completed")
                 val audioList = fetchDataUseCase.getExtractedSongList()
                 val currentSongIndex = audioList.indexOf(uiAudio)
                 val nextSongIndex = getNextSongIndex(currentSongIndex, audioList)
@@ -162,7 +162,7 @@ class PlayAudioUseCase @Inject constructor(
                     audioDataRepository.updateLastSongProgress(context,0)
                 }
                 val nextSong = audioList[nextSongIndex]
-                MPLogger.d(CLASS_NAME, "onSongCompleted", TAG, "nextSong: $nextSong")
+                MPLog.d(CLASS_NAME, "onSongCompleted", TAG, "nextSong: $nextSong")
                 playSong(context, nextSong)
             }
             _isPlaying = true
@@ -171,7 +171,7 @@ class PlayAudioUseCase @Inject constructor(
                 it(uiAudio)
             }
         } catch (_: Exception) {
-            MPLogger.w(CLASS_NAME, "playSong", TAG, "Failed to play $uiAudio")
+            MPLog.w(CLASS_NAME, "playSong", TAG, "Failed to play $uiAudio")
             _isPlaying = false
             audioPlayFailedListener.forEach {
                 it(uiAudio)
@@ -205,9 +205,9 @@ class PlayAudioUseCase @Inject constructor(
     }
 
     override fun stopSong(context: Context) {
-        MPLogger.i(CLASS_NAME, "stopSong", TAG, "try to stop song")
+        MPLog.i(CLASS_NAME, "stopSong", TAG, "try to stop song")
         currentSong?.let { uiAudio ->
-            MPLogger.i(CLASS_NAME, "stopSong", TAG, "stop playing: $uiAudio")
+            MPLog.i(CLASS_NAME, "stopSong", TAG, "stop playing: $uiAudio")
             audioDataRepository.stopSong(context, uiAudio.uri)
             progressSongJobScheduler.cancelJob()
             audioStopListener.forEach {
@@ -216,12 +216,12 @@ class PlayAudioUseCase @Inject constructor(
             _isPlaying = false
             currentSong = null
         } ?: run {
-            MPLogger.w(CLASS_NAME, "stopSong", TAG, "There no song was playing to stop")
+            MPLog.w(CLASS_NAME, "stopSong", TAG, "There no song was playing to stop")
         }
     }
 
     override fun updatePlyingStatus(isPlaying: Boolean) {
-        MPLogger.i(CLASS_NAME, "updatePlyingStatus", TAG, "isPlaying: $isPlaying")
+        MPLog.i(CLASS_NAME, "updatePlyingStatus", TAG, "isPlaying: $isPlaying")
         _isPlaying = isPlaying
     }
 

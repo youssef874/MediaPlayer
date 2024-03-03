@@ -20,7 +20,7 @@ import androidx.media3.session.MediaStyleNotificationHelper
 import com.example.mediaplayer3.R
 import com.example.mediaplayer3.domain.entity.UiAudio
 import com.example.mediaplayer3.service.MediaPlayerService
-import com.example.mplog.MPLogger
+import com.example.mpcore.api.log.MPLog
 
 internal class MediaPlayerMPNotificationImpl(
     private val notificationId: Long,
@@ -32,7 +32,7 @@ internal class MediaPlayerMPNotificationImpl(
 
 
     override fun showNotification(context: Context) {
-        MPLogger.i(
+        MPLog.i(
             CLASS_NAME,
             "showNotification",
             TAG,
@@ -44,7 +44,7 @@ internal class MediaPlayerMPNotificationImpl(
     }
 
     @OptIn(UnstableApi::class) override fun createNotification(context: Context): Notification {
-        MPLogger.i(
+        MPLog.i(
             CLASS_NAME,
             "createNotification",
             TAG,
@@ -104,7 +104,7 @@ internal class MediaPlayerMPNotificationImpl(
         }
     }
     override fun cancelNotification(context: Context) {
-        MPLogger.i(
+        MPLog.i(
             CLASS_NAME,
             "cancelNotification",
             TAG,

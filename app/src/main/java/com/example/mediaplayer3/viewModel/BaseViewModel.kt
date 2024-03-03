@@ -2,7 +2,7 @@ package com.example.mediaplayer3.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.mplog.MPLogger
+import com.example.mpcore.api.log.MPLog
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +18,7 @@ abstract class BaseViewModel<EVENT,STATE>: ViewModel() {
     protected val uiEvent: SharedFlow<EVENT> = _uiEvent.asSharedFlow()
 
     fun onEvent(event: EVENT){
-        MPLogger.d(CLASS_NAME,"onEvent", TAG,"event: $event")
+        MPLog.d(CLASS_NAME,"onEvent", TAG,"event: $event")
         viewModelScope.launch {
             _uiEvent.emit(event)
         }

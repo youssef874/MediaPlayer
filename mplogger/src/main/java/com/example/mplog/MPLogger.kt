@@ -12,6 +12,17 @@ object MPLogger:IMPLogger {
         logWriterImpl.addClassToIgnoreInLogger(MPLogger::class.java.name)
     }
 
+    /**
+     * Call this add class to ignore when computing the index of track trace when you write log using this library
+     * like you need to ignore delegate classes that delegate this  if there any otherwise you dint need to call this function
+     * `@throws: throw [IllegalArgumentException] if you you try to add a classes that already been added
+     */
+    fun addClassToIgnore(list: List<String>){
+        list.forEach{
+            logWriterImpl.addClassToIgnoreInLogger(it)
+        }
+    }
+
 
     override fun i(className: String, methodName: String, tag: String, msg: String) {
         logWriterImpl.log(MPLogLevel.INFO,className, methodName, tag, msg)

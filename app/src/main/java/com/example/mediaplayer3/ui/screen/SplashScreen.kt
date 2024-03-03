@@ -17,12 +17,12 @@ import com.example.mediaplayer3.ui.RequestPermissionDialog
 import com.example.mediaplayer3.ui.RequestSinglePermission
 import com.example.mediaplayer3.viewModel.SplashViewModel
 import com.example.mediaplayer3.viewModel.data.splash.SplashUiEvent
-import com.example.mplog.MPLogger
+import com.example.mpcore.api.log.MPLog
 
 
 @Composable
 fun SplashScreen(splashViewModel: SplashViewModel = hiltViewModel(), onNavigateToTrackList: ()->Unit) {
-    MPLogger.i(Constant.SplashScreen.CLASS_NAME,"SplashScreen",Constant.SplashScreen.TAG,"display splash screen")
+    MPLog.i(Constant.SplashScreen.CLASS_NAME,"SplashScreen",Constant.SplashScreen.TAG,"display splash screen")
     val context = LocalContext.current
     LaunchedEffect(key1 = Unit){
         splashViewModel.onEvent(SplashUiEvent.Sync(context))
@@ -33,17 +33,17 @@ fun SplashScreen(splashViewModel: SplashViewModel = hiltViewModel(), onNavigateT
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) Manifest.permission.READ_MEDIA_AUDIO
         else Manifest.permission.READ_EXTERNAL_STORAGE
     if (state.isLoading){
-        MPLogger.i(Constant.SplashScreen.CLASS_NAME,"SplashScreen",Constant.SplashScreen.TAG,"screenIsLoading")
+        MPLog.i(Constant.SplashScreen.CLASS_NAME,"SplashScreen",Constant.SplashScreen.TAG,"screenIsLoading")
         LoadingScreen()
     }else if (state.isSync){
-        MPLogger.i(Constant.SplashScreen.CLASS_NAME,"SplashScreen",Constant.SplashScreen.TAG,"sync success")
+        MPLog.i(Constant.SplashScreen.CLASS_NAME,"SplashScreen",Constant.SplashScreen.TAG,"sync success")
         LoadingScreen()
-        MPLogger.i(Constant.SplashScreen.CLASS_NAME,"SplashScreen",Constant.SplashScreen.TAG,"navigate to audio list screen")
+        MPLog.i(Constant.SplashScreen.CLASS_NAME,"SplashScreen",Constant.SplashScreen.TAG,"navigate to audio list screen")
         LaunchedEffect(key1 = true){
             onNavigateToTrackList()
         }
     } else if (state.isFailed){
-        MPLogger.w(Constant.SplashScreen.CLASS_NAME,"SplashScreen",Constant.SplashScreen.TAG,"sync failed")
+        MPLog.w(Constant.SplashScreen.CLASS_NAME,"SplashScreen",Constant.SplashScreen.TAG,"sync failed")
         if (ContextCompat.checkSelfPermission(
                 context, permission
             ) != PackageManager.PERMISSION_GRANTED
@@ -51,13 +51,13 @@ fun SplashScreen(splashViewModel: SplashViewModel = hiltViewModel(), onNavigateT
             RequestSinglePermission(
                 permission = permission,
                 onPermissionGranted = {
-                    MPLogger.i(Constant.SplashScreen.CLASS_NAME,"SplashScreen",Constant.SplashScreen.TAG,"permission granted")
+                    MPLog.i(Constant.SplashScreen.CLASS_NAME,"SplashScreen",Constant.SplashScreen.TAG,"permission granted")
                       LaunchedEffect(key1 = state){
                           splashViewModel.onEvent(SplashUiEvent.Sync(context))
                       }
                 },
                 onPermissionDenied = {
-                    MPLogger.e(Constant.SplashScreen.CLASS_NAME,"SplashScreen",Constant.SplashScreen.TAG,"permission denied")
+                    MPLog.e(Constant.SplashScreen.CLASS_NAME,"SplashScreen",Constant.SplashScreen.TAG,"permission denied")
                     ErrorScreen()
                     RequestPermissionDialog(permissions = listOf(permission))
                 }

@@ -51,7 +51,7 @@ import com.example.mediaplayer3.ui.theme.LightBlue
 import com.example.mediaplayer3.ui.timeFormatter
 import com.example.mediaplayer3.viewModel.TrackDetailViewModel
 import com.example.mediaplayer3.viewModel.data.trackDetail.TrackDetailsUiEvent
-import com.example.mplog.MPLogger
+import com.example.mpcore.api.log.MPLog
 import kotlin.math.abs
 
 @Composable
@@ -61,7 +61,7 @@ fun AudioDetailScreen(
     onBack: () -> Unit,
     onNavigateToPlayListScreen: (songId: Long)->Unit
 ) {
-    MPLogger.i(
+    MPLog.i(
         Constant.TrackDetail.CLASS_NAME,
         "AudioDetailScreen",
         Constant.TrackDetail.TAG,
@@ -149,7 +149,7 @@ fun AudioDetailScreen(
                         if (state.isPlaying) {
                             val diff = abs(state.songProgress.toFloat() - progress)
                             if (state.songProgress.toFloat() > progress) {
-                                MPLogger.d(
+                                MPLog.d(
                                     Constant.TrackDetail.CLASS_NAME,
                                     "TrackDetailScreen",
                                     Constant.TrackDetail.TAG,
@@ -162,7 +162,7 @@ fun AudioDetailScreen(
                                     )
                                 )
                             } else if (state.songProgress.toFloat() < progress) {
-                                MPLogger.d(
+                                MPLog.d(
                                     Constant.TrackDetail.CLASS_NAME,
                                     "TrackDetailScreen",
                                     Constant.TrackDetail.TAG,
@@ -176,7 +176,7 @@ fun AudioDetailScreen(
                                 )
                             }
                         } else {
-                            MPLogger.d(
+                            MPLog.d(
                                 Constant.TrackDetail.CLASS_NAME,
                                 "TrackDetailScreen",
                                 Constant.TrackDetail.TAG,

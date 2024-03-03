@@ -18,7 +18,7 @@ import com.example.mediaplayer3.notification.MediaPlayerMPNotificationImpl
 import com.example.mediaplayer3.notification.NotificationManager
 import com.example.mediaplayer3.service.delegate.ServiceJobScheduler
 import com.example.mediaplayer3.viewModel.delegates.IJobController
-import com.example.mplog.MPLogger
+import com.example.mpcore.api.log.MPLog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -79,7 +79,7 @@ class MediaPlayerService : MediaSessionService(), IBaseService {
         }
         context?.let { cont ->
             audioConfiguratorUseCase.isRandomModeInFlow(cont).collectLatest {
-                MPLogger.d(CLASS_NAME, "isRandomModeInFlow", TAG, "isRandom: $it")
+                MPLog.d(CLASS_NAME, "isRandomModeInFlow", TAG, "isRandom: $it")
                 if (action == MediaPlayerMPNotificationImpl.SHUFFLE_ACTION) {
                     mediaSession?.player?.shuffleModeEnabled = it
                 }
@@ -114,7 +114,7 @@ class MediaPlayerService : MediaSessionService(), IBaseService {
 
     override fun onUpdateNotification(session: MediaSession, startInForegroundRequired: Boolean) {
         super.onUpdateNotification(session, startInForegroundRequired)
-        MPLogger.d(
+        MPLog.d(
             CLASS_NAME,
             "onUpdateNotification",
             TAG,
@@ -141,7 +141,7 @@ class MediaPlayerService : MediaSessionService(), IBaseService {
         serviceScope.launch {
             playAudioUseCase.setOnPlaySongListener(
                 onPlaySongSuccess = { uiAudio ->
-                    MPLogger.d(
+                    MPLog.d(
                         CLASS_NAME,
                         "onStartCommand",
                         TAG,
@@ -151,7 +151,7 @@ class MediaPlayerService : MediaSessionService(), IBaseService {
                     refreshNotification()
                 },
                 onPlaySongFailed = { _ ->
-                    MPLogger.d(CLASS_NAME, "onStartCommand", TAG, "onPlaySongFailed")
+                    MPLog.d(CLASS_NAME, "onStartCommand", TAG, "onPlaySongFailed")
                     refreshNotification()
                 },
                 predicate = { isActive }
@@ -161,7 +161,7 @@ class MediaPlayerService : MediaSessionService(), IBaseService {
             playAudioUseCase.setOnStopListener(
                 predicate = { isActive },
                 onSongStopped = { _ ->
-                    MPLogger.d(CLASS_NAME, "onStartCommand", TAG, "onSongStopped")
+                    MPLog.d(CLASS_NAME, "onStartCommand", TAG, "onSongStopped")
                     mediaPlayerNotification?.showNotification(this@MediaPlayerService)
                     mediaSession?.player?.pause()
                     refreshNotification()
@@ -170,7 +170,7 @@ class MediaPlayerService : MediaSessionService(), IBaseService {
         }
         when (intent?.action) {
             START -> {
-                MPLogger.d(
+                MPLog.d(
                     CLASS_NAME, "onStartCommand",
                     TAG, "start service isPlaying: ${playAudioUseCase.isPlaying}"
                 )
@@ -178,7 +178,7 @@ class MediaPlayerService : MediaSessionService(), IBaseService {
             }
 
             STOP -> {
-                MPLogger.d(
+                MPLog.d(
                     CLASS_NAME, "onStartCommand",
                     TAG, "stop service"
                 )
@@ -186,7 +186,7 @@ class MediaPlayerService : MediaSessionService(), IBaseService {
             }
 
             MediaPlayerMPNotificationImpl.CANCEL_NOTIFICATION -> {
-                MPLogger.d(
+                MPLog.d(
                     CLASS_NAME, "onStartCommand",
                     TAG, "notification canceled"
                 )
@@ -194,7 +194,7 @@ class MediaPlayerService : MediaSessionService(), IBaseService {
             }
 
             MediaPlayerMPNotificationImpl.SHUFFLE_ACTION -> {
-                MPLogger.d(
+                MPLog.d(
                     CLASS_NAME, "onStartCommand",
                     TAG, "change is repeat mode"
                 )
@@ -210,7 +210,7 @@ class MediaPlayerService : MediaSessionService(), IBaseService {
 
     override fun handleStartServiceRequest() {
         if (!playAudioUseCase.isPlaying) {
-            MPLogger.e(
+            MPLog.e(
                 CLASS_NAME,
                 "handleStartServiceRequest",
                 TAG,
@@ -235,7 +235,7 @@ class MediaPlayerService : MediaSessionService(), IBaseService {
     }
 
     override fun handleStopServiceRequest() {
-        MPLogger.d(
+        MPLog.d(
             CLASS_NAME,
             "handleStopServiceRequest",
             TAG,

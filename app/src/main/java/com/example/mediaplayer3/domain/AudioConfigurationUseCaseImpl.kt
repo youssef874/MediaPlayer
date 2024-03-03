@@ -3,7 +3,7 @@ package com.example.mediaplayer3.domain
 import android.content.Context
 import com.example.mediaplayer3.data.entity.RepeatMode
 import com.example.mediaplayer3.repository.IAudioDataRepo
-import com.example.mplog.MPLogger
+import com.example.mpcore.api.log.MPLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -28,7 +28,7 @@ class AudioConfigurationUseCaseImpl @Inject constructor(
         get() = _scope
 
     override fun changePlayNextOrPreviousMode(context: Context, isRandom: Boolean) {
-        MPLogger.d(CLASS_NAME, "changePlayNextOrPreviousMode", TAG, "isRandom: $isRandom")
+        MPLog.d(CLASS_NAME, "changePlayNextOrPreviousMode", TAG, "isRandom: $isRandom")
         scope.launch {
             audioDataRepo.updateRandomMode(context, isRandom)
         }
@@ -40,7 +40,7 @@ class AudioConfigurationUseCaseImpl @Inject constructor(
     }
 
     override suspend fun changeRepeatMode(context: Context, repeatMode: RepeatMode) {
-        MPLogger.d(CLASS_NAME, "changeRepeatMode", TAG, "repeatMode: $repeatMode")
+        MPLog.d(CLASS_NAME, "changeRepeatMode", TAG, "repeatMode: $repeatMode")
         scope.launch {
             audioDataRepo.updateRepeatMode(context, repeatMode)
         }

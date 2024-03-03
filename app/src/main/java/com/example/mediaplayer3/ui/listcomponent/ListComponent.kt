@@ -26,7 +26,7 @@ import com.example.mediaplayer3.ui.screen.RegularText
 import com.example.mediaplayer3.ui.screen.SubTitleText
 import com.example.mediaplayer3.ui.screen.TitleText
 import com.example.mediaplayer3.ui.theme.ItemBackground
-import com.example.mplog.MPLogger
+import com.example.mpcore.api.log.MPLog
 
 
 @Composable
@@ -97,7 +97,7 @@ fun ListComponent(
                 }
             }
             if (selectedItem != null && selectedItem.id == item.id) {
-                MPLogger.d(
+                MPLog.d(
                     Constant.TrackList.CLASS_NAME,
                     "AudioList",
                     Constant.TrackList.TAG,

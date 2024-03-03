@@ -4,7 +4,7 @@ import android.content.Context
 import com.example.mediaplayer3.domain.entity.UiPlayList
 import com.example.mediaplayer3.repository.IAudioDataRepo
 import com.example.mediaplayer3.repository.toMPAppPlayList
-import com.example.mplog.MPLogger
+import com.example.mpcore.api.log.MPLog
 import javax.inject.Inject
 
 class EditSongUseCase @Inject constructor(private val audioDataRepo: IAudioDataRepo) :
@@ -20,7 +20,7 @@ class EditSongUseCase @Inject constructor(private val audioDataRepo: IAudioDataR
         songId: Long,
         isFavorite: Boolean
     ) {
-        MPLogger.d(
+        MPLog.d(
             CLASS_NAME,
             "changeIsFavoriteStatus",
             TAG,
@@ -34,7 +34,7 @@ class EditSongUseCase @Inject constructor(private val audioDataRepo: IAudioDataR
         songId: Long,
         playList: UiPlayList
     ) {
-        MPLogger.i(CLASS_NAME,"attachSongToPlayList", TAG,"songId: $songId, playList: $playList")
+        MPLog.i(CLASS_NAME,"attachSongToPlayList", TAG,"songId: $songId, playList: $playList")
         audioDataRepo.attachPlaylistToSong(context,songId,playList.toMPAppPlayList())
     }
 }

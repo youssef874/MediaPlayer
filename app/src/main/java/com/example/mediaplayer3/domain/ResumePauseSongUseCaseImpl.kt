@@ -4,7 +4,7 @@ import android.content.Context
 import com.example.mediaplayer3.domain.entity.UiAudio
 import com.example.mediaplayer3.repository.IAudioDataRepo
 import com.example.mediaplayer3.ui.uiAudioFun0
-import com.example.mplog.MPLogger
+import com.example.mpcore.api.log.MPLog
 import javax.inject.Inject
 
 class ResumePauseSongUseCaseImpl @Inject constructor(
@@ -23,17 +23,17 @@ class ResumePauseSongUseCaseImpl @Inject constructor(
     private val audioResumeFailedListeners = mutableListOf<uiAudioFun0>()
 
     override fun pauseSong(context: Context, uiAudio: UiAudio) {
-        MPLogger.d(CLASS_NAME, "pauseSong", TAG, "try pause uiAudio: $uiAudio")
+        MPLog.d(CLASS_NAME, "pauseSong", TAG, "try pause uiAudio: $uiAudio")
         playUseCase.currentPlayingSong()?.let {
             if (it.id == uiAudio.id) {
-                MPLogger.d(CLASS_NAME, "pauseSong", TAG, "pause the song")
+                MPLog.d(CLASS_NAME, "pauseSong", TAG, "pause the song")
                 audioDataRepository.pauseSong(context)
                 playUseCase.updatePlyingStatus(false)
                 audioPauseListeners.forEach { function ->
                     function(uiAudio)
                 }
             } else {
-                MPLogger.w(
+                MPLog.w(
                     CLASS_NAME,
                     "pauseSong",
                     TAG,
@@ -41,28 +41,28 @@ class ResumePauseSongUseCaseImpl @Inject constructor(
                 )
             }
         } ?: run {
-            MPLogger.e(CLASS_NAME, "pauseSong", TAG, "There was no playing song to pause")
+            MPLog.e(CLASS_NAME, "pauseSong", TAG, "There was no playing song to pause")
         }
     }
 
     override fun resumeSong(context: Context, uiAudio: UiAudio, seekTo: Int) {
-        MPLogger.d(CLASS_NAME, "resumeSong", TAG, "try to resume song: $uiAudio, at: $seekTo")
+        MPLog.d(CLASS_NAME, "resumeSong", TAG, "try to resume song: $uiAudio, at: $seekTo")
         playUseCase.currentPlayingSong()?.let {
             if (it.id == uiAudio.id) {
-                MPLogger.d(CLASS_NAME, "resumeSong", TAG, " resume song: $uiAudio, at: $seekTo")
+                MPLog.d(CLASS_NAME, "resumeSong", TAG, " resume song: $uiAudio, at: $seekTo")
                 audioDataRepository.resumeSong(context, seekTo)
                 playUseCase.updatePlyingStatus(true)
                 audioResumeSuccessListeners.forEach { function ->
                     function(uiAudio, context)
                 }
             } else {
-                MPLogger.w(CLASS_NAME, "resumeSong", TAG, "not same as the currentSong: $uiAudio")
+                MPLog.w(CLASS_NAME, "resumeSong", TAG, "not same as the currentSong: $uiAudio")
                 audioResumeFailedListeners.forEach { function ->
                     function(uiAudio, context)
                 }
             }
         } ?: run {
-            MPLogger.w(
+            MPLog.w(
                 CLASS_NAME, "resumeSong",
                 TAG, "here no playing song request to play this song: ${uiAudio.id}, at: $seekTo"
             )

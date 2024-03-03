@@ -2,7 +2,7 @@ package com.example.mediaplayer3.domain
 
 import android.content.Context
 import com.example.mediaplayer3.domain.entity.UiAudio
-import com.example.mplog.MPLogger
+import com.example.mpcore.api.log.MPLog
 import javax.inject.Inject
 
 class PlayNextPreviousSongUseCase @Inject constructor(
@@ -19,7 +19,7 @@ class PlayNextPreviousSongUseCase @Inject constructor(
         playAudioUseCase.let { iPlayAudioUseCase ->
             val audioList = fetchDataUseCase.getExtractedSongList()
             if (audioList.isEmpty()) {
-                MPLogger.w(
+                MPLog.w(
                     CLASS_NAME,
                     "playNext",
                     TAG,
@@ -44,7 +44,7 @@ class PlayNextPreviousSongUseCase @Inject constructor(
         playAudioUseCase.let { iPlayAudioUseCase ->
             val audioList = fetchDataUseCase.getExtractedSongList()
             if (audioList.isEmpty()) {
-                MPLogger.w(
+                MPLog.w(
                     CLASS_NAME,
                     "playPrevious",
                     TAG,

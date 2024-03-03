@@ -14,7 +14,7 @@ import com.example.mediaplayer3.viewModel.data.trackDetail.TrackDetailUiState
 import com.example.mediaplayer3.viewModel.data.trackDetail.TrackDetailsUiEvent
 import com.example.mediaplayer3.viewModel.delegates.IJobController
 import com.example.mediaplayer3.viewModel.delegates.JobController
-import com.example.mplog.MPLogger
+import com.example.mpcore.api.log.MPLog
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -53,7 +53,7 @@ class TrackDetailViewModel @Inject constructor(
         }
         context?.let { cont ->
             audioConfiguratorUseCase.isRandomModeInFlow(cont).collectLatest { isInRandom ->
-                MPLogger.d(CLASS_NAME, "collectIsRandomJob", TAG, "isRandom: $isInRandom")
+                MPLog.d(CLASS_NAME, "collectIsRandomJob", TAG, "isRandom: $isInRandom")
                 _uiState.update {
                     it.copy(isInRandomMode = isInRandom)
                 }
@@ -72,7 +72,7 @@ class TrackDetailViewModel @Inject constructor(
             playAudioUseCase.lastSongProgress(cont).let { lastProgress ->
                 playAudioUseCase.songProgression(viewModelScope)
                     .combine(lastProgress) { currentProgress, lastP ->
-                        MPLogger.d(
+                        MPLog.d(
                             CLASS_NAME,
                             "collectProgress",
                             TAG,
@@ -103,7 +103,7 @@ class TrackDetailViewModel @Inject constructor(
         }
         context?.let { cont ->
             audioConfiguratorUseCase.getRepeatMode(cont).collectLatest { value: RepeatMode ->
-                MPLogger.d(
+                MPLog.d(
                     CLASS_NAME, "collectRepeatModeJob",
                     TAG, "repeatMode: $value"
                 )
@@ -123,7 +123,7 @@ class TrackDetailViewModel @Inject constructor(
         }
         context?.let { ctx ->
             fetchDataUseCase.getSong(ctx, uiState.value.currentSong.id).collectLatest { uiAudio ->
-                MPLogger.d(CLASS_NAME, "collectCurrentSongChanges", TAG, "$uiAudio")
+                MPLog.d(CLASS_NAME, "collectCurrentSongChanges", TAG, "$uiAudio")
                 if (uiAudio != null)
                     _uiState.update {
                         it.copy(uiAudio)
@@ -182,7 +182,7 @@ class TrackDetailViewModel @Inject constructor(
     private fun handleEvents() {
         viewModelScope.launch {
             uiEvent.collectLatest { event ->
-                MPLogger.d(CLASS_NAME, "handleEvents", TAG, "event: $event")
+                MPLog.d(CLASS_NAME, "handleEvents", TAG, "event: $event")
                 when (event) {
                     is TrackDetailsUiEvent.SearchForCurrentSong -> {
                         handleSearchForCurrentSongEvent(event)
@@ -229,7 +229,7 @@ class TrackDetailViewModel @Inject constructor(
     }
 
     private fun handleChangeFavoriteStatusEvent(event: TrackDetailsUiEvent.ChangeFavoriteStatus) {
-        MPLogger.d(
+        MPLog.d(
             CLASS_NAME,
             "handleChangeFavoriteStatusEvent",
             TAG,
@@ -247,17 +247,17 @@ class TrackDetailViewModel @Inject constructor(
     }
 
     private fun handleRewindEvent(event: TrackDetailsUiEvent.Rewind) {
-        MPLogger.d(CLASS_NAME, "handleRewindEvent", TAG, "rewindAt: ${event.rewindTo}")
+        MPLog.d(CLASS_NAME, "handleRewindEvent", TAG, "rewindAt: ${event.rewindTo}")
         audioForwardOrRewindUseCase.rewind(rewindAt = event.rewindTo)
     }
 
     private fun handleForwardEvent(event: TrackDetailsUiEvent.Forward) {
-        MPLogger.d(CLASS_NAME, "handleForwardEvent", TAG, "forwardTo: ${event.forwardTo}")
+        MPLog.d(CLASS_NAME, "handleForwardEvent", TAG, "forwardTo: ${event.forwardTo}")
         audioForwardOrRewindUseCase.forward(forwardAt = event.forwardTo)
     }
 
     private fun handleUpdatePlayingPositionEvent(event: TrackDetailsUiEvent.UpdatePlayingPosition) {
-        MPLogger.i(
+        MPLog.i(
             CLASS_NAME,
             "handleUpdatePlayingPositionEvent",
             TAG,
@@ -271,7 +271,7 @@ class TrackDetailViewModel @Inject constructor(
     }
 
     private fun handleChangeRepeatModeEvent(event: TrackDetailsUiEvent.ChangeRepeatMode) {
-        MPLogger.i(
+        MPLog.i(
             CLASS_NAME,
             "handleChangeRepeatModeEvent",
             TAG,
@@ -291,7 +291,7 @@ class TrackDetailViewModel @Inject constructor(
     }
 
     private fun handleChangePlayNextBehaviorEvent(event: TrackDetailsUiEvent.ChangePlayNextBehavior) {
-        MPLogger.i(
+        MPLog.i(
             CLASS_NAME,
             "handleChangePlayNextBehaviorEvent",
             TAG,
@@ -306,7 +306,7 @@ class TrackDetailViewModel @Inject constructor(
     }
 
     private fun handlePlayPreviousSongEvent(event: TrackDetailsUiEvent.PlayPreviousSong) {
-        MPLogger.i(CLASS_NAME, "handlePlayPreviousSongEvent", TAG, "try to play next song")
+        MPLog.i(CLASS_NAME, "handlePlayPreviousSongEvent", TAG, "try to play next song")
         playNextOrPreviousSongUseCase.playPrevious(
             currentSong = uiState.value.currentSong,
             isRandom = uiState.value.isInRandomMode,
@@ -315,7 +315,7 @@ class TrackDetailViewModel @Inject constructor(
     }
 
     private fun handlePlayNextSongEvent(event: TrackDetailsUiEvent.PlayNextSong) {
-        MPLogger.i(CLASS_NAME, "handlePlayNextSongEvent", TAG, "try to play previous song")
+        MPLog.i(CLASS_NAME, "handlePlayNextSongEvent", TAG, "try to play previous song")
         playNextOrPreviousSongUseCase.playNext(
             currentSong = uiState.value.currentSong,
             isRandom = uiState.value.isInRandomMode,
@@ -324,24 +324,24 @@ class TrackDetailViewModel @Inject constructor(
     }
 
     private fun handlePauseOrResumeEvent(event: TrackDetailsUiEvent.PauseOrResume) {
-        MPLogger.i(CLASS_NAME, "handlePauseOrResumeEvent", TAG, "uiAudio: ${event.uiAudio}")
+        MPLog.i(CLASS_NAME, "handlePauseOrResumeEvent", TAG, "uiAudio: ${event.uiAudio}")
         with(uiState.value) {
             if (isPlaying) {
                 playAudioUseCase.currentPlayingSong()?.let {
                     if (it.id == currentSong.id) {
-                        MPLogger.d(
+                        MPLog.d(
                             CLASS_NAME, "handlePlayOrPauseEvent",
                             TAG, "pause: $it"
                         )
                         pauseOrResumeUseCase.pauseSong(event.context, it)
                     } else {
-                        MPLogger.w(
+                        MPLog.w(
                             CLASS_NAME, "handlePlayOrPauseEvent",
                             TAG, "current selected item is not the same as the playing song"
                         )
                     }
                 } ?: run {
-                    MPLogger.w(
+                    MPLog.w(
                         CLASS_NAME, "handlePlayOrPauseEvent",
                         TAG, "There no playing song to play"
                     )
@@ -349,13 +349,13 @@ class TrackDetailViewModel @Inject constructor(
             } else {
                 playAudioUseCase.currentPlayingSong()?.let {
                     if (it.id == currentSong.id) {
-                        MPLogger.d(
+                        MPLog.d(
                             CLASS_NAME, "handlePlayOrPauseEvent",
                             TAG, "resume: $it"
                         )
                         pauseOrResumeUseCase.resumeSong(event.context, it)
                     } else {
-                        MPLogger.d(
+                        MPLog.d(
                             CLASS_NAME,
                             "handlePlayOrPauseEvent",
                             TAG,
@@ -364,7 +364,7 @@ class TrackDetailViewModel @Inject constructor(
                         playAudioUseCase.playSong(event.context, currentSong)
                     }
                 } ?: run {
-                    MPLogger.d(
+                    MPLog.d(
                         CLASS_NAME, "handlePlayOrPauseEvent",
                         TAG, "There no current song so play the selected song play: $currentSong"
                     )
@@ -375,7 +375,7 @@ class TrackDetailViewModel @Inject constructor(
     }
 
     private fun handleSearchForCurrentSongEvent(event: TrackDetailsUiEvent.SearchForCurrentSong) {
-        MPLogger.i(CLASS_NAME, "handleSearchForCurrentSongEvent", TAG, "songId: ${event.songId}")
+        MPLog.i(CLASS_NAME, "handleSearchForCurrentSongEvent", TAG, "songId: ${event.songId}")
         collectProgress.launchJob(event.context)
         collectIsRandomJob.launchJob(event.context)
         collectRepeatModeJob.launchJob(event.context)
@@ -392,7 +392,7 @@ class TrackDetailViewModel @Inject constructor(
     }
 
     override fun clear() {
-        MPLogger.i(CLASS_NAME,"clear", TAG,"clear Jobs")
+        MPLog.i(CLASS_NAME,"clear", TAG,"clear Jobs")
         collectProgress.cancelJob()
         collectIsRandomJob.cancelJob()
         collectRepeatModeJob.cancelJob()

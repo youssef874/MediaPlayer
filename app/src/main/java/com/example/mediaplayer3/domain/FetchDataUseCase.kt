@@ -7,7 +7,7 @@ import com.example.mediaplayer3.domain.entity.UiPlayList
 import com.example.mediaplayer3.repository.IAudioDataRepo
 import com.example.mediaplayer3.repository.toUiAudio
 import com.example.mediaplayer3.repository.toUiPlayList
-import com.example.mplog.MPLogger
+import com.example.mpcore.api.log.MPLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -33,7 +33,7 @@ class FetchDataUseCase @Inject constructor(private val audioDataRepo: IAudioData
 
     private val collectAudioList: IUseCaseJobScheduler by UseCaseScheduler{
         audioList?.collectLatest {
-            MPLogger.d(CLASS_NAME,"collectAudioList", TAG,"list: $it")
+            MPLog.d(CLASS_NAME,"collectAudioList", TAG,"list: $it")
         }
     }
     override val scope: CoroutineScope

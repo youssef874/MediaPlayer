@@ -3,7 +3,7 @@ package com.example.mediaplayer3.domain
 import android.content.Context
 import android.net.Uri
 import com.example.mediaplayer3.repository.IAudioDataRepo
-import com.example.mplog.MPLogger
+import com.example.mpcore.api.log.MPLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -26,24 +26,24 @@ class AudioForwardOrRewindUseCaseImp @Inject constructor(
 
     override fun forward(forwardAt: Int) {
         playUseCase.currentPlayingSong()?.let {
-            MPLogger.d(CLASS_NAME, "forward", TAG, "forwardAt: $forwardAt")
+            MPLog.d(CLASS_NAME, "forward", TAG, "forwardAt: $forwardAt")
             audioDataRepo.forward(forwardAt)
         } ?: run {
-            MPLogger.w(CLASS_NAME, "forward", TAG, "no current song to forward")
+            MPLog.w(CLASS_NAME, "forward", TAG, "no current song to forward")
         }
     }
 
     override fun rewind(rewindAt: Int) {
         playUseCase.currentPlayingSong()?.let {
-            MPLogger.d(CLASS_NAME, "rewind", TAG, "rewindAt: $rewindAt")
+            MPLog.d(CLASS_NAME, "rewind", TAG, "rewindAt: $rewindAt")
             audioDataRepo.rewind(rewindAt)
         } ?: run {
-            MPLogger.w(CLASS_NAME, "rewind", TAG, "no current song to rewind")
+            MPLog.w(CLASS_NAME, "rewind", TAG, "no current song to rewind")
         }
     }
 
     override fun setPlayingPosition(context: Context, uri: Uri, position: Int) {
-        MPLogger.d(CLASS_NAME, "setPlayingPosition", TAG, "uri: $uri, position: $position")
+        MPLog.d(CLASS_NAME, "setPlayingPosition", TAG, "uri: $uri, position: $position")
         scope.launch {
             audioDataRepo.setPlayingPosition(context, uri, position)
         }

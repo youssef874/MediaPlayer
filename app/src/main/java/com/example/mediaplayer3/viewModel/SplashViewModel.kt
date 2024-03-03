@@ -4,7 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.mediaplayer3.domain.IAudioSyncUseCase
 import com.example.mediaplayer3.viewModel.data.splash.SplashUiEvent
 import com.example.mediaplayer3.viewModel.data.splash.SplashUiState
-import com.example.mplog.MPLogger
+import com.example.mpcore.api.log.MPLog
 import com.example.mpstorage.synchronizer.event.SynchronisationType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -33,7 +33,7 @@ class SplashViewModel @Inject constructor(
 
         syncChangesObserver = viewModelScope.launch {
             audioSyncUseCase.syncChanges.collectLatest {event->
-                MPLogger.d(CLASS_NAME,"init", TAG,"synchronizationType: ${event.synchronizationType}")
+                MPLog.d(CLASS_NAME,"init", TAG,"synchronizationType: ${event.synchronizationType}")
                 when(event.synchronizationType){
                     SynchronisationType.SYNCHRONISATION_STARTED->{
                         _uiState.update {
@@ -58,7 +58,7 @@ class SplashViewModel @Inject constructor(
     private fun handleEvents() {
         viewModelScope.launch {
             uiEvent.collectLatest {
-                MPLogger.d(CLASS_NAME,"handleEvents", TAG,"event: $it")
+                MPLog.d(CLASS_NAME,"handleEvents", TAG,"event: $it")
                 when(it){
                     is SplashUiEvent.Sync->{
                         handleSyncEvents(it)
@@ -69,18 +69,18 @@ class SplashViewModel @Inject constructor(
     }
 
     private fun handleSyncEvents(event: SplashUiEvent.Sync) {
-        MPLogger.d(CLASS_NAME,"handleSyncEvents", TAG,"sync")
+        MPLog.d(CLASS_NAME,"handleSyncEvents", TAG,"sync")
         audioSyncUseCase.sync(event.context)
     }
 
     override fun clear() {
-        MPLogger.d(CLASS_NAME,"clear", TAG,"clear jobs")
+        MPLog.d(CLASS_NAME,"clear", TAG,"clear jobs")
         syncChangesObserver.cancel()
     }
 
     override fun onCleared() {
         super.onCleared()
-        MPLogger.d(CLASS_NAME,"onCleared", TAG,"this view model is cleared")
+        MPLog.d(CLASS_NAME,"onCleared", TAG,"this view model is cleared")
     }
 
     companion object{

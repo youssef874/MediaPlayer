@@ -12,7 +12,7 @@ import com.example.mediaplayer3.domain.IFetchDataUseCase
 import com.example.mediaplayer3.domain.IPlayAudioUseCase
 import com.example.mediaplayer3.domain.IPlayNextOrPreviousSongUseCase
 import com.example.mediaplayer3.domain.entity.UiAudio
-import com.example.mplog.MPLogger
+import com.example.mpcore.api.log.MPLog
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineScope
@@ -62,7 +62,7 @@ class MPCustomMediaThreePlayer(
     }
 
     override fun getState(): State {
-        MPLogger.i(CLASS_NAME, "getState", TAG, "build player State")
+        MPLog.i(CLASS_NAME, "getState", TAG, "build player State")
         val currentSongIndex = fetchDataUseCase.getExtractedSongList()
             .indexOf(playUseCase.currentPlayingSong())
         return State.Builder()
@@ -89,7 +89,7 @@ class MPCustomMediaThreePlayer(
 
     override fun handleSetPlayWhenReady(playWhenReady: Boolean): ListenableFuture<*> {
             playUseCase.currentPlayingSong()?.let { uiAudio ->
-                MPLogger.d(
+                MPLog.d(
                     CLASS_NAME,
                     "handleSetPlayWhenReady",
                     TAG,
@@ -111,7 +111,7 @@ class MPCustomMediaThreePlayer(
         seekCommand: Int
     ): ListenableFuture<*> {
         playUseCase.currentPlayingSong()?.let { uiAudio ->
-            MPLogger.d(
+            MPLog.d(
                 CLASS_NAME,
                 "handleSeek",
                 TAG,

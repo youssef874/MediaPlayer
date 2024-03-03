@@ -14,7 +14,7 @@ import com.example.mediaplayer3.ui.Constant
 import com.example.mediaplayer3.viewModel.data.tracklist.TrackListUiEvent
 import com.example.mediaplayer3.viewModel.data.tracklist.TrackListUiState
 import com.example.mediaplayer3.viewModel.delegates.JobController
-import com.example.mplog.MPLogger
+import com.example.mpcore.api.log.MPLog
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,13 +44,13 @@ class TrackListViewModel @Inject constructor(
     private val pagination = DefaultPagination(
         initialKey = uiState.value.page,
         onLoadUpdated = { isLoading ->
-            MPLogger.d(CLASS_NAME, "onLoadUpdated", TAG, "isLoading: $isLoading")
+            MPLog.d(CLASS_NAME, "onLoadUpdated", TAG, "isLoading: $isLoading")
             _uiState.update {
                 it.copy(iNextItemsLoading = isLoading, isError = false)
             }
         },
         onRequest = { nextKey ->
-            MPLogger.d(CLASS_NAME, "onRequest", TAG, "nextKey: $nextKey")
+            MPLog.d(CLASS_NAME, "onRequest", TAG, "nextKey: $nextKey")
             val staringIndex = nextKey * Constant.Utils.PAGE_SIZE
             if (staringIndex + Constant.Utils.PAGE_SIZE < dataList.size) {
                 Result.Success(
@@ -63,17 +63,17 @@ class TrackListViewModel @Inject constructor(
             }
         },
         getNextKey = { list ->
-            MPLogger.d(CLASS_NAME, "getNextKey", TAG, "items: $list")
+            MPLog.d(CLASS_NAME, "getNextKey", TAG, "items: $list")
             uiState.value.page + 1
         },
         onError = { throwable ->
-            MPLogger.w(CLASS_NAME, "onError", TAG, "message: ${throwable?.localizedMessage}")
+            MPLog.w(CLASS_NAME, "onError", TAG, "message: ${throwable?.localizedMessage}")
             _uiState.update {
                 it.copy(isError = true, isLoading = false, dataList = emptyList())
             }
         },
         onSuccess = { items, newKey ->
-            MPLogger.d(CLASS_NAME, "onSuccess", TAG, "items: $items, nextKey: $newKey")
+            MPLog.d(CLASS_NAME, "onSuccess", TAG, "items: $items, nextKey: $newKey")
             _uiState.update {
                 it.copy(
                     dataList = uiState.value.dataList + items,
@@ -99,7 +99,7 @@ class TrackListViewModel @Inject constructor(
         context?.let { cont ->
             fetchDataUseCase.observeLastPlayingSongId(cont).collectLatest { id ->
 
-                MPLogger.d(CLASS_NAME, "lastPlayingSongJob", TAG, "id: $id, result: $result")
+                MPLog.d(CLASS_NAME, "lastPlayingSongJob", TAG, "id: $id, result: $result")
                 _uiState.update {
                     it.copy(currentSelectedItem = if (id != -1L) {
                         val currentAudio = result?.find { uiAudio -> uiAudio.id == id }
@@ -186,7 +186,7 @@ class TrackListViewModel @Inject constructor(
     private fun handleEvent() {
         viewModelScope.launch {
             uiEvent.collectLatest { event ->
-                MPLogger.d(CLASS_NAME, "handleEvent", TAG, "event: $event")
+                MPLog.d(CLASS_NAME, "handleEvent", TAG, "event: $event")
                 when (event) {
                     is TrackListUiEvent.LoadData -> {
                         handleLoadDataEvent(event)
@@ -217,7 +217,7 @@ class TrackListViewModel @Inject constructor(
     }
 
     private fun handlePlayPreviousSongEvent(event: TrackListUiEvent.PlayPreviousSong) {
-        MPLogger.i(CLASS_NAME, "handlePlayPreviousSongEvent", TAG, "try to play previous song")
+        MPLog.i(CLASS_NAME, "handlePlayPreviousSongEvent", TAG, "try to play previous song")
         lastPlayingSongJob.cancelJob()
         with(uiState.value) {
             currentSelectedItem?.let {
@@ -235,7 +235,7 @@ class TrackListViewModel @Inject constructor(
     }
 
     private fun handlePlayNextSongEvent(event: TrackListUiEvent.PlayNextSong) {
-        MPLogger.i(CLASS_NAME, "handlePlayNextSongEvent", TAG, "try to play next song")
+        MPLog.i(CLASS_NAME, "handlePlayNextSongEvent", TAG, "try to play next song")
         lastPlayingSongJob.cancelJob()
         with(uiState.value) {
             currentSelectedItem?.let {
@@ -253,16 +253,16 @@ class TrackListViewModel @Inject constructor(
     }
 
     private fun handlePlayOrPauseEvent(event: TrackListUiEvent.PlayOrPause) {
-        MPLogger.d(CLASS_NAME, "handlePlayOrPauseEvent", TAG, "try to pause or resume")
+        MPLog.d(CLASS_NAME, "handlePlayOrPauseEvent", TAG, "try to pause or resume")
         lastPlayingSongJob.cancelJob()
         with(uiState.value) {
             if (isPlaying) {
                 playAudioUseCase.currentPlayingSong()?.let {
                     if (it.id == currentSelectedItem?.id) {
-                        MPLogger.d(CLASS_NAME, "handlePlayOrPauseEvent", TAG, "pause: $it")
+                        MPLog.d(CLASS_NAME, "handlePlayOrPauseEvent", TAG, "pause: $it")
                         pauseOrResumeUseCase.pauseSong(event.context, it)
                     } else {
-                        MPLogger.w(
+                        MPLog.w(
                             CLASS_NAME,
                             "handlePlayOrPauseEvent",
                             TAG,
@@ -270,7 +270,7 @@ class TrackListViewModel @Inject constructor(
                         )
                     }
                 } ?: run {
-                    MPLogger.w(
+                    MPLog.w(
                         CLASS_NAME,
                         "handlePlayOrPauseEvent",
                         TAG,
@@ -280,11 +280,11 @@ class TrackListViewModel @Inject constructor(
             } else {
                 playAudioUseCase.currentPlayingSong()?.let {
                     if (it.id == currentSelectedItem?.id) {
-                        MPLogger.d(CLASS_NAME, "handlePlayOrPauseEvent", TAG, "resume: $it")
+                        MPLog.d(CLASS_NAME, "handlePlayOrPauseEvent", TAG, "resume: $it")
                         pauseOrResumeUseCase.resumeSong(event.context, it)
                     } else {
                         currentSelectedItem?.let { uiAudio ->
-                            MPLogger.d(
+                            MPLog.d(
                                 CLASS_NAME,
                                 "handlePlayOrPauseEvent",
                                 TAG,
@@ -295,7 +295,7 @@ class TrackListViewModel @Inject constructor(
                     }
                 } ?: run {
                     currentSelectedItem?.let { uiAudio ->
-                        MPLogger.d(
+                        MPLog.d(
                             CLASS_NAME,
                             "handlePlayOrPauseEvent",
                             TAG,
@@ -309,7 +309,7 @@ class TrackListViewModel @Inject constructor(
     }
 
     private fun handleClickSongEvent(event: TrackListUiEvent.ClickSong) {
-        MPLogger.i(CLASS_NAME, "handleClickSongEvent", TAG, "uiAudio: ${event.uiAudio}")
+        MPLog.i(CLASS_NAME, "handleClickSongEvent", TAG, "uiAudio: ${event.uiAudio}")
         lastPlayingSongJob.cancelJob()
         collectLastProgressionJob.cancelJob()
         playAudioUseCase.stopSong(event.context)
@@ -317,7 +317,7 @@ class TrackListViewModel @Inject constructor(
     }
 
     private fun handleLoadNextDataEvent() {
-        MPLogger.d(CLASS_NAME, "handleLoadNextDataEvent", TAG, "load next data")
+        MPLog.d(CLASS_NAME, "handleLoadNextDataEvent", TAG, "load next data")
         lastPlayingSongJob.cancelJob()
         loadNextList()
     }
@@ -325,20 +325,20 @@ class TrackListViewModel @Inject constructor(
     private val dataList = mutableListOf<UiAudio>()
     private var loadDataJob: Job? = null
     private fun handleLoadDataEvent(event: TrackListUiEvent.LoadData) {
-        MPLogger.d(CLASS_NAME, "handleLoadDataEvent", TAG, "event: $event")
+        MPLog.d(CLASS_NAME, "handleLoadDataEvent", TAG, "event: $event")
         _uiState.update {
             it.copy(isLoading = true, isError = false)
         }
         loadDataJob = viewModelScope.launch {
             try {
                 fetchDataUseCase.requestData(event.context).collectLatest {
-                    MPLogger.d(CLASS_NAME, "handleLoadDataEvent", TAG, "result: $it")
+                    MPLog.d(CLASS_NAME, "handleLoadDataEvent", TAG, "result: $it")
                     dataList.addAll(it)
                     lastPlayingSongJob.launchJob(event.context, it)
                     loadNextList()
                 }
             } catch (e: SQLException) {
-                MPLogger.e(CLASS_NAME, "handleLoadDataEvent", TAG, "error message: ${e.message}")
+                MPLog.e(CLASS_NAME, "handleLoadDataEvent", TAG, "error message: ${e.message}")
                 _uiState.update {
                     it.copy(isError = true, isLoading = false)
                 }
@@ -348,7 +348,7 @@ class TrackListViewModel @Inject constructor(
     }
 
     private fun loadNextList() {
-        MPLogger.d(
+        MPLog.d(
             CLASS_NAME,
             "loadNextList",
             TAG,
@@ -361,14 +361,14 @@ class TrackListViewModel @Inject constructor(
     }
 
     override fun clear() {
-        MPLogger.i(CLASS_NAME, "clear", TAG, "clear jobs")
+        MPLog.i(CLASS_NAME, "clear", TAG, "clear jobs")
         lastPlayingSongJob.cancelJob()
         loadDataJob?.cancel()
     }
 
     override fun onCleared() {
         super.onCleared()
-        MPLogger.d(CLASS_NAME, "onCleared", TAG, "this viewModel is cleared")
+        MPLog.d(CLASS_NAME, "onCleared", TAG, "this viewModel is cleared")
         lastPlayingSongJob.cancelJob()
     }
 

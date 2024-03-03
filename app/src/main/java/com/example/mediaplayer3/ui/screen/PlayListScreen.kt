@@ -34,7 +34,7 @@ import com.example.mediaplayer3.ui.theme.LightBlue
 import com.example.mediaplayer3.ui.toItemData
 import com.example.mediaplayer3.viewModel.PlayListViewModel
 import com.example.mediaplayer3.viewModel.data.playlist.PlayListUiEvent
-import com.example.mplog.MPLogger
+import com.example.mpcore.api.log.MPLog
 
 
 @Composable
@@ -44,7 +44,7 @@ fun PlayListScreen(
     playListViewModel: PlayListViewModel = hiltViewModel(),
     onBack: () -> Unit
 ) {
-    MPLogger.i(
+    MPLog.i(
         Constant.PlayListScreen.CLASS_NAME,
         "PlayListScreen",
         Constant.PlayListScreen.TAG,
@@ -60,10 +60,10 @@ fun PlayListScreen(
     val state by playListViewModel.uiState.collectAsStateWithLifecycle()
     Box {
         if (state.dataList == null) {
-            MPLogger.d(Constant.PlayListScreen.CLASS_NAME,"PlayListScreen",Constant.PlayListScreen.TAG,"loading playlist")
+            MPLog.d(Constant.PlayListScreen.CLASS_NAME,"PlayListScreen",Constant.PlayListScreen.TAG,"loading playlist")
             LoadingScreen()
         } else if (state.dataList?.isEmpty() == true) {
-            MPLogger.d(Constant.PlayListScreen.CLASS_NAME,"PlayListScreen",Constant.PlayListScreen.TAG,"There no playlist")
+            MPLog.d(Constant.PlayListScreen.CLASS_NAME,"PlayListScreen",Constant.PlayListScreen.TAG,"There no playlist")
             Text(
                 text = stringResource(R.string.no_play_list_string), modifier = Modifier
                     .align(
@@ -73,10 +73,10 @@ fun PlayListScreen(
                 fontWeight = FontWeight.Bold
             )
         } else if (state.isError) {
-            MPLogger.w(Constant.PlayListScreen.CLASS_NAME,"PlayListScreen",Constant.PlayListScreen.TAG,"an error occurs")
+            MPLog.w(Constant.PlayListScreen.CLASS_NAME,"PlayListScreen",Constant.PlayListScreen.TAG,"an error occurs")
             ErrorScreen(content = stringResource(R.string.Failed_fetch_play_list_string))
         } else {
-            MPLogger.d(
+            MPLog.d(
                 Constant.PlayListScreen.CLASS_NAME,
                 "PlayListScreen",
                 Constant.PlayListScreen.TAG,
@@ -110,7 +110,7 @@ fun PlayListScreen(
         else
             "playlist ${state.dataList?.maxByOrNull { it.playListId }!!.playListId.plus(1)}"
         if (isDialogVisible) {
-            MPLogger.d(
+            MPLog.d(
                 Constant.PlayListScreen.CLASS_NAME,
                 "PlayListScreen",
                 Constant.PlayListScreen.TAG,
@@ -120,7 +120,7 @@ fun PlayListScreen(
                 itemName = stringResource(R.string.playlist_string),
                 defaultValue = defaultValue,
                 onAddClicked = {
-                    MPLogger.i(
+                    MPLog.i(
                         Constant.PlayListScreen.CLASS_NAME,
                         "PlayListScreen",
                         Constant.PlayListScreen.TAG,
@@ -136,7 +136,7 @@ fun PlayListScreen(
                     )
                 },
                 onDismissRequest = {
-                    MPLogger.i(
+                    MPLog.i(
                         Constant.PlayListScreen.CLASS_NAME,
                         "PlayListScreen",
                         Constant.PlayListScreen.TAG,
@@ -147,7 +147,7 @@ fun PlayListScreen(
             )
         }
         if (state.isAudioAttachedToPlayList) {
-            MPLogger.d(
+            MPLog.d(
                 Constant.PlayListScreen.CLASS_NAME,
                 "PlayListScreen",
                 Constant.PlayListScreen.TAG,

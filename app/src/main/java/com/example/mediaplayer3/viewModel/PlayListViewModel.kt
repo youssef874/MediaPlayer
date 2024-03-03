@@ -12,7 +12,7 @@ import com.example.mediaplayer3.viewModel.data.playlist.PlayListUiEvent
 import com.example.mediaplayer3.viewModel.data.playlist.PlayListUiState
 import com.example.mediaplayer3.viewModel.delegates.IJobController
 import com.example.mediaplayer3.viewModel.delegates.JobController
-import com.example.mplog.MPLogger
+import com.example.mpcore.api.log.MPLog
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,13 +40,13 @@ class PlayListViewModel @Inject constructor(
     private val pagination = DefaultPagination(
         initialKey = uiState.value.page,
         onLoadUpdated = { isLoading ->
-            MPLogger.d(CLASS_NAME, "onLoadUpdated", TAG, "isLoading: $isLoading")
+            MPLog.d(CLASS_NAME, "onLoadUpdated", TAG, "isLoading: $isLoading")
             _uiState.update {
                 it.copy(isNextItemLoading = isLoading)
             }
         },
         onRequest = { nextKey ->
-            MPLogger.d(CLASS_NAME, "onRequest", TAG, "nextKey: $nextKey")
+            MPLog.d(CLASS_NAME, "onRequest", TAG, "nextKey: $nextKey")
             val staringIndex = nextKey * Constant.Utils.PAGE_SIZE
             if (staringIndex + Constant.Utils.PAGE_SIZE < dataList.size) {
                 val list = dataList.slice(staringIndex until staringIndex + Constant.Utils.PAGE_SIZE)
@@ -68,17 +68,17 @@ class PlayListViewModel @Inject constructor(
             }
         },
         getNextKey = { list ->
-            MPLogger.d(CLASS_NAME, "getNextKey", TAG, "items: $list")
+            MPLog.d(CLASS_NAME, "getNextKey", TAG, "items: $list")
             uiState.value.page + 1
         },
         onError = { throwable ->
-            MPLogger.w(CLASS_NAME, "onError", TAG, "message: ${throwable?.localizedMessage}")
+            MPLog.w(CLASS_NAME, "onError", TAG, "message: ${throwable?.localizedMessage}")
             _uiState.update {
                 it.copy(isError = true, dataList = emptyList())
             }
         },
         onSuccess = { items, newKey ->
-            MPLogger.d(CLASS_NAME, "onSuccess", TAG, "items: $items, nextKey: $newKey")
+            MPLog.d(CLASS_NAME, "onSuccess", TAG, "items: $items, nextKey: $newKey")
             _uiState.update {
                 it.copy(
                     dataList = uiState.value.dataList?.plus(items) ?: items,
@@ -96,7 +96,7 @@ class PlayListViewModel @Inject constructor(
     private fun handleEvents() {
         viewModelScope.launch {
             uiEvent.collectLatest { event ->
-                MPLogger.d(CLASS_NAME, "handleEvents", TAG, "event: $event")
+                MPLog.d(CLASS_NAME, "handleEvents", TAG, "event: $event")
                 when (event) {
                     is PlayListUiEvent.LoadData -> {
                         handleLoadDataEvent(event)
@@ -118,7 +118,7 @@ class PlayListViewModel @Inject constructor(
     }
 
     private fun handleSongAttachedTopPlayListEventReceivedEvent() {
-        MPLogger.i(CLASS_NAME,"handleSongAttachedTopPlayListEventReceivedEvent", TAG,"change ui state")
+        MPLog.i(CLASS_NAME,"handleSongAttachedTopPlayListEventReceivedEvent", TAG,"change ui state")
         _uiState.update {
             it.copy(isAudioAttachedToPlayList = false)
         }
@@ -155,7 +155,7 @@ class PlayListViewModel @Inject constructor(
     }
 
     private fun handleAttachSongToPlayListEvent(event: PlayListUiEvent.AttachSongToPlayList) {
-        MPLogger.i(
+        MPLog.i(
             CLASS_NAME,
             "handleAttachSongToPlayListEvent",
             TAG,
@@ -168,7 +168,7 @@ class PlayListViewModel @Inject constructor(
                     it.copy(isAudioAttachedToPlayList = true)
                 }
             }catch (e: SQLException){
-                MPLogger.e(CLASS_NAME,"handleAttachSongToPlayListEvent", TAG,"message: ${e.message}")
+                MPLog.e(CLASS_NAME,"handleAttachSongToPlayListEvent", TAG,"message: ${e.message}")
                 _uiState.update {
                     it.copy(isAudioAttachedToPlayList = false)
                 }
@@ -177,7 +177,7 @@ class PlayListViewModel @Inject constructor(
     }
 
     private fun handleLoadNextDataEvent() {
-        MPLogger.d(
+        MPLog.d(
             CLASS_NAME, "handleLoadNextDataEvent",
             TAG, "load next data"
         )
@@ -187,7 +187,7 @@ class PlayListViewModel @Inject constructor(
     private var loadDataJob: Job? = null
 
     private fun handleLoadDataEvent(event: PlayListUiEvent.LoadData) {
-        MPLogger.i(CLASS_NAME, "handleLoadDataEvent", TAG, "load playlist data")
+        MPLog.i(CLASS_NAME, "handleLoadDataEvent", TAG, "load playlist data")
         _uiState.update {
             it.copy(isAudioAttachedToPlayList = false)
         }
@@ -196,7 +196,7 @@ class PlayListViewModel @Inject constructor(
             try {
                 fetchDataUseCase.observeAllPlayList(event.context).stateIn(viewModelScope)
                     .collectLatest {
-                        MPLogger.d(CLASS_NAME, "handleLoadDataEvent", TAG, "size: ${it.size}")
+                        MPLog.d(CLASS_NAME, "handleLoadDataEvent", TAG, "size: ${it.size}")
                         dataList.addAll(it)
                         loadNexData()
                     }
@@ -209,7 +209,7 @@ class PlayListViewModel @Inject constructor(
     }
 
     private fun loadNexData() {
-        MPLogger.d(
+        MPLog.d(
             CLASS_NAME,
             "loadNextList",
             TAG,

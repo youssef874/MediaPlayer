@@ -46,6 +46,9 @@ internal class LogWriterImpl: ILogWriter {
     }
 
     override fun addClassToIgnoreInLogger(className: String) {
+        if (ignoredClassList.contains(className) || className == Logger::class.java.name || LogWriterImpl::class.java.name == className){
+            throw IllegalArgumentException("$className is already existed in the ignoredList")
+        }
         ignoredClassList.add(className)
     }
 

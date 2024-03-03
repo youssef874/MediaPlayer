@@ -49,12 +49,12 @@ import com.example.mediaplayer3.ui.theme.LightBlue
 import com.example.mediaplayer3.ui.toItemData
 import com.example.mediaplayer3.viewModel.TrackListViewModel
 import com.example.mediaplayer3.viewModel.data.tracklist.TrackListUiEvent
-import com.example.mplog.MPLogger
+import com.example.mpcore.api.log.MPLog
 
 
 @Composable
 fun TrackListScreen(trackListViewModel: TrackListViewModel = hiltViewModel(), navigateToTrackDetail: (Long)->Unit) {
-    MPLogger.i(
+    MPLog.i(
         Constant.TrackList.CLASS_NAME,
         "TrackListScreen",
         Constant.TrackList.TAG,
@@ -71,7 +71,7 @@ fun TrackListScreen(trackListViewModel: TrackListViewModel = hiltViewModel(), na
     val state by trackListViewModel.uiState.collectAsStateWithLifecycle()
 
     if (state.isLoading) {
-        MPLogger.d(
+        MPLog.d(
             Constant.TrackList.CLASS_NAME,
             "TrackListScreen",
             Constant.TrackList.TAG,
@@ -80,7 +80,7 @@ fun TrackListScreen(trackListViewModel: TrackListViewModel = hiltViewModel(), na
         LoadingScreen()
     }
     if (state.isError) {
-        MPLogger.w(
+        MPLog.w(
             Constant.TrackList.CLASS_NAME,
             "TrackListScreen",
             Constant.TrackList.TAG,
@@ -89,7 +89,7 @@ fun TrackListScreen(trackListViewModel: TrackListViewModel = hiltViewModel(), na
         ErrorScreen()
     }
     if (state.dataList.isNotEmpty()) {
-        MPLogger.d(
+        MPLog.d(
             Constant.TrackList.CLASS_NAME,
             "TrackListScreen",
             Constant.TrackList.TAG,
@@ -105,7 +105,7 @@ fun TrackListScreen(trackListViewModel: TrackListViewModel = hiltViewModel(), na
                     trackListViewModel.onEvent(TrackListUiEvent.ClickSong(state.dataList.first { uiAudio -> uiAudio.id == it.id }, context))
                 }
             ) {
-                MPLogger.d(
+                MPLog.d(
                     Constant.TrackList.CLASS_NAME,
                     "TrackListScreen",
                     Constant.TrackList.TAG,
@@ -146,7 +146,7 @@ fun BottomBar(
     onPlayButtonClick: () -> Unit,
     onViewClicked: () -> Unit
 ) {
-    MPLogger.i(
+    MPLog.i(
         Constant.TrackList.CLASS_NAME,
         "BottomBar",
         Constant.TrackList.TAG,
@@ -258,7 +258,7 @@ fun Buttons(
         modifier = modifier, verticalAlignment = Alignment.CenterVertically
     ) {
         PreviousButton {
-            MPLogger.d(
+            MPLog.d(
                 Constant.TrackList.CLASS_NAME,
                 "Buttons",
                 Constant.TrackList.TAG,
@@ -269,7 +269,7 @@ fun Buttons(
         Spacer(modifier = Modifier.width(16.dp))
         if (isStopped) {
             PauseButton {
-                MPLogger.d(
+                MPLog.d(
                     Constant.TrackList.CLASS_NAME,
                     "Buttons",
                     Constant.TrackList.TAG,
@@ -279,7 +279,7 @@ fun Buttons(
             }
         } else {
             PlayButton {
-                MPLogger.d(
+                MPLog.d(
                     Constant.TrackList.CLASS_NAME,
                     "Buttons",
                     Constant.TrackList.TAG,
@@ -290,7 +290,7 @@ fun Buttons(
         }
         Spacer(modifier = Modifier.width(16.dp))
         NextButton(modifier = modifier.padding(end = 8.dp)) {
-            MPLogger.d(
+            MPLog.d(
                 Constant.TrackList.CLASS_NAME,
                 "Buttons",
                 Constant.TrackList.TAG,

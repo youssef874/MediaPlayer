@@ -5,8 +5,8 @@ import android.net.Uri
 import com.example.mediaplayer3.data.entity.MPAppAudio
 import com.example.mediaplayer3.data.entity.MPAppPlayList
 import com.example.mediaplayer3.data.entity.RepeatMode
+import com.example.mpcore.api.log.MPLog
 import com.example.mpdataprovider.datastore.AudioDataStoreApi
-import com.example.mplog.MPLogger
 import com.example.mpmediamanager.MpAudioManagerApi
 import com.example.mpstorage.database.DataBaseApi
 import com.example.mpstorage.database.data.PlayListQuery
@@ -53,26 +53,26 @@ class AudioDataRepo @Inject constructor() : IAudioDataRepo {
     }
 
     override fun getById(context: Context, id: Long): Flow<MPAppAudio?> {
-        MPLogger.i(CLASS_NAME, "getById", TAG, "id: $id")
+        MPLog.i(CLASS_NAME, "getById", TAG, "id: $id")
         return DataBaseApi.forAudio(context).observeById(id).map { it?.toMPAppAudio() }
     }
 
     override fun getSongsByAlbum(context: Context, album: String): Flow<List<MPAppAudio>> {
-        MPLogger.i(CLASS_NAME, "getSongsByAlbum", TAG, "album: $album")
+        MPLog.i(CLASS_NAME, "getSongsByAlbum", TAG, "album: $album")
         return DataBaseApi.forAudio(context)
             .query(SearchAudio.SearchByAlbum(album))
             .map { value -> value.map { it.toMPAppAudio() } }
     }
 
     override fun getSongsByArtist(context: Context, artist: String): Flow<List<MPAppAudio>> {
-        MPLogger.i(CLASS_NAME, "getSongsByArtist", TAG, "artist: $artist")
+        MPLog.i(CLASS_NAME, "getSongsByArtist", TAG, "artist: $artist")
         return DataBaseApi.forAudio(context)
             .query(SearchAudio.SearchByArtist(artist))
             .map { value -> value.map { it.toMPAppAudio() } }
     }
 
     override fun getSongsBySongName(context: Context, songName: String): Flow<List<MPAppAudio>> {
-        MPLogger.i(CLASS_NAME, "getSongsBySongName", TAG, "songName: $songName")
+        MPLog.i(CLASS_NAME, "getSongsBySongName", TAG, "songName: $songName")
         return DataBaseApi.forAudio(context)
             .query(SearchAudio.SearchBySongName(songName))
             .map { value -> value.map { it.toMPAppAudio() } }
@@ -83,7 +83,7 @@ class AudioDataRepo @Inject constructor() : IAudioDataRepo {
         songId: Long,
         isFavorite: Boolean
     ) {
-        MPLogger.d(
+        MPLog.d(
             CLASS_NAME,
             "changeIsFavoriteStatusToSong",
             TAG,
@@ -112,27 +112,27 @@ class AudioDataRepo @Inject constructor() : IAudioDataRepo {
     }
 
     override suspend fun getFirstPlaylistSong(context: Context, playListId: Long): MPAppAudio? {
-        MPLogger.d(CLASS_NAME,"getFirstPlaylistSong", TAG,"playListId: $playListId")
+        MPLog.d(CLASS_NAME,"getFirstPlaylistSong", TAG,"playListId: $playListId")
         return DataBaseApi.forAudio(context).get(SearchAudio.GetFirstSongInPlaylist(playListId))?.toMPAppAudio()
     }
 
     override fun playSong(context: Context, uri: Uri, playAt: Int) {
-        MPLogger.d(CLASS_NAME, "playSong", TAG, "uri: $uri, playAt: $playAt")
+        MPLog.d(CLASS_NAME, "playSong", TAG, "uri: $uri, playAt: $playAt")
         MpAudioManagerApi.playSong(context, uri, playAt)
     }
 
     override fun resumeSong(context: Context, seekTo: Int) {
-        MPLogger.d(CLASS_NAME, "resumeSong", TAG, "seekTo: $seekTo")
+        MPLog.d(CLASS_NAME, "resumeSong", TAG, "seekTo: $seekTo")
         MpAudioManagerApi.resumeSong(context, seekTo)
     }
 
     override fun stopSong(context: Context, uri: Uri) {
-        MPLogger.d(CLASS_NAME, "stopSong", TAG, "uri: $uri")
+        MPLog.d(CLASS_NAME, "stopSong", TAG, "uri: $uri")
         MpAudioManagerApi.stopSong(context, uri)
     }
 
     override fun pauseSong(context: Context) {
-        MPLogger.d(CLASS_NAME, "pauseSong", TAG, "pause current playing song")
+        MPLog.d(CLASS_NAME, "pauseSong", TAG, "pause current playing song")
         MpAudioManagerApi.pauseSong(context)
     }
 
@@ -145,7 +145,7 @@ class AudioDataRepo @Inject constructor() : IAudioDataRepo {
     override fun observeSongProgression() = MpAudioManagerApi.observeDurationProgress()
 
     override suspend fun updateLastPlayingSong(context: Context, songId: Long) {
-        MPLogger.i(CLASS_NAME, "updateLastPlayingSong", TAG, "songId: $songId")
+        MPLog.i(CLASS_NAME, "updateLastPlayingSong", TAG, "songId: $songId")
         AudioDataStoreApi.lastPlayingSong(context).updateValue(songId)
     }
 
@@ -154,7 +154,7 @@ class AudioDataRepo @Inject constructor() : IAudioDataRepo {
     }
 
     override suspend fun updateLastSongProgress(context: Context, progress: Int) {
-        MPLogger.d(CLASS_NAME, "updateLastSongProgress", TAG, "progress: $progress")
+        MPLog.d(CLASS_NAME, "updateLastSongProgress", TAG, "progress: $progress")
         AudioDataStoreApi.lastPlayingSongLastDuration(context).updateValue(progress)
     }
 
@@ -163,7 +163,7 @@ class AudioDataRepo @Inject constructor() : IAudioDataRepo {
     }
 
     override suspend fun updateRandomMode(context: Context, isRandom: Boolean) {
-        MPLogger.d(CLASS_NAME, "updateRandomMode", TAG, "isRandom: $isRandom")
+        MPLog.d(CLASS_NAME, "updateRandomMode", TAG, "isRandom: $isRandom")
         AudioDataStoreApi.isInRandomMode(context).updateValue(isRandom)
     }
 
@@ -180,18 +180,18 @@ class AudioDataRepo @Inject constructor() : IAudioDataRepo {
     }
 
     override suspend fun setPlayingPosition(context: Context, uri: Uri, position: Int) {
-        MPLogger.d(CLASS_NAME, "setPlayingPosition", TAG, "uri: $uri, position: $position")
+        MPLog.d(CLASS_NAME, "setPlayingPosition", TAG, "uri: $uri, position: $position")
         MpAudioManagerApi.setThePositionToPlayWith(context, uri, position)
         AudioDataStoreApi.lastPlayingSongLastDuration(context).updateValue(position)
     }
 
     override fun forward(forwardTo: Int) {
-        MPLogger.d(CLASS_NAME, "forward", TAG, "forwardTo: $forwardTo")
+        MPLog.d(CLASS_NAME, "forward", TAG, "forwardTo: $forwardTo")
         MpAudioManagerApi.forward(forwardWith = forwardTo)
     }
 
     override fun rewind(rewindTo: Int) {
-        MPLogger.d(CLASS_NAME, "rewind", TAG, "forwardTo: $rewindTo")
+        MPLog.d(CLASS_NAME, "rewind", TAG, "forwardTo: $rewindTo")
         MpAudioManagerApi.rewind(rewindWith = rewindTo)
     }
 }
