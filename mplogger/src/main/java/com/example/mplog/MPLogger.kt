@@ -1,15 +1,15 @@
 package com.example.mplog
 
+import com.example.mplog.data.DefaultLogModule
 import com.example.mplog.data.MPLogLevel
-import com.example.mplog.internal.ILogWriter
-import com.example.mplog.internal.LogWriterImpl
+import com.example.mplog.data.MPLoggerProvider
 
 object MPLogger:IMPLogger {
 
-    private val logWriterImpl: ILogWriter =  LogWriterImpl()
+    private val defaultMPLoggerProvider = MPLoggerProvider.DefaultProvider.getLogger()
 
     init {
-        logWriterImpl.addClassToIgnoreInLogger(MPLogger::class.java.name)
+        defaultMPLoggerProvider.addClassToIgnore(MPLogger::class.java.name)
     }
 
     /**
@@ -19,24 +19,56 @@ object MPLogger:IMPLogger {
      */
     fun addClassToIgnore(list: List<String>){
         list.forEach{
-            logWriterImpl.addClassToIgnoreInLogger(it)
+            defaultMPLoggerProvider.addClassToIgnore(it)
         }
     }
 
 
     override fun i(className: String, methodName: String, tag: String, msg: String) {
-        logWriterImpl.log(MPLogLevel.INFO,className, methodName, tag, msg)
+        defaultMPLoggerProvider.i(
+            DefaultLogModule(
+                className = className,
+                methodName = methodName,
+                tag = tag,
+                msg = msg,
+                MPLogLevel.INFO
+            )
+        )
     }
 
     override fun d(className: String, methodName: String, tag: String, msg: String) {
-        logWriterImpl.log(MPLogLevel.DEBUG,className, methodName, tag, msg)
+        defaultMPLoggerProvider.d(
+            DefaultLogModule(
+                className = className,
+                methodName = methodName,
+                tag = tag,
+                msg = msg,
+                MPLogLevel.DEBUG
+            )
+        )
     }
 
     override fun w(className: String, methodName: String, tag: String, msg: String) {
-        logWriterImpl.log(MPLogLevel.WARNING,className, methodName, tag, msg)
+        defaultMPLoggerProvider.w(
+            DefaultLogModule(
+                className = className,
+                methodName = methodName,
+                tag = tag,
+                msg = msg,
+                MPLogLevel.WARNING
+            )
+        )
     }
 
     override fun e(className: String, methodName: String, tag: String, msg: String) {
-        logWriterImpl.log(MPLogLevel.ERROR,className, methodName, tag, msg)
+        defaultMPLoggerProvider.e(
+            DefaultLogModule(
+                className = className,
+                methodName = methodName,
+                tag = tag,
+                msg = msg,
+                logLevel = MPLogLevel.ERROR
+            )
+        )
     }
 }

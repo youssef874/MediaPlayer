@@ -1,4 +1,4 @@
-package com.example.mpdataprovider.datastore
+package com.example.mpcore.api.data.datastore.data
 
 import androidx.annotation.IntDef
 

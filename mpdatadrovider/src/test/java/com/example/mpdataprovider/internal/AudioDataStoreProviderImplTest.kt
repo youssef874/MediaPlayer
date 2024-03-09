@@ -1,6 +1,6 @@
 package com.example.mpdataprovider.internal
 
-import com.example.mpdataprovider.datastore.RepeatMode
+import com.example.mpdataprovider.datastore.data.RepeatMode
 import com.example.mpdataprovider.datastore.internal.AudioDataStoreProviderImpl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.count
@@ -119,7 +119,7 @@ class AudioDataStoreProviderImplTest{
                 assert(count()==1)
                 toList(list)
                 assert(list.isNotEmpty())
-                assert(single()==RepeatMode.REPEAT_ALL)
+                assert(single()== RepeatMode.REPEAT_ALL)
             }
         }
     }
@@ -132,7 +132,7 @@ class AudioDataStoreProviderImplTest{
             with(audioDataStoreProviderImpl.repeatMode().getValue()){
                 assert(count()==0)
                 toList(list)
-                assert(single()==RepeatMode.NO_REPEAT)
+                assert(single()== RepeatMode.NO_REPEAT)
             }
         }
     }

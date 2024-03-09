@@ -5,8 +5,8 @@ import android.net.Uri
 import com.example.mediaplayer3.data.entity.MPAppAudio
 import com.example.mediaplayer3.data.entity.MPAppPlayList
 import com.example.mediaplayer3.data.entity.RepeatMode
+import com.example.mpcore.api.data.datastore.MPDataStoreApi
 import com.example.mpcore.api.log.MPLog
-import com.example.mpdataprovider.datastore.AudioDataStoreApi
 import com.example.mpmediamanager.MpAudioManagerApi
 import com.example.mpstorage.database.DataBaseApi
 import com.example.mpstorage.database.data.PlayListQuery
@@ -146,43 +146,43 @@ class AudioDataRepo @Inject constructor() : IAudioDataRepo {
 
     override suspend fun updateLastPlayingSong(context: Context, songId: Long) {
         MPLog.i(CLASS_NAME, "updateLastPlayingSong", TAG, "songId: $songId")
-        AudioDataStoreApi.lastPlayingSong(context).updateValue(songId)
+        MPDataStoreApi.lastPlayingSong(context).updateValue(songId)
     }
 
     override fun observeLastPlayingSong(context: Context): Flow<Long> {
-        return AudioDataStoreApi.lastPlayingSong(context).getValue()
+        return MPDataStoreApi.lastPlayingSong(context).observeValue()
     }
 
     override suspend fun updateLastSongProgress(context: Context, progress: Int) {
         MPLog.d(CLASS_NAME, "updateLastSongProgress", TAG, "progress: $progress")
-        AudioDataStoreApi.lastPlayingSongLastDuration(context).updateValue(progress)
+        MPDataStoreApi.lastPlayingSongLastDuration(context).updateValue(progress)
     }
 
     override fun observeLastSongProgression(context: Context): Flow<Int> {
-        return AudioDataStoreApi.lastPlayingSongLastDuration(context).getValue()
+        return MPDataStoreApi.lastPlayingSongLastDuration(context).observeValue()
     }
 
     override suspend fun updateRandomMode(context: Context, isRandom: Boolean) {
         MPLog.d(CLASS_NAME, "updateRandomMode", TAG, "isRandom: $isRandom")
-        AudioDataStoreApi.isInRandomMode(context).updateValue(isRandom)
+        MPDataStoreApi.isInRandomMode(context).updateValue(isRandom)
     }
 
     override fun observeIsRandomMode(context: Context): Flow<Boolean> {
-        return AudioDataStoreApi.isInRandomMode(context).getValue()
+        return MPDataStoreApi.isInRandomMode(context).observeValue()
     }
 
     override suspend fun updateRepeatMode(context: Context, repeatMode: RepeatMode) {
-        AudioDataStoreApi.repeatMode(context).updateValue(repeatMode.toAnnotation())
+        MPDataStoreApi.repeatMode(context).updateValue(repeatMode.toAnnotation())
     }
 
     override fun observeRepeatMode(context: Context): Flow<RepeatMode> {
-        return AudioDataStoreApi.repeatMode(context).getValue().map { it.toEnum() }
+        return MPDataStoreApi.repeatMode(context).observeValue().map { it.toEnum() }
     }
 
     override suspend fun setPlayingPosition(context: Context, uri: Uri, position: Int) {
         MPLog.d(CLASS_NAME, "setPlayingPosition", TAG, "uri: $uri, position: $position")
         MpAudioManagerApi.setThePositionToPlayWith(context, uri, position)
-        AudioDataStoreApi.lastPlayingSongLastDuration(context).updateValue(position)
+        MPDataStoreApi.lastPlayingSongLastDuration(context).updateValue(position)
     }
 
     override fun forward(forwardTo: Int) {

@@ -1,7 +1,7 @@
 package com.example.mpdataprovider.datastore.internal
 
 import com.example.mpdataprovider.datastore.IDataStoreController
-import com.example.mpdataprovider.datastore.RepeatMode
+import com.example.mpdataprovider.datastore.data.RepeatMode
 
 internal interface IAudioDataStoreProvider {
 

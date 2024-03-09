@@ -38,6 +38,7 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(project(":mplogger"))
+    implementation(project(":mpdatadrovider"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)

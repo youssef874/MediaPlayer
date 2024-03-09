@@ -26,19 +26,19 @@ fun MPAppAudio.toUiAudio(): UiAudio{
     )
 }
 
-fun RepeatMode.toAnnotation():@com.example.mpdataprovider.datastore.RepeatMode Int{
+fun RepeatMode.toAnnotation():@com.example.mpcore.api.data.datastore.data.RepeatMode Int{
     return when(this){
-        RepeatMode.NO_REPEAT->com.example.mpdataprovider.datastore.RepeatMode.NO_REPEAT
-        RepeatMode.REPEAT_ALL->com.example.mpdataprovider.datastore.RepeatMode.REPEAT_ALL
-        RepeatMode.ONE_REPEAT->com.example.mpdataprovider.datastore.RepeatMode.ONE_REPEAT
+        RepeatMode.NO_REPEAT-> com.example.mpdataprovider.datastore.data.RepeatMode.NO_REPEAT
+        RepeatMode.REPEAT_ALL-> com.example.mpdataprovider.datastore.data.RepeatMode.REPEAT_ALL
+        RepeatMode.ONE_REPEAT-> com.example.mpdataprovider.datastore.data.RepeatMode.ONE_REPEAT
     }
 }
 
-fun @com.example.mpdataprovider.datastore.RepeatMode Int.toEnum(): RepeatMode{
+fun @com.example.mpcore.api.data.datastore.data.RepeatMode Int.toEnum(): RepeatMode{
     return when(this){
-        com.example.mpdataprovider.datastore.RepeatMode.NO_REPEAT->RepeatMode.NO_REPEAT
-        com.example.mpdataprovider.datastore.RepeatMode.ONE_REPEAT->RepeatMode.ONE_REPEAT
-        com.example.mpdataprovider.datastore.RepeatMode.REPEAT_ALL->RepeatMode.REPEAT_ALL
+        com.example.mpdataprovider.datastore.data.RepeatMode.NO_REPEAT->RepeatMode.NO_REPEAT
+        com.example.mpdataprovider.datastore.data.RepeatMode.ONE_REPEAT->RepeatMode.ONE_REPEAT
+        com.example.mpdataprovider.datastore.data.RepeatMode.REPEAT_ALL->RepeatMode.REPEAT_ALL
         else -> RepeatMode.NO_REPEAT
     }
 }
