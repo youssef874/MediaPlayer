@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.Uri
 import com.example.mpeventhandler.MPEventHandlerApi
 import com.example.mpeventhandler.data.MPEvent
-import com.example.mpeventhandler.internal.IEventCanceler
 import com.example.mpeventhandler.internal.MPEventListener
 import com.example.mpmediamanager.events.SongChangesEventType
 import com.example.mpmediamanager.events.SongCompletedEvent
@@ -52,8 +51,8 @@ object MpAudioManagerApi {
     /**
      * Listen to current playing son completion
      */
-    fun observeSongCompletion(callback: ()->Unit): IEventCanceler{
-        return MPEventHandlerApi.subscribe(
+    fun observeSongCompletion(callback: ()->Unit){
+        MPEventHandlerApi.onShotSubscription(
             events = arrayOf(SongCompletedEvent),
             listener = object : MPEventListener{
                 override fun onEvent(event: MPEvent) {
