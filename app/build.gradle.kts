@@ -74,7 +74,6 @@ dependencies {
     implementation(project(":mpcore"))
     kapt("com.google.dagger:hilt-compiler:2.50")
     implementation(project(":mpdatadrovider"))
-    implementation(project(":mpmediamanager"))
     implementation(project(":mpstorage"))
     implementation(project(":mpeventhandler"))
     testImplementation(libs.junit)

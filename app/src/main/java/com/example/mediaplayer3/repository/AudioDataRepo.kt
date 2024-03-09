@@ -7,7 +7,7 @@ import com.example.mediaplayer3.data.entity.MPAppPlayList
 import com.example.mediaplayer3.data.entity.RepeatMode
 import com.example.mpcore.api.data.datastore.MPDataStoreApi
 import com.example.mpcore.api.log.MPLog
-import com.example.mpmediamanager.MpAudioManagerApi
+import com.example.mpcore.api.media.MPMediaPlayer
 import com.example.mpstorage.database.DataBaseApi
 import com.example.mpstorage.database.data.PlayListQuery
 import com.example.mpstorage.database.data.QueryAudio
@@ -118,31 +118,31 @@ class AudioDataRepo @Inject constructor() : IAudioDataRepo {
 
     override fun playSong(context: Context, uri: Uri, playAt: Int) {
         MPLog.d(CLASS_NAME, "playSong", TAG, "uri: $uri, playAt: $playAt")
-        MpAudioManagerApi.playSong(context, uri, playAt)
+        MPMediaPlayer.playSong(context, uri,playAt)
     }
 
     override fun resumeSong(context: Context, seekTo: Int) {
         MPLog.d(CLASS_NAME, "resumeSong", TAG, "seekTo: $seekTo")
-        MpAudioManagerApi.resumeSong(context, seekTo)
+        MPMediaPlayer.resumeSong(context, seekTo)
     }
 
     override fun stopSong(context: Context, uri: Uri) {
         MPLog.d(CLASS_NAME, "stopSong", TAG, "uri: $uri")
-        MpAudioManagerApi.stopSong(context, uri)
+        MPMediaPlayer.stopSong(context, uri)
     }
 
     override fun pauseSong(context: Context) {
         MPLog.d(CLASS_NAME, "pauseSong", TAG, "pause current playing song")
-        MpAudioManagerApi.pauseSong(context)
+        MPMediaPlayer.pauseSong(context)
     }
 
     override fun observeSongCompletion(
         onComplete: () -> Unit
     ) {
-        MpAudioManagerApi.observeSongCompletion(onComplete)
+        MPMediaPlayer.observeSongCompletion(onComplete)
     }
 
-    override fun observeSongProgression() = MpAudioManagerApi.observeDurationProgress()
+    override fun observeSongProgression() = MPMediaPlayer.observeDurationProgress()
 
     override suspend fun updateLastPlayingSong(context: Context, songId: Long) {
         MPLog.i(CLASS_NAME, "updateLastPlayingSong", TAG, "songId: $songId")
@@ -181,17 +181,17 @@ class AudioDataRepo @Inject constructor() : IAudioDataRepo {
 
     override suspend fun setPlayingPosition(context: Context, uri: Uri, position: Int) {
         MPLog.d(CLASS_NAME, "setPlayingPosition", TAG, "uri: $uri, position: $position")
-        MpAudioManagerApi.setThePositionToPlayWith(context, uri, position)
+        MPMediaPlayer.setThePositionToPlayWith(context, uri, position)
         MPDataStoreApi.lastPlayingSongLastDuration(context).updateValue(position)
     }
 
     override fun forward(forwardTo: Int) {
         MPLog.d(CLASS_NAME, "forward", TAG, "forwardTo: $forwardTo")
-        MpAudioManagerApi.forward(forwardWith = forwardTo)
+        MPMediaPlayer.forward(forwardTo)
     }
 
     override fun rewind(rewindTo: Int) {
         MPLog.d(CLASS_NAME, "rewind", TAG, "forwardTo: $rewindTo")
-        MpAudioManagerApi.rewind(rewindWith = rewindTo)
+        MPMediaPlayer.rewind(rewindTo)
     }
 }
